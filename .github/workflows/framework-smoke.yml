@@ -20,7 +20,7 @@ jobs:
         framework:
           - name: laravel
             mode: full
-            packages: 'illuminate/support:^10.0 illuminate/config:^10.0 illuminate/container:^10.0'
+            packages: 'illuminate/support:^10.0 illuminate/config:^10.0 illuminate/container:^10.0 vlucas/phpdotenv:^5.0'
           - name: thinkphp
             mode: partial
             packages: 'topthink/framework:^8.0'
