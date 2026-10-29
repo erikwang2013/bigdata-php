@@ -36,7 +36,7 @@ cp ../.site-builder/data/bigdata-php.json docs/site/content.json
 ```
 
 Current snapshot: 2026-10-30, SHA-256
-`79f438faea0b6d905c43bc9a5c2f3fb793c59404f1fbb29e827d4290173b075f`.
+`84598e8f68693826e276b4c37797063c107dc90df2b7364652fdab0dface6d6d`.
 
 ## Audit
 
@@ -58,8 +58,8 @@ It loads the built site in headless Chrome through Playwright at mobile
 Results from 2026-10-30 (Chrome 156, local server):
 
 ```
-[PASS] mobile  390x844  LCP 468 ms  CLS 0.000  overflow 0 px
-[PASS] desktop 1440x900 LCP 276 ms  CLS 0.000  overflow 0 px
+[PASS] mobile  390x844  LCP 2016 ms  CLS 0.000  overflow 0 px
+[PASS] desktop 1440x900 LCP 576 ms   CLS 0.000  overflow 0 px
 [PASS] search, gallery lightbox, 12 pet tiles
 RESULT PASS
 ```

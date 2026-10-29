@@ -132,7 +132,7 @@
       {
         "version": "v2.1.0",
         "date": "2026-10-30",
-        "summary": "框架首次启动自动发布配置模板；修复 Laravel 冒烟测试依赖，Dependabot 仅更新 GitHub Actions。",
+        "summary": "框架首次启动自动发布配置模板；修复 Hive SASL 登录与 Laravel 冒烟依赖，Dependabot 仅更新 GitHub Actions。",
         "url": "https://github.com/erikwang2013/bigdata-php/releases/tag/v2.1.0"
       },
       {
@@ -322,7 +322,7 @@
       "sub": "Recent releases; the full list is on GitHub Releases.",
       "items": [
         {
-          "summary": "Framework adapters publish config templates on first boot; fix Laravel smoke dependencies and scope Dependabot to GitHub Actions."
+          "summary": "Framework config templates publish on first boot; fix Hive SASL login and Laravel smoke dependencies; Dependabot updates GitHub Actions only."
         },
         {
           "summary": "site/ is excluded from the repository, tags, and release archives."
