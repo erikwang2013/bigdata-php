@@ -490,4 +490,8 @@ MIT。详见 [LICENSE](LICENSE)。
 
 ![数据章鱼多多](docs/pet.svg)
 
-多多是 bigdata-php 的项目宠物：八条彩色触手连接 SQL/OLAP、Hadoop、湖仓、调度和 NoSQL，头顶的 19 徽章代表 19 个平台。十二种表情见 [docs/pet-expressions](docs/pet-expressions)。
+多多是 bigdata-php 的项目宠物：八条彩色触手连接 SQL/OLAP、Hadoop、湖仓、调度和 NoSQL，头顶的 19 徽章代表 19 个平台。
+
+![多多的十二种表情](docs/pet-expressions.png)
+
+十二种表情：微笑（smile）、开心（joy）、哭泣（cry）、低落（depressed）、惊恐（terrified）、生气（angry）、撒娇（coquettish）、可爱（cute）、愉悦（pleasing）、敲门（knocking）、捂脸（facepalm）、吐舌（tongue）。源文件见 [docs/pet-expressions](docs/pet-expressions)。
