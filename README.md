@@ -467,7 +467,7 @@ composer test              # 单元测试，不依赖真实集群
 composer test-integration  # 集成测试，需要可用的外部服务
 ```
 
-单元测试使用 mock HTTP 客户端、本地 fixture 和 fake server，覆盖 200+ 个测试、744 个断言。测试套件在 `phpunit.xml` 中分为 `unit` 和 `integration` 两组；默认的 `composer test` 只运行 `unit`，不包含 `tests/Integration`。
+单元测试使用 mock HTTP 客户端、本地 fixture 和 fake server，覆盖 230 个测试、799 个断言。测试套件在 `phpunit.xml` 中分为 `unit` 和 `integration` 两组；默认的 `composer test` 只运行 `unit`，不包含 `tests/Integration`。
 
 集成测试按需运行，例如 Cassandra 需要可访问的实例；`demo/` 下提供了 Trino、Flink、Airflow 和 Cassandra 的 Docker Compose 配置，可作为本地验证起点。
 
@@ -485,3 +485,9 @@ composer test-integration  # 集成测试，需要可用的外部服务
 ## 15. License
 
 MIT。详见 [LICENSE](LICENSE)。
+
+## 项目宠物
+
+![数据章鱼多多](docs/pet.svg)
+
+多多是 bigdata-php 的项目宠物：八条彩色触手连接 SQL/OLAP、Hadoop、湖仓、调度和 NoSQL，头顶的 19 徽章代表 19 个平台。十二种表情见 [docs/pet-expressions](docs/pet-expressions)。

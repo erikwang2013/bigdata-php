@@ -3,6 +3,18 @@
 All notable changes to `erikwang2013/bigdata-php` are documented here.
 Versions follow `vMAJOR.MINOR.PATCH`.
 
+## [1.2.3] - 2026-10-30
+
+### Added
+
+- Project pet **Duoduo** (`docs/pet.svg`), a teal data-octopus with eight
+  colored tentacles for SQL/OLAP, Hadoop, lakehouse, scheduling and NoSQL, a
+  19-platform badge, and 12 expression SVGs in `docs/pet-expressions/`.
+- README section linking the pet and expression gallery.
+- Site rebuilt with the new pet, expressions and v1.2.3 version log entry.
+
+No runtime code changed.
+
 ## [1.2.2] - 2026-10-30
 
 ### Changed
