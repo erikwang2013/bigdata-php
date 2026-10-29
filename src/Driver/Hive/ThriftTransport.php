@@ -274,10 +274,16 @@ final class ThriftTransport implements HiveTransport
             return $transport;
         }
 
+        // Hive's PlainSaslServer rejects an empty SASL password even though
+        // NONE authentication accepts any value; send the conventional dummy.
+        $password = $this->config->auth === 'NONE'
+            ? 'anonymous'
+            : ($this->config->password ?? '');
+
         return new SaslPlainTransport(
             $transport,
             $this->config->username,
-            $this->config->password ?? '',
+            $password,
         );
     }
 
