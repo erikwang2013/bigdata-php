@@ -36,7 +36,7 @@ cp ../.site-builder/data/bigdata-php.json docs/site/content.json
 ```
 
 Current snapshot: 2026-10-30, SHA-256
-`bcbf4a75e4a069287fdb24c92e836fe5465ff2263ef468759e7294209edaafd9`.
+`6da5eda0fd525c8791083fd08d4049916ca5244c4e75e8f21d06d1902047bac3`.
 
 ## Audit
 
@@ -58,13 +58,16 @@ It loads the built site in headless Chrome through Playwright at mobile
 Results from 2026-10-30 (Chrome 156, local server):
 
 ```
-[PASS] mobile  390x844  LCP 1004 ms (<= 2500)  CLS 0.000 (<= 0.1)  overflow 0 px (<= 1)
+[PASS] mobile  390x844  LCP 1432 ms (<= 2500)  CLS 0.000 (<= 0.1)  overflow 0 px (<= 1)
 [PASS] search: 8 results for 版本
 [PASS] gallery lightbox: opens and closes
 [PASS] pet tiles: 12 tiles, lightbox opens and closes
-[PASS] desktop 1440x900  LCP 824 ms (<= 2500)  CLS 0.000 (<= 0.1)  overflow 0 px (<= 1)
+[PASS] desktop 1440x900  LCP 348 ms (<= 2500)  CLS 0.000 (<= 0.1)  overflow 0 px (<= 1)
 RESULT PASS
 ```
+
+Mobile LCP varies on a cold local server: one run measured 2556 ms, the next
+passed at 1432 ms.
 
 The builder's broader interaction test also passes:
 `python3 .site-builder/test_ui.py bigdata-php` (start a static server on
@@ -132,7 +135,8 @@ cleaner footer. Do not edit the builder for this; keep it a deploy-time step.
 
 ## Performance notes
 
-- 36 files, 1.6 MB total. The 670 KB three.js bundle loads after the page load
+- 36 files, 2.2 MB total (the two 1200x630 social previews account for about
+  0.6 MB and are not loaded by the page). The 670 KB three.js bundle loads after the page load
   event; HTML gzips to 23 KB and the hero script to 2.3 KB.
 - Static-server benchmark (`python3 .site-builder/bench.py`): 245 responses for
   bigdata-php, median 0.58 ms, max 2.21 ms. nginx is faster than the Python

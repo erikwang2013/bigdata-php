@@ -130,6 +130,12 @@
     "sub": "最近的发布记录，完整列表在 GitHub Releases。",
     "items": [
       {
+        "version": "v2.1.2",
+        "date": "2026-10-30",
+        "summary": "项目宠物与 12 种表情加入循环动画；CI 升级 actions/checkout v7。",
+        "url": "https://github.com/erikwang2013/bigdata-php/releases/tag/v2.1.2"
+      },
+      {
         "version": "v2.1.1",
         "date": "2026-10-30",
         "summary": "配置自动发布改为临时文件加原子重命名，避免并发 worker 读到半截配置。",
@@ -327,6 +333,9 @@
       "heading": "Changelog",
       "sub": "Recent releases; the full list is on GitHub Releases.",
       "items": [
+        {
+          "summary": "Looping animations for Duoduo and its 12 expressions; CI bumps actions/checkout to v7."
+        },
         {
           "summary": "Config auto-publishing now uses an atomic temp-file rename so concurrent workers never read a partial file."
         },
