@@ -1,0 +1,15 @@
+<?php
+declare(strict_types=1);
+
+namespace Erikwang2013\BigData\Driver\Spark\Exception;
+
+class RequestException extends SparkException
+{
+    public function __construct(
+        string $message,
+        public readonly ?int $statusCode = null,
+        public readonly string $body = '',
+    ) {
+        parent::__construct($message);
+    }
+}

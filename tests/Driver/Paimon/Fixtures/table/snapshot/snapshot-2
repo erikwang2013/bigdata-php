@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "id": 2,
+  "schemaId": 1,
+  "commitUser": "erik",
+  "commitIdentifier": 1704153600000,
+  "commitKind": "COMPACT",
+  "timeMillis": 1704153600000,
+  "totalRecordCount": 3
+}

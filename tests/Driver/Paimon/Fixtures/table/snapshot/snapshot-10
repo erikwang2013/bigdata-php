@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "id": 10,
+  "schemaId": 1,
+  "commitUser": "etl",
+  "commitIdentifier": 1704240000000,
+  "commitKind": "APPEND",
+  "timeMillis": 1704240000000,
+  "totalRecordCount": 5
+}

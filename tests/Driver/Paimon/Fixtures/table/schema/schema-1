@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "id": 1,
+  "fields": [
+    {"id": 0, "name": "id", "type": "BIGINT"},
+    {"id": 1, "name": "name", "type": "STRING"},
+    {"id": 2, "name": "dt", "type": "STRING"}
+  ],
+  "highestFieldId": 2,
+  "partitionKeys": ["dt"],
+  "primaryKeys": ["id"],
+  "options": {"bucket": "2", "file.format": "parquet", "snapshot.num-retained.max": "10"},
+  "timeMillis": 1704153600000
+}

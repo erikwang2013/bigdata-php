@@ -1,0 +1,69 @@
+{
+    "name": "erikwang2013/bigdata-php",
+    "description": "Unified PHP clients for big-data platforms with optional drivers: Trino, Hadoop, Hive, Spark, Flink, Doris, StarRocks, Kylin, Druid, Iceberg, Hudi, Paimon, Delta Lake, DolphinScheduler, Airflow, Azkaban, Oozie, HBase, Cassandra.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "bigdata",
+        "trino",
+        "hadoop",
+        "hive",
+        "spark",
+        "flink",
+        "doris",
+        "starrocks",
+        "kylin",
+        "druid",
+        "iceberg",
+        "hudi",
+        "paimon",
+        "delta-lake",
+        "dolphinscheduler",
+        "airflow",
+        "azkaban",
+        "oozie",
+        "hbase",
+        "cassandra"
+    ],
+    "authors": [
+        {
+            "name": "erik",
+            "email": "erik@erik.xyz"
+        }
+    ],
+    "require": {
+        "php": ">=8.1",
+        "guzzlehttp/guzzle": "^7.0",
+        "psr/log": "^3.0"
+    },
+    "require-dev": {
+        "apache/thrift": "^0.24 || ^0.25",
+        "phpunit/phpunit": "^10.5"
+    },
+    "suggest": {
+        "ext-pdo_mysql": "Required for the Doris and StarRocks SQL/Stream Load drivers.",
+        "apache/thrift": "Required for the Hive / Spark Thrift Server driver.",
+        "mroosz/php-cassandra": "Required for the Cassandra driver."
+    },
+    "autoload": {
+        "psr-4": {
+            "Erikwang2013\\BigData\\": "src/"
+        },
+        "classmap": [
+            "src/Driver/Hive/Thrift/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Erikwang2013\\BigData\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit --testsuite unit",
+        "test-integration": "phpunit --testsuite integration"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable"
+}

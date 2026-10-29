@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "id": 0,
+  "fields": [
+    {"id": 0, "name": "id", "type": "BIGINT"},
+    {"id": 1, "name": "name", "type": "STRING"}
+  ],
+  "highestFieldId": 1,
+  "partitionKeys": [],
+  "primaryKeys": ["id"],
+  "options": {"bucket": "1", "file.format": "orc"},
+  "timeMillis": 1704067200000
+}
