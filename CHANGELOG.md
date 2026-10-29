@@ -3,6 +3,15 @@
 All notable changes to `erikwang2013/bigdata-php` are documented here.
 Versions follow `vMAJOR.MINOR.PATCH`.
 
+## [1.2.4] - 2026-10-30
+
+### Changed
+
+- `site/` is now a local build artifact. It is excluded from the repository,
+  future tags and GitHub release source archives. Existing v1.2.0-v1.2.3 tags
+  still contain it.
+- No runtime code changed.
+
 ## [1.2.3] - 2026-10-30
 
 ### Added
