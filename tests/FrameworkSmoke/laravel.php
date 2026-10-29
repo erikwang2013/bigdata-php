@@ -22,7 +22,7 @@ require __DIR__ . '/bootstrap.php';
 if (!function_exists('config_path')) {
     function config_path(string $path = ''): string
     {
-        $directory = SMOKE_PROJECT_DIR . '/config';
+        $directory = getenv('SMOKE_PROJECT_DIR') . '/config';
 
         return $path === '' ? $directory : $directory . '/' . $path;
     }
