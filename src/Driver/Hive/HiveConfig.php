@@ -29,8 +29,8 @@ final class HiveConfig
         }
 
         $auth = strtoupper((string) ($config['auth'] ?? 'NONE'));
-        if (!in_array($auth, ['NONE', 'PLAIN', 'LDAP'], true)) {
-            throw new \InvalidArgumentException('Hive config "auth" must be NONE, PLAIN or LDAP.');
+        if (!in_array($auth, ['NONE', 'NOSASL', 'PLAIN', 'LDAP'], true)) {
+            throw new \InvalidArgumentException('Hive config "auth" must be NONE, NOSASL, PLAIN or LDAP.');
         }
 
         $transport = strtolower((string) ($config['transport'] ?? 'binary'));

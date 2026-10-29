@@ -102,7 +102,7 @@ $hive = HiveClient::withTransport(
 | `port`       | `10000`       | HiveServer2 port.                                       |
 | `username`   | `php`         | Session user / SASL PLAIN user.                         |
 | `password`   | `null`        | SASL PLAIN password.                                    |
-| `auth`       | `NONE`        | `NONE`, `PLAIN` or `LDAP` (both use SASL PLAIN).        |
+| `auth`       | `NONE`        | `NONE`, `NOSASL`, `PLAIN` or `LDAP`; all but NOSASL use SASL PLAIN. |
 | `transport`  | `binary`      | `binary` (TSocket) or `http` (THttpClient).             |
 | `httpPath`   | `/cliservice` | HTTP endpoint path.                                     |
 | `scheme`     | `http`        | `http` or `https` (HTTP transport only).                |
@@ -117,8 +117,11 @@ you prefer camelCase properties.
 
 ## Authentication and transports
 
-- **NONE** — plain `TSocket` + `TBufferedTransport` + `TBinaryProtocol`, no SASL.
-- **PLAIN / LDAP** — HiveServer2 expects SASL PLAIN over the Thrift socket.
+- **NONE** — Hive's default: SASL PLAIN over the Thrift socket with the
+  configured username and an empty password.
+- **PLAIN / LDAP** — SASL PLAIN with the configured username and password.
+- **NOSASL** — plain `TSocket` + `TBufferedTransport` + `TBinaryProtocol`, no
+  SASL handshake.
   Because `apache/thrift` ships no PHP SASL transport, this package includes
   `SaslPlainTransport`, which performs the Thrift SASL handshake
   (START/OK/COMPLETE) and message framing the same way the Java and Python

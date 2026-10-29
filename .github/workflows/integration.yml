@@ -60,7 +60,8 @@ jobs:
         run: |
           for i in $(seq 1 60); do
             if nc -z 127.0.0.1 10000 2>/dev/null; then
-              echo "HiveServer2 is listening on port 10000."
+              echo "HiveServer2 is listening on port 10000; waiting for it to finish starting."
+              sleep 30
               exit 0
             fi
             echo "Attempt $i/60: port 10000 is not open yet."
@@ -70,11 +71,11 @@ jobs:
           exit 1
       - name: Run Hive integration test
         run: |
-          for i in 1 2 3; do
+          for i in $(seq 1 12); do
             if HIVE_HOST=127.0.0.1 vendor/bin/phpunit --testsuite integration --filter HiveTest; then
               exit 0
             fi
-            echo "Attempt $i/3 failed; retrying in 15s."
+            echo "Attempt $i/12 failed; retrying in 15s."
             sleep 15
           done
           exit 1

@@ -236,7 +236,7 @@ final class ThriftTransport implements HiveTransport
             );
             $http->setTimeoutSecs($this->config->timeout);
 
-            if ($this->config->auth !== 'NONE') {
+            if (!in_array($this->config->auth, ['NONE', 'NOSASL'], true)) {
                 $http->addHeaders([
                     'Authorization' => 'Basic ' . base64_encode(
                         $this->config->username . ':' . ($this->config->password ?? ''),
@@ -268,15 +268,17 @@ final class ThriftTransport implements HiveTransport
 
         $transport = new TBufferedTransport($socket);
 
-        if ($this->config->auth !== 'NONE') {
-            return new SaslPlainTransport(
-                $transport,
-                $this->config->username,
-                $this->config->password ?? '',
-            );
+        // Hive's "NONE" mode still uses SASL PLAIN with a username and no
+        // password. Only NOSASL disables the SASL negotiation entirely.
+        if ($this->config->auth === 'NOSASL') {
+            return $transport;
         }
 
-        return $transport;
+        return new SaslPlainTransport(
+            $transport,
+            $this->config->username,
+            $this->config->password ?? '',
+        );
     }
 
     /**

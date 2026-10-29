@@ -38,6 +38,13 @@ final class HiveConfigTest extends TestCase
         self::assertFalse($config->tls);
     }
 
+    public function test_accepts_nosasl_auth(): void
+    {
+        $config = HiveConfig::fromArray(['host' => 'hive.local', 'auth' => 'nosasl']);
+
+        self::assertSame('NOSASL', $config->auth);
+    }
+
     public function test_from_array_parses_all_fields(): void
     {
         $config = HiveConfig::fromArray([

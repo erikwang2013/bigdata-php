@@ -6,6 +6,7 @@ namespace Erikwang2013\BigData\Tests\Driver\Hive;
 use Erikwang2013\BigData\Driver\Hive\Exception\ConnectionException;
 use Erikwang2013\BigData\Driver\Hive\Exception\RequestException;
 use Erikwang2013\BigData\Driver\Hive\HiveConfig;
+use Erikwang2013\BigData\Driver\Hive\SaslPlainTransport;
 use Erikwang2013\BigData\Driver\Hive\ThriftTransport;
 use Erikwang2013\BigData\Driver\Hive\Thrift\{
     TCLIServiceClient,
@@ -72,6 +73,26 @@ final class ThriftTransportTest extends TestCase
         self::assertSame(TProtocolVersion::HIVE_CLI_SERVICE_PROTOCOL_V10, $request->client_protocol);
         self::assertSame('alice', $request->username);
         self::assertSame('secret', $request->password);
+    }
+
+    public function test_none_auth_negotiates_sasl_and_nosasl_skips_it(): void
+    {
+        $factory = new \ReflectionMethod(ThriftTransport::class, 'createTransport');
+        if (PHP_VERSION_ID < 80100) {
+            $factory->setAccessible(true);
+        }
+
+        $none = new ThriftTransport(HiveConfig::fromArray([
+            'host' => 'hive.local',
+            'auth' => 'NONE',
+        ]));
+        $nosasl = new ThriftTransport(HiveConfig::fromArray([
+            'host' => 'hive.local',
+            'auth' => 'NOSASL',
+        ]));
+
+        self::assertInstanceOf(SaslPlainTransport::class, $factory->invoke($none));
+        self::assertInstanceOf(TBufferedTransport::class, $factory->invoke($nosasl));
     }
 
     public function test_execute_maps_metadata_columns(): void
@@ -180,6 +201,7 @@ final class ThriftTransportTest extends TestCase
     {
         $socket = self::inspectSocket(new ThriftTransport(HiveConfig::fromArray([
             'host' => 'hive.local',
+            'auth' => 'NOSASL',
             'tls' => true,
         ])));
 
@@ -195,6 +217,7 @@ final class ThriftTransportTest extends TestCase
     {
         $socket = self::inspectSocket(new ThriftTransport(HiveConfig::fromArray([
             'host' => 'hive.local',
+            'auth' => 'NOSASL',
             'tls' => true,
             'verify_ssl' => false,
         ])));
@@ -228,6 +251,7 @@ final class ThriftTransportTest extends TestCase
         foreach ([false, true] as $tls) {
             $socket = self::inspectSocket(new ThriftTransport(HiveConfig::fromArray([
                 'host' => 'hive.local',
+                'auth' => 'NOSASL',
                 'timeout' => 2.5,
                 'tls' => $tls,
             ])));

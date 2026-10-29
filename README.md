@@ -51,7 +51,7 @@
 - **湖仓元数据只读**：Iceberg REST Catalog、Hudi `.hoodie` 时间线、Paimon schema/snapshot、Delta Sharing 文件清单。
 - **无自动重试、无统一 SQL 层**：不做查询改写、事务编排、连接池或 ORM；每个驱动保持目标系统本身的语义。
 - **PHP 8.0+**：核心包不依赖任何框架；Laravel、ThinkPHP、Webman、Hyperf、Yii2、Yii3 适配器均为可选薄封装。
-- **测试覆盖**：292 个单元测试、975 个断言，另有 14 个集成测试（16 个断言，缺少外部服务时自动跳过），使用 mock HTTP、本地 fixture 和 fake server，不依赖真实集群。
+- **测试覆盖**：294 个单元测试、978 个断言，另有 14 个集成测试（16 个断言，缺少外部服务时自动跳过），使用 mock HTTP、本地 fixture 和 fake server，不依赖真实集群。
 
 ## 3. 环境要求
 
@@ -349,7 +349,7 @@ $trino = $manager->driver('trino');
 | Trino | `trino` | `Driver\Trino\TrinoClient` | — | SQL 查询、catalog / schema / table 浏览 | [trino.md](docs/drivers/trino.md) |
 | Hadoop | `hadoop-webhdfs` | `Driver\Hadoop\WebHdfsClient` | — | HDFS 读写，WebHDFS REST，含 307 重定向 | [hadoop.md](docs/drivers/hadoop.md) |
 | Hadoop | `hadoop-yarn` | `Driver\Hadoop\YarnClient` | — | YARN 应用查询与终止 | [hadoop.md](docs/drivers/hadoop.md) |
-| Hive | `hive` | `Driver\Hive\HiveClient` | `apache/thrift` | HiveServer2 / Spark Thrift Server，NONE / PLAIN / LDAP | [hive.md](docs/drivers/hive.md) |
+| Hive | `hive` | `Driver\Hive\HiveClient` | `apache/thrift` | HiveServer2 / Spark Thrift Server，NONE / NOSASL / PLAIN / LDAP | [hive.md](docs/drivers/hive.md) |
 | Spark | `spark` | `Driver\Spark\LivyClient` | — | Livy session / statement / batch | [spark.md](docs/drivers/spark.md) |
 | Flink | `flink-sql` | `Driver\Flink\SqlGatewayClient` | — | Flink SQL Gateway | [flink.md](docs/drivers/flink.md) |
 | Flink | `flink-jobs` | `Driver\Flink\JobClient` | — | JobManager 作业查询与取消 | [flink.md](docs/drivers/flink.md) |
@@ -506,7 +506,7 @@ composer test              # 单元测试，不依赖真实集群
 composer test-integration  # 集成测试，需要可用的外部服务
 ```
 
-单元测试使用 mock HTTP 客户端、本地 fixture 和 fake server，覆盖 292 个测试、975 个断言；另有 14 个集成测试。测试套件在 `phpunit.xml` 中分为 `unit` 和 `integration` 两组；默认的 `composer test` 只运行 `unit`，不包含 `tests/Integration`。
+单元测试使用 mock HTTP 客户端、本地 fixture 和 fake server，覆盖 294 个测试、978 个断言；另有 14 个集成测试。测试套件在 `phpunit.xml` 中分为 `unit` 和 `integration` 两组；默认的 `composer test` 只运行 `unit`，不包含 `tests/Integration`。
 
 集成测试按需运行，例如 Cassandra 需要可访问的实例；`demo/` 下提供了 Trino、Flink、Airflow 和 Cassandra 的 Docker Compose 配置，可作为本地验证起点。
 
@@ -514,7 +514,7 @@ composer test-integration  # 集成测试，需要可用的外部服务
 
 - **湖仓只读元数据**：Iceberg 读取 REST Catalog 和表元数据；Hudi 读取 `.hoodie` 时间线；Paimon 读取 schema / snapshot；Delta Sharing 返回 Parquet 文件清单。它们都不读取 Parquet 行数据，也不做谓词下推或查询执行。
 - **Delta Sharing 不返回行**：`DeltaSharingClient::query()` 返回文件清单和元数据，实际数据需要由调用方按清单读取。
-- **Hive 认证范围**：支持 NONE、SASL PLAIN 和 LDAP（QOP `auth`）；不支持 Kerberos / GSSAPI。binary 传输可通过 `tls => true` 使用 TLS；HTTP 传输通过 `scheme => https`。
+- **Hive 认证范围**：支持 NONE、NOSASL、SASL PLAIN 和 LDAP（QOP `auth`）；NONE/PLAIN/LDAP 使用 SASL PLAIN，NOSASL 关闭 SASL；不支持 Kerberos / GSSAPI。binary 传输可通过 `tls => true` 使用 TLS；HTTP 传输通过 `scheme => https`。
 - **Cassandra 可选且可能命名冲突**：驱动包装 `mroosz/php-cassandra`，与 `ext-cassandra` 共用 `Cassandra\` 命名空间，同时加载时可能冲突。
 - **不做自动重试**：连接、HTTP 和应用层错误直接抛出 `ConnectionException` / `RequestException`；重试策略、退避和幂等判断由调用方负责。
 - **没有统一 SQL 层或 ORM**：驱动只做协议适配，不做 SQL 方言转换、跨源 JOIN、事务编排、连接池或模型映射。

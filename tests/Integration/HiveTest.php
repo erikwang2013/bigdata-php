@@ -23,6 +23,7 @@ final class HiveTest extends TestCase
             'host' => $host,
             'port' => 10000,
             'auth' => 'NONE',
+            'username' => 'hive',
         ]));
 
         try {

@@ -51,7 +51,7 @@ Covered platforms: **Trino, Hadoop, Hive, Spark, Flink, Doris, StarRocks, Kylin,
 - **Read-only lakehouse metadata**: Iceberg REST Catalog, Hudi `.hoodie` timeline, Paimon schema/snapshot, Delta Sharing file manifests.
 - **No automatic retries, no unified SQL layer**: no query rewriting, transaction orchestration, connection pooling, or ORM; each driver preserves the semantics of the target system.
 - **PHP 8.0+**: the core package depends on no framework; the Laravel, ThinkPHP, Webman, Hyperf, Yii2, and Yii3 adapters are all optional thin wrappers.
-- **Test coverage**: 292 unit tests and 975 assertions, plus 14 integration tests (16 assertions, automatically skipped when external services are unavailable), using mock HTTP, local fixtures, and a fake server, with no dependency on a real cluster.
+- **Test coverage**: 294 unit tests and 978 assertions, plus 14 integration tests (16 assertions, automatically skipped when external services are unavailable), using mock HTTP, local fixtures, and a fake server, with no dependency on a real cluster.
 
 ## 3. Requirements
 
@@ -349,7 +349,7 @@ $trino = $manager->driver('trino');
 | Trino | `trino` | `Driver\Trino\TrinoClient` | — | SQL queries, catalog / schema / table browsing | [trino.md](docs/drivers/en/trino.md) |
 | Hadoop | `hadoop-webhdfs` | `Driver\Hadoop\WebHdfsClient` | — | HDFS reads and writes, WebHDFS REST, including 307 redirects | [hadoop.md](docs/drivers/en/hadoop.md) |
 | Hadoop | `hadoop-yarn` | `Driver\Hadoop\YarnClient` | — | YARN application queries and termination | [hadoop.md](docs/drivers/en/hadoop.md) |
-| Hive | `hive` | `Driver\Hive\HiveClient` | `apache/thrift` | HiveServer2 / Spark Thrift Server, NONE / PLAIN / LDAP | [hive.md](docs/drivers/en/hive.md) |
+| Hive | `hive` | `Driver\Hive\HiveClient` | `apache/thrift` | HiveServer2 / Spark Thrift Server, NONE / NOSASL / PLAIN / LDAP | [hive.md](docs/drivers/en/hive.md) |
 | Spark | `spark` | `Driver\Spark\LivyClient` | — | Livy session / statement / batch | [spark.md](docs/drivers/en/spark.md) |
 | Flink | `flink-sql` | `Driver\Flink\SqlGatewayClient` | — | Flink SQL Gateway | [flink.md](docs/drivers/en/flink.md) |
 | Flink | `flink-jobs` | `Driver\Flink\JobClient` | — | JobManager job queries and cancellation | [flink.md](docs/drivers/en/flink.md) |
@@ -506,7 +506,7 @@ composer test              # Unit tests, no real cluster required
 composer test-integration  # Integration tests, require available external services
 ```
 
-Unit tests use a mock HTTP client, local fixtures, and a fake server, covering 292 tests and 975 assertions, plus 14 integration tests. The test suite is split into the `unit` and `integration` groups in `phpunit.xml`; the default `composer test` runs only `unit` and excludes `tests/Integration`.
+Unit tests use a mock HTTP client, local fixtures, and a fake server, covering 294 tests and 978 assertions, plus 14 integration tests. The test suite is split into the `unit` and `integration` groups in `phpunit.xml`; the default `composer test` runs only `unit` and excludes `tests/Integration`.
 
 Integration tests run on demand—Cassandra, for example, requires a reachable instance; `demo/` provides Docker Compose configurations for Trino, Flink, Airflow, and Cassandra as a starting point for local verification.
 
@@ -514,7 +514,7 @@ Integration tests run on demand—Cassandra, for example, requires a reachable i
 
 - **Lakehouse metadata is read-only**: Iceberg reads the REST Catalog and table metadata; Hudi reads the `.hoodie` timeline; Paimon reads schema / snapshot; Delta Sharing returns Parquet file manifests. None of them read Parquet row data or perform predicate pushdown or query execution.
 - **Delta Sharing returns no rows**: `DeltaSharingClient::query()` returns file manifests and metadata; the caller must read the actual data according to the manifest.
-- **Hive authentication scope**: supports NONE, SASL PLAIN, and LDAP (QOP `auth`); Kerberos / GSSAPI are not supported. Binary transport can use TLS via `tls => true`; HTTP transport uses `scheme => https`.
+- **Hive authentication scope**: supports NONE, NOSASL, SASL PLAIN, and LDAP (QOP `auth`); NONE/PLAIN/LDAP use SASL PLAIN and NOSASL disables it; Kerberos / GSSAPI are not supported. Binary transport can use TLS via `tls => true`; HTTP transport uses `scheme => https`.
 - **Cassandra is optional and may collide on names**: the driver wraps `mroosz/php-cassandra`, which shares the `Cassandra\` namespace with `ext-cassandra`; loading both at the same time may conflict.
 - **No automatic retries**: connection, HTTP, and application-level errors are thrown directly as `ConnectionException` / `RequestException`; retry policies, backoff, and idempotency decisions are the caller's responsibility.
 - **No unified SQL layer or ORM**: drivers only adapt protocols; they do not perform SQL dialect translation, cross-source JOINs, transaction orchestration, connection pooling, or model mapping.

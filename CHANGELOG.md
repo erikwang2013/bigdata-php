@@ -7,6 +7,8 @@ Versions follow `vMAJOR.MINOR.PATCH`.
 
 ### Added
 
+- Hive `auth => 'NONE'` now performs the SASL PLAIN handshake HiveServer2
+  expects by default; `auth => 'NOSASL'` keeps the raw Thrift transport.
 - Framework adapters publish their config template on first boot, following
   each framework's path convention: `config/bigdata.php` for Laravel, ThinkPHP,
   Webman and Yii2, and `config/autoload/bigdata.php` for Hyperf. Existing files
@@ -24,7 +26,7 @@ Versions follow `vMAJOR.MINOR.PATCH`.
 
 ### Tests
 
-- 292 unit tests / 975 assertions; 14 integration tests / 16 assertions (6
+- 294 unit tests / 978 assertions; 14 integration tests / 16 assertions (6
   external-service skips).
 
 ## [2.0.0] - 2026-10-30
