@@ -3,6 +3,14 @@
 All notable changes to `erikwang2013/bigdata-php` are documented here.
 Versions follow `vMAJOR.MINOR.PATCH`.
 
+## [Unreleased]
+
+### Changed
+
+- Duoduo and its 12 expression SVGs now animate per mood (blink, tentacle sway,
+  hops, trembling, tears, knocking and more) and honor `prefers-reduced-motion`;
+  the expression sheet was regenerated from the updated SVGs.
+
 ## [2.1.1] - 2026-10-30
 
 ### Fixed

@@ -11,7 +11,7 @@
   "pet": {
     "name": "多多",
     "title": "数据章鱼多多",
-    "desc": "一只青色卡通小章鱼，戴 PHP 紫围巾，八条彩色触手连接 SQL、Hadoop、湖仓、调度和 NoSQL，头顶挂着 19 的平台徽章。",
+    "desc": "一只青色卡通小章鱼，戴 PHP 紫围巾，八条彩色触手连接 SQL、Hadoop、湖仓、调度和 NoSQL，头顶挂着 19 的平台徽章。它会呼吸浮动、眨眼，并随表情摆动触手。",
     "quote": "八条触手，连接十九个平台。",
     "source": "docs/pet.svg",
     "expressions": "docs/pet-expressions"
@@ -193,7 +193,7 @@
   },
   "pets": {
     "heading": "多多的十二种表情",
-    "sub": "鼠标停一停，它会换一种心情。"
+    "sub": "十二种表情各有循环动作。鼠标停一停，它会换一种心情。"
   },
   "docs": {
     "heading": "安装与使用",
@@ -396,12 +396,12 @@
     },
     "pets": {
       "heading": "Duoduo's twelve expressions",
-      "sub": "Hover for a moment and its mood changes."
+      "sub": "Every expression has its own loop. Hover for a moment and its mood changes."
     },
     "pet": {
       "name": "Duoduo",
       "title": "Duoduo the data octopus",
-      "desc": "A teal cartoon octopus wearing a PHP purple scarf, with eight colorful tentacles connecting SQL, Hadoop, lakehouse, scheduling and NoSQL, and a 19-platform badge on its head.",
+      "desc": "A teal cartoon octopus wearing a PHP purple scarf, with eight colorful tentacles connecting SQL, Hadoop, lakehouse, scheduling and NoSQL, and a 19-platform badge on its head. It bobs, blinks, and sways its tentacles with each expression.",
       "quote": "Eight tentacles, nineteen platforms, one API."
     }
   }

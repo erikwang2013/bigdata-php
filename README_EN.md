@@ -482,7 +482,7 @@ bigdata-php/
 │   ├── diagrams/                # Chinese/English architecture, functional, request lifecycle, and lifecycle SVGs
 │   ├── drivers/                 # Detailed docs for the 19 platforms (en/ for English)
 │   ├── frameworks/              # Six framework guides (en/ for English)
-│   ├── pet.svg / pet-expressions/  # Project pet and 12 expressions
+│   ├── pet.svg / pet-expressions/  # Project pet and 12 animated expressions
 │   └── site/                    # Site content source, build and deployment config
 ├── scripts/                     # Site build / check scripts
 ├── site/                        # Local site build output (gitignored, not packaged in releases)
@@ -529,8 +529,8 @@ MIT. See [LICENSE](LICENSE) for details.
 
 ![Duoduo the Data Octopus](docs/pet.svg)
 
-Duoduo is the bigdata-php project pet: eight colorful tentacles connect SQL/OLAP, Hadoop, lakehouse, scheduling, and NoSQL, and the 19 badge on its head represents the 19 platforms.
+Duoduo is the bigdata-php project pet: eight colorful tentacles connect SQL/OLAP, Hadoop, lakehouse, scheduling, and NoSQL, and the 19 badge on its head represents the 19 platforms. The SVG carries its own looping motion: breathing bob, blinking eyes, swaying tentacles, plus a mood-specific action for each expression.
 
 ![Duoduo's twelve expressions](docs/pet-expressions.png)
 
-Twelve expressions: smile, joy, cry, depressed, terrified, angry, coquettish, cute, pleasing, knocking, facepalm, tongue. Source files are in [docs/pet-expressions](docs/pet-expressions).
+Twelve expressions: smile, joy, cry, depressed, terrified, angry, coquettish, cute, pleasing, knocking, facepalm, tongue. Each has its own loop — joy hops, anger shakes, crying sheds tears, knocking waves — and all motion stops under `prefers-reduced-motion`. Source files are in [docs/pet-expressions](docs/pet-expressions).

@@ -482,7 +482,7 @@ bigdata-php/
 │   ├── diagrams/                # 中英文架构、功能、请求周期、生命周期 SVG
 │   ├── drivers/                 # 19 个平台的详细文档（en/ 为英文版）
 │   ├── frameworks/              # 6 个框架适配文档（en/ 为英文版）
-│   ├── pet.svg / pet-expressions/  # 项目宠物及 12 种表情
+│   ├── pet.svg / pet-expressions/  # 项目宠物及 12 种动态表情
 │   └── site/                    # 站点内容源、构建与部署配置
 ├── scripts/                     # 站点构建 / 检查脚本
 ├── site/                        # 本地站点构建产物（gitignore，不随发布打包）
@@ -529,8 +529,8 @@ MIT。详见 [LICENSE](LICENSE)。
 
 ![数据章鱼多多](docs/pet.svg)
 
-多多是 bigdata-php 的项目宠物：八条彩色触手连接 SQL/OLAP、Hadoop、湖仓、调度和 NoSQL，头顶的 19 徽章代表 19 个平台。
+多多是 bigdata-php 的项目宠物：八条彩色触手连接 SQL/OLAP、Hadoop、湖仓、调度和 NoSQL，头顶的 19 徽章代表 19 个平台。SVG 自带循环动画：呼吸浮动、眨眼、触手摆动，每种表情还有自己的情绪动作。
 
 ![多多的十二种表情](docs/pet-expressions.png)
 
-十二种表情：微笑（smile）、开心（joy）、哭泣（cry）、低落（depressed）、惊恐（terrified）、生气（angry）、撒娇（coquettish）、可爱（cute）、愉悦（pleasing）、敲门（knocking）、捂脸（facepalm）、吐舌（tongue）。源文件见 [docs/pet-expressions](docs/pet-expressions)。
+十二种表情：微笑（smile）、开心（joy）、哭泣（cry）、低落（depressed）、惊恐（terrified）、生气（angry）、撒娇（coquettish）、可爱（cute）、愉悦（pleasing）、敲门（knocking）、捂脸（facepalm）、吐舌（tongue）。每种表情都有独立的循环动作，例如开心弹跳、生气发抖、哭泣落泪、敲门挥手；开启系统的“减少动态效果”后全部静止。源文件见 [docs/pet-expressions](docs/pet-expressions)。
