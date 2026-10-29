@@ -11,7 +11,8 @@
 
 The package declares `extra.config-plugin` with `params` and `di`, so
 yiisoft/config picks up `config/params.php` and `config/di.php` automatically
-after `composer require`.
+after `composer require`. This is Yii3's config rule, so no application file is
+copied; override values in the application's own `config/params.php`.
 
 Override the defaults in the application's `config/params.php`:
 

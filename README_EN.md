@@ -51,7 +51,7 @@ Covered platforms: **Trino, Hadoop, Hive, Spark, Flink, Doris, StarRocks, Kylin,
 - **Read-only lakehouse metadata**: Iceberg REST Catalog, Hudi `.hoodie` timeline, Paimon schema/snapshot, Delta Sharing file manifests.
 - **No automatic retries, no unified SQL layer**: no query rewriting, transaction orchestration, connection pooling, or ORM; each driver preserves the semantics of the target system.
 - **PHP 8.0+**: the core package depends on no framework; the Laravel, ThinkPHP, Webman, Hyperf, Yii2, and Yii3 adapters are all optional thin wrappers.
-- **Test coverage**: 289 unit tests and 969 assertions, plus 14 integration tests (16 assertions, automatically skipped when external services are unavailable), using mock HTTP, local fixtures, and a fake server, with no dependency on a real cluster.
+- **Test coverage**: 292 unit tests and 975 assertions, plus 14 integration tests (16 assertions, automatically skipped when external services are unavailable), using mock HTTP, local fixtures, and a fake server, with no dependency on a real cluster.
 
 ## 3. Requirements
 
@@ -165,6 +165,8 @@ $trino = new TrinoClient(TrinoConfig::fromArray([
 The core package depends on no framework. The adapters in `src/Integration` do only two things: read the unified `default` / `drivers` configuration and bind `Erikwang2013\BigData\Integration\Manager` to the framework container.
 
 Each adapter has a dedicated guide: [Laravel](docs/frameworks/en/laravel.md), [ThinkPHP](docs/frameworks/en/thinkphp.md), [Webman](docs/frameworks/en/webman.md), [Hyperf](docs/frameworks/en/hyperf.md), [Yii2](docs/frameworks/en/yii2.md), [Yii3](docs/frameworks/en/yii3.md).
+
+On first boot the adapter copies the config template to the framework's conventional path: `config/bigdata.php` for Laravel, ThinkPHP, Webman, and Yii2, and `config/autoload/bigdata.php` for Hyperf. Yii3 needs no copy because yiisoft/config merges the package config automatically. Existing files are never overwritten.
 
 Unified configuration structure (identical across frameworks):
 
@@ -504,7 +506,7 @@ composer test              # Unit tests, no real cluster required
 composer test-integration  # Integration tests, require available external services
 ```
 
-Unit tests use a mock HTTP client, local fixtures, and a fake server, covering 289 tests and 969 assertions, plus 14 integration tests. The test suite is split into the `unit` and `integration` groups in `phpunit.xml`; the default `composer test` runs only `unit` and excludes `tests/Integration`.
+Unit tests use a mock HTTP client, local fixtures, and a fake server, covering 292 tests and 975 assertions, plus 14 integration tests. The test suite is split into the `unit` and `integration` groups in `phpunit.xml`; the default `composer test` runs only `unit` and excludes `tests/Integration`.
 
 Integration tests run on demand—Cassandra, for example, requires a reachable instance; `demo/` provides Docker Compose configurations for Trino, Flink, Airflow, and Cassandra as a starting point for local verification.
 

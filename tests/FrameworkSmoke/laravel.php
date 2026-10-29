@@ -17,6 +17,17 @@ use Illuminate\Support\ServiceProvider;
 
 require __DIR__ . '/bootstrap.php';
 
+// The provider publishes into config_path(); the plain container smoke has no
+// Foundation application, so provide the helper Laravel would define.
+if (!function_exists('config_path')) {
+    function config_path(string $path = ''): string
+    {
+        $directory = SMOKE_PROJECT_DIR . '/config';
+
+        return $path === '' ? $directory : $directory . '/' . $path;
+    }
+}
+
 smoke_section('framework classes');
 $required = [
     Container::class => 'illuminate/container',
@@ -37,6 +48,14 @@ $container->make('config')->set('bigdata', [
 ]);
 
 (new BigDataServiceProvider($container))->register();
+
+smoke_section('config publish');
+$publishedConfig = config_path('bigdata.php');
+smoke_check(is_file($publishedConfig), 'the provider should copy config/bigdata.php on first boot.');
+smoke_check(
+    (require $publishedConfig)['default'] === 'trino',
+    'the published config should keep the package default driver.',
+);
 
 smoke_section('container bindings');
 $config = $container->make('config');

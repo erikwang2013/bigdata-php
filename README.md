@@ -51,7 +51,7 @@
 - **湖仓元数据只读**：Iceberg REST Catalog、Hudi `.hoodie` 时间线、Paimon schema/snapshot、Delta Sharing 文件清单。
 - **无自动重试、无统一 SQL 层**：不做查询改写、事务编排、连接池或 ORM；每个驱动保持目标系统本身的语义。
 - **PHP 8.0+**：核心包不依赖任何框架；Laravel、ThinkPHP、Webman、Hyperf、Yii2、Yii3 适配器均为可选薄封装。
-- **测试覆盖**：289 个单元测试、969 个断言，另有 14 个集成测试（16 个断言，缺少外部服务时自动跳过），使用 mock HTTP、本地 fixture 和 fake server，不依赖真实集群。
+- **测试覆盖**：292 个单元测试、975 个断言，另有 14 个集成测试（16 个断言，缺少外部服务时自动跳过），使用 mock HTTP、本地 fixture 和 fake server，不依赖真实集群。
 
 ## 3. 环境要求
 
@@ -165,6 +165,8 @@ $trino = new TrinoClient(TrinoConfig::fromArray([
 核心包不依赖任何框架。`src/Integration` 中的适配器只做两件事：读取统一的 `default` / `drivers` 配置，把 `Erikwang2013\BigData\Integration\Manager` 绑定到框架容器。
 
 每个适配器都有独立文档：[Laravel](docs/frameworks/laravel.md)、[ThinkPHP](docs/frameworks/thinkphp.md)、[Webman](docs/frameworks/webman.md)、[Hyperf](docs/frameworks/hyperf.md)、[Yii2](docs/frameworks/yii2.md)、[Yii3](docs/frameworks/yii3.md)。
+
+首次启动时，适配器按框架约定自动复制配置模板：Laravel、ThinkPHP、Webman、Yii2 写入 `config/bigdata.php`，Hyperf 写入 `config/autoload/bigdata.php`；Yii3 由 yiisoft/config 自动合并包内配置，无需复制。已有配置文件不会被覆盖。
 
 统一配置结构（所有框架相同）：
 
@@ -504,7 +506,7 @@ composer test              # 单元测试，不依赖真实集群
 composer test-integration  # 集成测试，需要可用的外部服务
 ```
 
-单元测试使用 mock HTTP 客户端、本地 fixture 和 fake server，覆盖 289 个测试、969 个断言；另有 14 个集成测试。测试套件在 `phpunit.xml` 中分为 `unit` 和 `integration` 两组；默认的 `composer test` 只运行 `unit`，不包含 `tests/Integration`。
+单元测试使用 mock HTTP 客户端、本地 fixture 和 fake server，覆盖 292 个测试、975 个断言；另有 14 个集成测试。测试套件在 `phpunit.xml` 中分为 `unit` 和 `integration` 两组；默认的 `composer test` 只运行 `unit`，不包含 `tests/Integration`。
 
 集成测试按需运行，例如 Cassandra 需要可访问的实例；`demo/` 下提供了 Trino、Flink、Airflow 和 Cassandra 的 Docker Compose 配置，可作为本地验证起点。
 

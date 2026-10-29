@@ -3,15 +3,29 @@
 All notable changes to `erikwang2013/bigdata-php` are documented here.
 Versions follow `vMAJOR.MINOR.PATCH`.
 
-## [2.0.1] - 2026-10-30
+## [2.1.0] - 2026-10-30
+
+### Added
+
+- Framework adapters publish their config template on first boot, following
+  each framework's path convention: `config/bigdata.php` for Laravel, ThinkPHP,
+  Webman and Yii2, and `config/autoload/bigdata.php` for Hyperf. Existing files
+  are never overwritten. Yii3 keeps using yiisoft/config's automatic merge and
+  copies nothing.
 
 ### Fixed
 
-- Framework smoke CI now installs `illuminate/container` explicitly; the
-  Laravel provider resolves `Illuminate\Container\Container` directly.
+- Framework smoke CI now installs `illuminate/container` and
+  `vlucas/phpdotenv`; the Laravel provider resolves `Illuminate\Container\Container`
+  and `Env` directly.
 - Dependabot no longer attempts Composer updates. The package supports PHP 8.0
   while dev tooling needs PHP 8.1+, so Dependabot's 8.0 platform resolution
   cannot satisfy `require-dev`. GitHub Actions updates remain automated.
+
+### Tests
+
+- 292 unit tests / 975 assertions; 14 integration tests / 16 assertions (6
+  external-service skips).
 
 ## [2.0.0] - 2026-10-30
 

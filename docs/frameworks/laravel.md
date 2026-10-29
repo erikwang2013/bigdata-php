@@ -32,11 +32,15 @@ return [
 
 ## Configuration
 
+The provider copies the template to `config/bigdata.php` on first boot when the
+file does not exist; an existing file is never overwritten. The same file can
+be published explicitly:
+
 ```bash
 php artisan vendor:publish --tag=bigdata-config
 ```
 
-This publishes `config/bigdata.php`:
+Published config:
 
 ```php
 return [

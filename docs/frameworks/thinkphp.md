@@ -27,7 +27,9 @@ return [
 
 ## Configuration
 
-Copy `src/Integration/ThinkPHP/config/bigdata.php` to `config/bigdata.php`:
+On the first service boot, `BigDataService` copies its template to
+`config/bigdata.php` when the application has no `bigdata` config. Existing
+files are never overwritten. The resulting file:
 
 ```php
 return [

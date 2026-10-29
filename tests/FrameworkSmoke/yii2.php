@@ -30,19 +30,22 @@ $app = new Application([
     'id' => 'bigdata-smoke',
     'basePath' => $projectDir,
     'vendorPath' => $projectDir . '/vendor',
-    'params' => ['bigdata' => $config],
     'components' => [
         'bigdata' => BigDataComponent::class,
     ],
 ]);
 
-smoke_section('component binding');
+smoke_section('component binding and config publish');
 $component = $app->bigdata;
 smoke_check(
     $component instanceof BigDataComponent,
     "'bigdata' should resolve to " . BigDataComponent::class . ', got ' . get_debug_type($component),
 );
 smoke_check($component->getManager() instanceof Manager, 'the component manager should be ' . Manager::class . '.');
+smoke_check(
+    is_file($projectDir . '/config/bigdata.php'),
+    'the component should copy config/bigdata.php when params["bigdata"] is not set.',
+);
 
 $client = $component->driver('trino');
 smoke_check($client instanceof TrinoClient, 'driver("trino") should return TrinoClient, got ' . get_debug_type($client));

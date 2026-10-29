@@ -9,8 +9,8 @@
 
 ## Registration
 
-Yii2 has no Composer auto-discovery. Register the component and its params in
-`config/web.php` (and `config/console.php` when the console needs it):
+Yii2 has no Composer auto-discovery. Register the component in `config/web.php`
+(and `config/console.php` when the console needs it):
 
 ```php
 'components' => [
@@ -18,13 +18,12 @@ Yii2 has no Composer auto-discovery. Register the component and its params in
         'class' => \Erikwang2013\BigData\Integration\Yii2\BigDataComponent::class,
     ],
 ],
-'params' => [
-    'bigdata' => require __DIR__ . '/bigdata.php',
-],
 ```
 
-Copy `src/Integration/Yii2/config/bigdata.php` to `config/bigdata.php`. It
-returns the manager config directly:
+The component copies `src/Integration/Yii2/config/bigdata.php` to
+`config/bigdata.php` on first use when `params['bigdata']` is not set and the
+file is missing; existing files are never overwritten. When you set `params['bigdata']`, it takes
+precedence over the file. The copied file returns the manager config directly:
 
 ```php
 return [

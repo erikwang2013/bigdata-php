@@ -27,13 +27,15 @@ return [
 ];
 ```
 
-Publish the config template:
+`ConfigProvider` copies the template to `config/autoload/bigdata.php` on first
+boot when the file is missing; existing files are never overwritten. The same
+file can be published explicitly:
 
 ```bash
 php bin/hyperf.php vendor:publish erikwang2013/bigdata-php
 ```
 
-This writes `config/autoload/bigdata.php`:
+Published config:
 
 ```php
 return [

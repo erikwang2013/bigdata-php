@@ -121,7 +121,7 @@
         "version": "v2.0.0",
         "date": "2026-10-30",
         "title": "共享支持层与湖仓增强",
-        "body": "统一 HTTP/异常，Hudi/Paimon S3、DeltaLog、Hive TLS 与质量门禁落地。"
+        "body": "统一 HTTP/异常，Hudi/Paimon S3、DeltaLog、Hive TLS、框架配置自动发布与质量门禁落地。"
       }
     ]
   },
@@ -130,10 +130,10 @@
     "sub": "最近的发布记录，完整列表在 GitHub Releases。",
     "items": [
       {
-        "version": "v2.0.1",
+        "version": "v2.1.0",
         "date": "2026-10-30",
-        "summary": "修复 Laravel 冒烟测试依赖；Dependabot 仅自动更新 GitHub Actions。",
-        "url": "https://github.com/erikwang2013/bigdata-php/releases/tag/v2.0.1"
+        "summary": "框架首次启动自动发布配置模板；修复 Laravel 冒烟测试依赖，Dependabot 仅更新 GitHub Actions。",
+        "url": "https://github.com/erikwang2013/bigdata-php/releases/tag/v2.1.0"
       },
       {
         "version": "v1.2.4",
@@ -313,7 +313,7 @@
         },
         {
           "title": "Shared support layer and lakehouse upgrades",
-          "body": "Shared HTTP/exceptions, Hudi/Paimon S3, DeltaLog, Hive TLS, and quality gates."
+          "body": "Shared HTTP/exceptions, Hudi/Paimon S3, DeltaLog, Hive TLS, automatic framework config publishing, and quality gates."
         }
       ]
     },
@@ -322,7 +322,7 @@
       "sub": "Recent releases; the full list is on GitHub Releases.",
       "items": [
         {
-          "summary": "Fix the Laravel smoke dependency; Dependabot now updates GitHub Actions only."
+          "summary": "Framework adapters publish config templates on first boot; fix Laravel smoke dependencies and scope Dependabot to GitHub Actions."
         },
         {
           "summary": "site/ is excluded from the repository, tags, and release archives."

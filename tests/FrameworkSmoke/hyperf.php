@@ -32,6 +32,12 @@ $provided = $provider();
 smoke_check(isset($provided['dependencies'][Manager::class]), 'dependencies should define ' . Manager::class . '.');
 smoke_check(is_callable($provided['dependencies'][Manager::class]), 'the Manager definition should be callable.');
 
+smoke_section('config publish');
+smoke_check(
+    is_file(BASE_PATH . '/config/autoload/bigdata.php'),
+    'ConfigProvider should copy config/autoload/bigdata.php on first boot.',
+);
+
 $publish = $provided['publish'][0] ?? [];
 smoke_check(($publish['id'] ?? null) === 'bigdata', 'publish entry id should be bigdata.');
 smoke_check(is_file($publish['source'] ?? ''), 'publish source should point at the shipped config file.');

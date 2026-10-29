@@ -9,8 +9,8 @@
 
 ## Registration
 
-Webman has no Composer auto-discovery. Copy the config and add the bootstrap
-class to `config/bootstrap.php`:
+Webman has no Composer auto-discovery. Add the bootstrap class to
+`config/bootstrap.php`:
 
 ```php
 return [
@@ -19,7 +19,9 @@ return [
 ];
 ```
 
-Copy `src/Integration/Webman/config/bigdata.php` to `config/bigdata.php`:
+On the first worker start, `Bootstrap` copies its template to
+`config/bigdata.php` when the file is missing; an existing file is never
+overwritten. The resulting config:
 
 ```php
 return [
