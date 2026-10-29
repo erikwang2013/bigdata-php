@@ -1,3 +1,5 @@
+[简体中文](README.md) | [English](README_EN.md)
+
 # bigdata-php
 
 一个 Composer 包，19 个大数据平台驱动，按需启用。
