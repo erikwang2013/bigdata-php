@@ -34,6 +34,7 @@ jobs:
           tools: composer:v2
       # No committed lock file, so Composer resolves require-dev too; those packages
       # need PHP 8.1+ and would block --no-dev. The flag skips only the PHP constraint.
+      - run: composer config platform-check false
       - run: composer install --no-dev --prefer-dist --no-interaction --ignore-platform-req=php
       - run: find src tests -name '*.php' -print0 | xargs -0 -n1 php -l
       - run: php tests/php80-smoke.php
@@ -50,6 +51,9 @@ jobs:
       # composer.lock is gitignored, so Composer resolves require-dev as well;
       # apache/thrift and mroosz/php-cassandra need PHP newer than 8.0. --no-dev
       # keeps them out of vendor; the flag skips only their platform constraint.
+      # platform-check is disabled because the generated check also covers resolved
+      # dev packages that are not installed in this lane.
+      - run: composer config platform-check false
       - run: composer install --no-dev --prefer-dist --no-interaction --ignore-platform-req=php
       # --no-dev omits autoload-dev; regenerate it so the Tests\ namespace resolves.
       - run: composer dump-autoload --dev
