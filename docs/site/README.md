@@ -36,7 +36,7 @@ cp ../.site-builder/data/bigdata-php.json docs/site/content.json
 ```
 
 Current snapshot: 2026-10-30, SHA-256
-`bdc8eecc84e4299c7053d4b922fa70f77456fd36fc9d759e3041a7add1cce5c9`.
+`5b713e876280cea85518388dcaffffd908494f7fe3f26ef4b14e0bfa23be3db8`.
 
 ## Audit
 

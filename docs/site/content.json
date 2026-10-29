@@ -130,6 +130,12 @@
     "sub": "最近的发布记录，完整列表在 GitHub Releases。",
     "items": [
       {
+        "version": "v2.0.1",
+        "date": "2026-10-30",
+        "summary": "修复 Laravel 冒烟测试依赖；Dependabot 仅自动更新 GitHub Actions。",
+        "url": "https://github.com/erikwang2013/bigdata-php/releases/tag/v2.0.1"
+      },
+      {
         "version": "v1.2.4",
         "date": "2026-10-30",
         "summary": "site/ 不再进入仓库、tag 与 release 归档。",
@@ -315,6 +321,9 @@
       "heading": "Changelog",
       "sub": "Recent releases; the full list is on GitHub Releases.",
       "items": [
+        {
+          "summary": "Fix the Laravel smoke dependency; Dependabot now updates GitHub Actions only."
+        },
         {
           "summary": "site/ is excluded from the repository, tags, and release archives."
         },

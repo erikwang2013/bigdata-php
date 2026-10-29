@@ -3,6 +3,16 @@
 All notable changes to `erikwang2013/bigdata-php` are documented here.
 Versions follow `vMAJOR.MINOR.PATCH`.
 
+## [2.0.1] - 2026-10-30
+
+### Fixed
+
+- Framework smoke CI now installs `illuminate/container` explicitly; the
+  Laravel provider resolves `Illuminate\Container\Container` directly.
+- Dependabot no longer attempts Composer updates. The package supports PHP 8.0
+  while dev tooling needs PHP 8.1+, so Dependabot's 8.0 platform resolution
+  cannot satisfy `require-dev`. GitHub Actions updates remain automated.
+
 ## [2.0.0] - 2026-10-30
 
 ### Breaking

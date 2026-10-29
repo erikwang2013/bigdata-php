@@ -1,9 +1,9 @@
+# Composer dependency updates are intentionally not automated: the package
+# supports PHP 8.0 while dev tooling (PHPUnit 10, PHPStan 2, Thrift, Cassandra)
+# requires PHP 8.1+, and Dependabot resolves composer.json against the 8.0
+# platform. Update dev dependencies manually with --ignore-platform-req=php.
 version: 2
 updates:
-  - package-ecosystem: composer
-    directory: "/"
-    schedule:
-      interval: weekly
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
