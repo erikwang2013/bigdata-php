@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Driver\Trino;
 
+use Erikwang2013\BigData\Support\Config;
+
 final class TrinoConfig
 {
     public function __construct(
@@ -22,23 +24,24 @@ final class TrinoConfig
 
     public static function fromArray(array $config): self
     {
-        if (!isset($config['host']) || $config['host'] === '') {
+        $host = Config::string($config, ['host']);
+        if ($host === null) {
             throw new \InvalidArgumentException('Trino config requires a non-empty "host".');
         }
 
         return new self(
-            host: (string) $config['host'],
-            port: (int) ($config['port'] ?? 8080),
-            scheme: (string) ($config['scheme'] ?? 'http'),
+            host: $host,
+            port: Config::int($config, ['port'], 8080),
+            scheme: Config::string($config, ['scheme'], 'http'),
             // X-Trino-User follows the basic-auth identity unless "user" is set explicitly.
-            user: (string) ($config['user'] ?? $config['username'] ?? 'php'),
-            catalog: isset($config['catalog']) ? (string) $config['catalog'] : null,
-            schema: isset($config['schema']) ? (string) $config['schema'] : null,
-            username: isset($config['username']) ? (string) $config['username'] : null,
-            password: isset($config['password']) ? (string) $config['password'] : null,
-            token: isset($config['token']) ? (string) $config['token'] : null,
-            verifySsl: (bool) ($config['verify_ssl'] ?? true),
-            timeout: (float) ($config['timeout'] ?? 30.0),
+            user: Config::string($config, ['user', 'username'], 'php'),
+            catalog: Config::string($config, ['catalog']),
+            schema: Config::string($config, ['schema']),
+            username: Config::string($config, ['username']),
+            password: Config::string($config, ['password']),
+            token: Config::string($config, ['token']),
+            verifySsl: Config::bool($config, ['verify_ssl', 'verifySsl'], true),
+            timeout: Config::float($config, ['timeout'], 30.0),
         );
     }
 

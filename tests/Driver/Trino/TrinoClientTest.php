@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Tests\Driver\Trino;
 
-use Erikwang2013\BigData\Driver\Trino\Exception\RequestException;
-use Erikwang2013\BigData\Driver\Trino\ResultSet;
 use Erikwang2013\BigData\Driver\Trino\TrinoClient;
 use Erikwang2013\BigData\Driver\Trino\TrinoConfig;
+use Erikwang2013\BigData\Exception\RequestException;
+use Erikwang2013\BigData\Support\ResultSet;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;

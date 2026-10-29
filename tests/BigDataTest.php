@@ -86,10 +86,31 @@ final class BigDataTest extends TestCase
         }
     }
 
+    public function test_doris_and_starrocks_are_not_gated_on_pdo_mysql(): void
+    {
+        $reason = new \ReflectionMethod(BigData::class, 'unavailableReason');
+        if (PHP_VERSION_ID < 80100) {
+            $reason->setAccessible(true);
+        }
+
+        self::assertNull($reason->invoke(null, 'doris'));
+        self::assertNull($reason->invoke(null, 'starrocks'));
+        self::assertContains('doris', BigData::available());
+        self::assertContains('starrocks', BigData::available());
+        self::assertInstanceOf(
+            \Erikwang2013\BigData\Driver\Doris\DorisClient::class,
+            BigData::driver('doris', ['host' => 'doris.local', 'database' => 'db']),
+        );
+        self::assertInstanceOf(
+            \Erikwang2013\BigData\Driver\StarRocks\StarRocksClient::class,
+            BigData::driver('starrocks', ['host' => 'starrocks.local', 'database' => 'db']),
+        );
+    }
+
     public function test_hudi_rejects_unknown_storage(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        BigData::driver('hudi', ['base_path' => '/tmp/table', 'storage' => 's3']);
+        BigData::driver('hudi', ['base_path' => '/tmp/table', 'storage' => 'azure']);
     }
 
     public function test_storage_selector_is_case_insensitive(): void

@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Driver\DolphinScheduler;
 
-use Erikwang2013\BigData\Driver\DolphinScheduler\Exception\RequestException;
-use Erikwang2013\BigData\Driver\DolphinScheduler\Support\Http;
+use Erikwang2013\BigData\Exception\RequestException;
+use Erikwang2013\BigData\Support\Http;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use Psr\Log\LoggerInterface;

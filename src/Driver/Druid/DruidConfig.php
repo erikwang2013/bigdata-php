@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Driver\Druid;
 
+use Erikwang2013\BigData\Support\Config;
+
 final class DruidConfig
 {
     public function __construct(
@@ -19,19 +21,20 @@ final class DruidConfig
 
     public static function fromArray(array $config): self
     {
-        if (!isset($config['host']) || $config['host'] === '') {
+        $host = Config::string($config, ['host']);
+        if ($host === null) {
             throw new \InvalidArgumentException('Druid config requires a non-empty "host".');
         }
 
         return new self(
-            host: (string) $config['host'],
-            port: (int) ($config['port'] ?? 8888),
-            scheme: (string) ($config['scheme'] ?? 'http'),
-            username: isset($config['username']) ? (string) $config['username'] : null,
-            password: isset($config['password']) ? (string) $config['password'] : null,
-            token: isset($config['token']) ? (string) $config['token'] : null,
-            verifySsl: (bool) ($config['verify_ssl'] ?? true),
-            timeout: (float) ($config['timeout'] ?? 60.0),
+            host: $host,
+            port: Config::int($config, ['port'], 8888),
+            scheme: Config::string($config, ['scheme'], 'http'),
+            username: Config::string($config, ['username']),
+            password: Config::string($config, ['password']),
+            token: Config::string($config, ['token']),
+            verifySsl: Config::bool($config, ['verify_ssl', 'verifySsl'], true),
+            timeout: Config::float($config, ['timeout'], 60.0),
         );
     }
 

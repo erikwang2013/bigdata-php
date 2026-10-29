@@ -3,6 +3,60 @@
 All notable changes to `erikwang2013/bigdata-php` are documented here.
 Versions follow `vMAJOR.MINOR.PATCH`.
 
+## [2.0.0] - 2026-10-30
+
+### Breaking
+
+- HTTP-based drivers (Trino, Hadoop, Spark, Flink, Kylin, Druid, Iceberg,
+  DolphinScheduler, Airflow, Azkaban, Oozie, HBase, and the Hudi / Paimon /
+  Delta Lake HTTP paths) now throw the shared
+  `Erikwang2013\BigData\Exception\ConnectionException` and `RequestException`.
+  Their per-driver `Exception/*` and `Support/Http` classes were removed. Catch
+  `BigDataException` or the shared classes instead.
+- Driver-specific exceptions remain for Hive, Cassandra, Doris and StarRocks
+  (their own hierarchy) and for Hudi/Paimon/Delta Lake metadata
+  (`HudiException`, `PaimonException`, `DeltaLakeException`).
+
+### Added
+
+- Shared support layer: `Support\Http` (Guzzle wrapper with consistent 2xx
+  handling), `Support\ResultSet`, `Support\Config`, and the
+  `BigDataException` / `ConnectionException` / `RequestException` hierarchy.
+- Hudi and Paimon S3-compatible storage (`storage => 's3'`) through the optional
+  `aws/aws-sdk-php`, plus `StorageFactory` for local / WebHDFS / S3 selection.
+- Read-only `DeltaLog` for Delta Lake `_delta_log` on local disk and WebHDFS
+  (versions, protocol, metadata, active files, commit info).
+- Hive binary TLS (`tls => true` via `TSSLSocket`), `scheme` / `verifySsl`
+  options, `HiveClient::withTransport()`, and `CloseOperation` cleanup after an
+  exhausted fetch.
+- Cassandra `node_selection` (`random` / `round_robin`), explicit
+  `pageSize` / `pagingState` arguments, and prepared-statement paging support.
+- PHPStan level 5 and PHPUnit coverage workflows; framework boot smoke matrix
+  (Laravel, ThinkPHP, Webman, Hyperf, Yii2, Yii3); HiveServer2 integration job;
+  Dependabot updates.
+- English driver and framework docs; committed site source, build script and
+  Playwright audit.
+
+### Changed
+
+- Doris and StarRocks are no longer gated on `ext-pdo_mysql`: `streamLoad()`
+  works without it, while `query()` / `execute()` raise a clear driver exception.
+- Azkaban accepts `baseUrl` as an alias of `base_url`.
+- Hadoop/HBase/Iceberg/Hudi/Paimon/Delta Lake use the shared HTTP helper while
+  preserving manual WebHDFS redirects without forwarding credentials.
+- PHP 8.0 full unit lane; test suite runs on PHPUnit 9.6 and 10.5.
+
+### Fixed
+
+- Hive Thrift timeouts are sent as milliseconds; empty Flink properties encode
+  as a JSON object; HTTP status handling is consistent across drivers; Doris /
+  StarRocks PDO failures map to the driver exception hierarchy.
+
+### Tests
+
+- 289 unit tests / 969 assertions; 14 integration tests / 16 assertions (6
+  external-service skips).
+
 ## [1.2.4] - 2026-10-30
 
 ### Changed

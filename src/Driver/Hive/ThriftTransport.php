@@ -7,6 +7,7 @@ use Erikwang2013\BigData\Driver\Hive\Exception\ConnectionException;
 use Erikwang2013\BigData\Driver\Hive\Exception\RequestException;
 use Erikwang2013\BigData\Driver\Hive\Thrift\{
     TCLIServiceClient,
+    TCloseOperationReq,
     TCloseSessionReq,
     TColumn,
     TColumnValue,
@@ -32,6 +33,7 @@ use Thrift\Protocol\TBinaryProtocol;
 use Thrift\Transport\TBufferedTransport;
 use Thrift\Transport\THttpClient;
 use Thrift\Transport\TSocket;
+use Thrift\Transport\TSSLSocket;
 use Thrift\Transport\TTransport;
 
 final class ThriftTransport implements HiveTransport
@@ -138,9 +140,14 @@ final class ThriftTransport implements HiveTransport
         ])));
         $this->checkStatus($response->status, 'FetchResults');
 
+        $hasMore = (bool) $response->hasMoreRows;
+        if (!$hasMore) {
+            $this->closeOperation();
+        }
+
         return [
             'rows' => $this->decodeRowSet($response->results),
-            'hasMore' => (bool) $response->hasMoreRows,
+            'hasMore' => $hasMore,
         ];
     }
 
@@ -240,11 +247,24 @@ final class ThriftTransport implements HiveTransport
             return $http;
         }
 
-        $socket = new TSocket($this->config->host, $this->config->port);
-        $timeout = (int) ceil($this->config->timeout);
-        $socket->setConnectTimeout($timeout);
-        $socket->setSendTimeout($timeout);
-        $socket->setRecvTimeout($timeout);
+        if ($this->config->tls) {
+            $socket = new TSSLSocket(
+                $this->config->host,
+                $this->config->port,
+                stream_context_create(['ssl' => [
+                    'verify_peer' => $this->config->verifySsl,
+                    'verify_peer_name' => $this->config->verifySsl,
+                ]]),
+            );
+        } else {
+            $socket = new TSocket($this->config->host, $this->config->port);
+        }
+
+        // Thrift's socket setters take milliseconds; HiveConfig::timeout is seconds.
+        $timeoutMs = (int) ceil($this->config->timeout * 1000);
+        $socket->setConnectTimeout($timeoutMs);
+        $socket->setSendTimeout($timeoutMs);
+        $socket->setRecvTimeout($timeoutMs);
 
         $transport = new TBufferedTransport($socket);
 
@@ -257,6 +277,27 @@ final class ThriftTransport implements HiveTransport
         }
 
         return $transport;
+    }
+
+    /**
+     * Releases the operation once all rows have been fetched. Best effort:
+     * failure must not turn a completed result set into an error.
+     */
+    private function closeOperation(): void
+    {
+        $operation = $this->operation;
+        $this->operation = null;
+        $this->hasResultSet = false;
+
+        if ($operation === null || $this->client === null) {
+            return;
+        }
+
+        try {
+            $this->client->CloseOperation(new TCloseOperationReq(['operationHandle' => $operation]));
+        } catch (\Throwable) {
+            // Best effort: the server may already have reclaimed the operation.
+        }
     }
 
     private function runStatement(string $sql): void

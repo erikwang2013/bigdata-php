@@ -5,7 +5,7 @@ namespace Erikwang2013\BigData\Tests\Driver\DeltaLake;
 
 use Erikwang2013\BigData\Driver\DeltaLake\DeltaSharingClient;
 use Erikwang2013\BigData\Driver\DeltaLake\DeltaSharingConfig;
-use Erikwang2013\BigData\Driver\DeltaLake\Exception\RequestException;
+use Erikwang2013\BigData\Exception\RequestException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;

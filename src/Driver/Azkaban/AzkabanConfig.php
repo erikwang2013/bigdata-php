@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Driver\Azkaban;
 
+use Erikwang2013\BigData\Support\Config;
+
 final class AzkabanConfig
 {
     public function __construct(
@@ -16,18 +18,22 @@ final class AzkabanConfig
 
     public static function fromArray(array $config): self
     {
-        foreach (['base_url', 'username', 'password'] as $key) {
-            if (!isset($config[$key]) || $config[$key] === '') {
+        $baseUrl = Config::string($config, ['base_url', 'baseUrl']);
+        if ($baseUrl === null) {
+            throw new \InvalidArgumentException('Azkaban config requires a non-empty "base_url".');
+        }
+        foreach (['username', 'password'] as $key) {
+            if (Config::string($config, [$key]) === null) {
                 throw new \InvalidArgumentException(sprintf('Azkaban config requires a non-empty "%s".', $key));
             }
         }
 
         return new self(
-            baseUrl: rtrim((string) $config['base_url'], '/'),
-            username: (string) $config['username'],
-            password: (string) $config['password'],
-            verifySsl: (bool) ($config['verify_ssl'] ?? true),
-            timeout: (float) ($config['timeout'] ?? 30.0),
+            baseUrl: rtrim($baseUrl, '/'),
+            username: Config::string($config, ['username']),
+            password: Config::string($config, ['password']),
+            verifySsl: Config::bool($config, ['verify_ssl', 'verifySsl'], true),
+            timeout: Config::float($config, ['timeout'], 30.0),
         );
     }
 }

@@ -1,0 +1,5 @@
+{"commitInfo":{"timestamp":1704067200000,"operation":"WRITE","operationParameters":{"mode":"Append"},"version":0}}
+{"protocol":{"minReaderVersion":1,"minWriterVersion":2}}
+{"metaData":{"id":"delta-table-1","name":"orders","format":{"provider":"parquet","options":{}},"schemaString":"{\"type\":\"struct\",\"fields\":[]}","partitionColumns":["dt"],"configuration":{},"createdTime":1704067200000}}
+{"add":{"path":"dt=2026-10-29/part-00000.parquet","partitionValues":{"dt":"2026-10-29"},"size":100,"modificationTime":1704067200000,"dataChange":true}}
+{"add":{"path":"dt=2026-10-30/part-00001.parquet","partitionValues":{"dt":"2026-10-30"},"size":200,"modificationTime":1704067200000,"dataChange":true}}

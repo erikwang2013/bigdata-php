@@ -5,7 +5,7 @@ namespace Erikwang2013\BigData\Tests\Driver\Druid;
 
 use Erikwang2013\BigData\Driver\Druid\DruidClient;
 use Erikwang2013\BigData\Driver\Druid\DruidConfig;
-use Erikwang2013\BigData\Driver\Druid\ResultSet;
+use Erikwang2013\BigData\Support\ResultSet;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -137,6 +137,12 @@ final class DruidClientTest extends TestCase
             'Basic ' . base64_encode('druid:secret'),
             $this->history[0]['request']->getHeaderLine('Authorization'),
         );
+    }
+
+    public function test_verify_ssl_aliases_are_accepted(): void
+    {
+        self::assertFalse(DruidConfig::fromArray(['host' => 'druid.local', 'verify_ssl' => false])->verifySsl);
+        self::assertFalse(DruidConfig::fromArray(['host' => 'druid.local', 'verifySsl' => false])->verifySsl);
     }
 
     public function test_bearer_token_takes_precedence_over_basic_auth(): void

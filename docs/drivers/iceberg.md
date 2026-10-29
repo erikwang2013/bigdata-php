@@ -107,11 +107,11 @@ method and URI only — auth headers are never logged.
 
 ## Errors
 
-All exceptions extend `Erikwang2013\BigData\Driver\Iceberg\Exception\IcebergException`:
-
-- `ConnectionException` — transport failure (DNS, refused connection, timeout).
-- `RequestException` — HTTP status >= 400 or an invalid JSON response. Exposes
-  `$statusCode` and `$body` when available.
+Transport failures throw `Erikwang2013\BigData\Exception\ConnectionException`.
+HTTP status >= 400 or an invalid JSON response raises
+`Erikwang2013\BigData\Exception\RequestException`, which exposes public
+`$statusCode` and `$body`. Both exceptions extend
+`Erikwang2013\BigData\Exception\BigDataException`.
 
 ## Notes
 

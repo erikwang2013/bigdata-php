@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Driver\HBase;
 
+use Erikwang2013\BigData\Support\Config;
+
 final class HBaseConfig
 {
     public function __construct(
@@ -16,17 +18,17 @@ final class HBaseConfig
 
     public static function fromArray(array $config): self
     {
-        $baseUrl = $config['baseUrl'] ?? $config['base_url'] ?? null;
-        if (!is_string($baseUrl) || $baseUrl === '') {
+        $baseUrl = Config::string($config, ['baseUrl', 'base_url']);
+        if ($baseUrl === null) {
             throw new \InvalidArgumentException('HBase config requires a non-empty "baseUrl".');
         }
 
         return new self(
             baseUrl: rtrim($baseUrl, '/'),
-            username: isset($config['username']) ? (string) $config['username'] : null,
-            password: isset($config['password']) ? (string) $config['password'] : null,
-            verifySsl: (bool) ($config['verify_ssl'] ?? true),
-            timeout: (float) ($config['timeout'] ?? 30.0),
+            username: Config::string($config, ['username']),
+            password: Config::string($config, ['password']),
+            verifySsl: Config::bool($config, ['verify_ssl', 'verifySsl'], true),
+            timeout: Config::float($config, ['timeout'], 30.0),
         );
     }
 }

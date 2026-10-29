@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Tests\Driver\Oozie;
 
-use Erikwang2013\BigData\Driver\Oozie\Exception\ConnectionException;
-use Erikwang2013\BigData\Driver\Oozie\Exception\RequestException;
 use Erikwang2013\BigData\Driver\Oozie\OozieClient;
 use Erikwang2013\BigData\Driver\Oozie\OozieConfig;
+use Erikwang2013\BigData\Exception\ConnectionException;
+use Erikwang2013\BigData\Exception\RequestException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -235,5 +235,11 @@ final class OozieClientTest extends TestCase
                 'base_url' => 'http://oozie.alias:11000/oozie',
             ])->baseUrl,
         );
+    }
+
+    public function test_verify_ssl_aliases_are_accepted(): void
+    {
+        self::assertFalse(OozieConfig::fromArray(['baseUrl' => 'http://oozie.local:11000/oozie', 'verify_ssl' => false])->verifySsl);
+        self::assertFalse(OozieConfig::fromArray(['baseUrl' => 'http://oozie.local:11000/oozie', 'verifySsl' => false])->verifySsl);
     }
 }

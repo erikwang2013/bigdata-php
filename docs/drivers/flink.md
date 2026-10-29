@@ -112,11 +112,11 @@ only — statements and auth headers are never logged.
 
 ## Errors
 
-All exceptions extend `Erikwang2013\BigData\Driver\Flink\Exception\FlinkException`:
-
-- `ConnectionException` — transport failure (DNS, refused connection, timeout).
-- `RequestException` — HTTP status >= 400 or invalid JSON. Exposes `$statusCode`
-  and `$body` when available.
+Transport failures throw `Erikwang2013\BigData\Exception\ConnectionException`.
+HTTP status >= 400 or invalid JSON raises
+`Erikwang2013\BigData\Exception\RequestException`, which exposes public
+`$statusCode` and `$body` when available. Both extend
+`Erikwang2013\BigData\Exception\BigDataException`.
 
 ## Notes
 

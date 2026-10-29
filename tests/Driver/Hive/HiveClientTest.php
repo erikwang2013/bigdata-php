@@ -30,6 +30,18 @@ final class HiveClientTest extends TestCase
         self::assertSame(['SELECT id, name FROM users'], $transport->executed);
     }
 
+    public function test_with_transport_injects_custom_transport(): void
+    {
+        $transport = new FakeTransport(HiveConfig::fromArray(['host' => 'hive.local']), [
+            ['rows' => [[1, 'alice']], 'hasMore' => false],
+        ]);
+
+        $client = HiveClient::withTransport($transport->config, $transport);
+
+        self::assertSame([[1, 'alice']], $client->execute('SELECT id FROM users')->rows());
+        self::assertSame(['SELECT id FROM users'], $transport->executed);
+    }
+
     public function test_fetch_handles_multiple_batches(): void
     {
         $transport = new FakeTransport(HiveConfig::fromArray(['host' => 'hive.local']), [

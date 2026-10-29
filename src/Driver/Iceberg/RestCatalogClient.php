@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Driver\Iceberg;
 
-use Erikwang2013\BigData\Driver\Iceberg\Exception\RequestException;
-use Erikwang2013\BigData\Driver\Iceberg\Support\Http;
+use Erikwang2013\BigData\Exception\RequestException;
+use Erikwang2013\BigData\Support\Http;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use Psr\Http\Message\ResponseInterface;

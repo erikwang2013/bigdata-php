@@ -55,8 +55,12 @@ $result->count();   // number of rows
 $result->raw();     // one entry per fetched batch: ['rows' => [...], 'hasMore' => bool]
 ```
 
-Null values are preserved as `null`. `SET` statements can be issued
-individually:
+Null values are preserved as `null`. After the last result batch is fetched, the
+transport closes the server-side operation with `CloseOperation` on the
+operation handle. This is best effort: a failure while closing never turns a
+completed result set into an error.
+
+`SET` statements can be issued individually:
 
 ```php
 $hive->set('hive.exec.dynamic.partition', 'true'); // runs SET hive.exec.dynamic.partition=true
@@ -75,6 +79,19 @@ $hive = new HiveClient(HiveConfig::fromArray([
 ]));
 ```
 
+`HiveClient::withTransport()` provides the same thing as an explicit factory and
+bypasses the `BigData` factory (which always builds `ThriftTransport`):
+
+```php
+use Erikwang2013\BigData\Driver\Hive\HiveClient;
+use Erikwang2013\BigData\Driver\Hive\HiveConfig;
+
+$hive = HiveClient::withTransport(
+    HiveConfig::fromArray(['host' => '127.0.0.1']),
+    $customTransport,
+);
+```
+
 ## Configuration
 
 `HiveConfig::fromArray()` accepts:
@@ -90,11 +107,13 @@ $hive = new HiveClient(HiveConfig::fromArray([
 | `httpPath`   | `/cliservice` | HTTP endpoint path.                                     |
 | `scheme`     | `http`        | `http` or `https` (HTTP transport only).                |
 | `database`   | `default`     | Initial database (`USE <database>` on connect).         |
-| `verifySsl`  | `true`        | TLS peer verification when `scheme` is `https`.         |
+| `verifySsl`  | `true`        | TLS peer verification for HTTP HTTPS and binary TLS.    |
+| `tls`        | `false`       | Enable TLS on the binary transport (`TSSLSocket`).       |
 | `timeout`    | `30.0`        | Connect/read/write timeout in seconds.                  |
 
-`http_path`, `http_scheme` and `verify_ssl` are accepted as aliases. Construct
-`HiveConfig` directly if you prefer camelCase properties.
+`http_path`, `http_scheme` and `verify_ssl` are accepted as aliases; `verifySsl`
+applies to both HTTP `https` and binary TLS. Construct `HiveConfig` directly if
+you prefer camelCase properties.
 
 ## Authentication and transports
 
@@ -109,13 +128,16 @@ $hive = new HiveClient(HiveConfig::fromArray([
   `scheme` to `https` so credentials are not sent in cleartext, and leave
   `verifySsl` enabled unless the server uses a self-signed certificate.
 
-Kerberos/GSSAPI and SASL QOP other than `auth` are not implemented. TLS on the
-binary transport is not implemented either; use HTTP mode with `scheme` set to
-`https` for TLS.
+Kerberos/GSSAPI and SASL QOP other than `auth` are not implemented. Set
+`tls => true` to wrap the binary transport in `TSSLSocket`; `verifySsl` controls
+peer and peer-name verification for both binary TLS and HTTP `https`.
 
 ## Errors
 
-All exceptions extend `Erikwang2013\BigData\Driver\Hive\Exception\HiveException`:
+Hive keeps its own exception hierarchy: all of these are driver-specific
+classes: `ConnectionException` / `RequestException` extend
+`Erikwang2013\BigData\Driver\Hive\Exception\HiveException`, which extends
+`\RuntimeException`:
 
 - `ConnectionException` — socket failure, timeout, or a failed `OpenSession`.
 - `RequestException` — HiveServer2 returned `ERROR_STATUS` for a statement. It
@@ -134,6 +156,5 @@ connect/execute/close and never contain credentials.
 - The generated `TCLIService` Thrift classes are committed under
   `src/Driver/Hive/Thrift/`, so no Thrift compiler is needed at install time.
   They are Apache-2.0 licensed, like the IDL they come from.
-- Limitations: no Kerberos/GSSAPI, SASL QOP `auth` only, and no TLS on the
-  binary transport.
+- Limitations: no Kerberos/GSSAPI and SASL QOP `auth` only.
 - No automatic retries are performed.

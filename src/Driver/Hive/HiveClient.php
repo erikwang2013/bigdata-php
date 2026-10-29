@@ -25,6 +25,18 @@ final class HiveClient
         $this->logger = $logger ?? new NullLogger();
     }
 
+    /**
+     * Builds a client around a caller-supplied transport without going
+     * through the BigData factory (which always uses the Thrift transport).
+     */
+    public static function withTransport(
+        HiveConfig $config,
+        HiveTransport $transport,
+        ?LoggerInterface $logger = null,
+    ): self {
+        return new self($config, $transport, $logger);
+    }
+
     public function connect(): void
     {
         if ($this->connected) {

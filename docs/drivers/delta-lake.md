@@ -114,6 +114,49 @@ foreach ($result->files() as $file) {
 }
 ```
 
+## Delta transaction log
+
+The driver also ships a read-only `_delta_log` reader for Delta tables on local
+disk or WebHDFS. It is independent of Delta Sharing; open it directly:
+
+```php
+use Erikwang2013\BigData\Driver\DeltaLake\DeltaLog;
+use Erikwang2013\BigData\Driver\DeltaLake\LocalStorage;
+
+$log = DeltaLog::open('/warehouse/orders', new LocalStorage());
+
+$log->versions();       // [0, 1, 2, ...] commit versions found
+$log->latestVersion();  // 2, or null when there are no commits
+$log->protocol();       // last protocol action
+$log->metadata();       // last metaData action
+$log->activeFiles();    // current add actions, sorted by path
+$log->commitInfo(2);    // commitInfo for a version, or null
+```
+
+WebHDFS storage:
+
+```php
+use Erikwang2013\BigData\Driver\DeltaLake\DeltaLog;
+use Erikwang2013\BigData\Driver\DeltaLake\WebHdfsConfig;
+use Erikwang2013\BigData\Driver\DeltaLake\WebHdfsStorage;
+
+$log = DeltaLog::open('/warehouse/orders', new WebHdfsStorage(
+    WebHdfsConfig::fromArray([
+        'host' => 'namenode.local',
+        'port' => 9870,
+        'user' => 'php',
+    ]),
+));
+```
+
+Every `NNNNNNNNNNNNNNNNNN.json` commit is replayed in version order: `protocol`
+and `metaData` keep the last seen action, `add` / `remove` actions produce the
+current `activeFiles()` set, and `commitInfo()` is kept per version. Checkpoints
+(`*.checkpoint.parquet`) and `_last_checkpoint` are ignored, so a table whose old
+commits were cleaned up may expose incomplete history. Invalid JSON or actions
+raise `DeltaLakeException`. There is no `BigData::driver()` entry for this
+reader; construct it directly.
+
 ## Logging
 
 `DeltaSharingClient` accepts an optional PSR-3 logger as its third constructor
@@ -122,12 +165,16 @@ method and URI only — the bearer token is never logged.
 
 ## Errors
 
-All exceptions extend `Erikwang2013\BigData\Driver\DeltaLake\Exception\DeltaLakeException`:
+Delta Sharing HTTP errors use the shared exceptions:
+`Erikwang2013\BigData\Exception\ConnectionException` for transport failures and
+`Erikwang2013\BigData\Exception\RequestException` for a non-2xx status, invalid
+JSON/NDJSON, an `endStreamAction.errorMessage` in a query response, or a
+metadata response missing `metaData`; `RequestException` exposes public
+`$statusCode` and `$body`.
 
-- `ConnectionException` — transport failure (DNS, refused connection, timeout).
-- `RequestException` — non-2xx HTTP status, invalid JSON/NDJSON, an
-  `endStreamAction.errorMessage` in a query response, or a metadata response
-  missing `metaData`. Exposes public `$statusCode` and `$body` when available.
+`Erikwang2013\BigData\Driver\DeltaLake\Exception\DeltaLakeException` (extends
+`Erikwang2013\BigData\Exception\BigDataException`) remains the base for
+`_delta_log` and local / WebHDFS storage errors.
 
 ## Notes
 

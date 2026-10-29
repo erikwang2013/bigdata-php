@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Tests\Driver\HBase;
 
-use Erikwang2013\BigData\Driver\HBase\Exception\RequestException;
+use Erikwang2013\BigData\Exception\RequestException;
 use Erikwang2013\BigData\Driver\HBase\HBaseClient;
 use Erikwang2013\BigData\Driver\HBase\HBaseConfig;
 use GuzzleHttp\Client;

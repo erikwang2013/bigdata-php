@@ -96,12 +96,11 @@ URI only — credentials are never logged.
 
 ## Errors
 
-All exceptions extend `Erikwang2013\BigData\Driver\Airflow\Exception\AirflowException`:
-
-- `ConnectionException` — transport failure (DNS, refused connection, timeout).
-- `RequestException` — HTTP status >= 400, invalid JSON, or an unreadable
-  response. Exposes `$statusCode` and `$body` when available; a 404 is reported
-  the same way.
+Transport failures throw `Erikwang2013\BigData\Exception\ConnectionException`.
+HTTP status >= 400, invalid JSON, or an unreadable response raises
+`Erikwang2013\BigData\Exception\RequestException`, which exposes public
+`$statusCode` and `$body` when available; a 404 is reported the same way. Both
+extend `Erikwang2013\BigData\Exception\BigDataException`.
 
 ## Notes
 

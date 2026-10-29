@@ -95,4 +95,10 @@ final class JobClientTest extends TestCase
             ])->baseUrl,
         );
     }
+
+    public function test_verify_ssl_aliases_are_accepted(): void
+    {
+        self::assertFalse(FlinkConfig::fromArray(['baseUrl' => 'http://flink.local:8081', 'verify_ssl' => false])->verifySsl);
+        self::assertFalse(FlinkConfig::fromArray(['baseUrl' => 'http://flink.local:8081', 'verifySsl' => false])->verifySsl);
+    }
 }

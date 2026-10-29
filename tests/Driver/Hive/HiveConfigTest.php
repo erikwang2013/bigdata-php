@@ -35,6 +35,7 @@ final class HiveConfigTest extends TestCase
         self::assertTrue($config->verifySsl);
         self::assertSame(30.0, $config->timeout);
         self::assertSame('http', $config->scheme);
+        self::assertFalse($config->tls);
     }
 
     public function test_from_array_parses_all_fields(): void
@@ -51,6 +52,7 @@ final class HiveConfigTest extends TestCase
             'verify_ssl' => false,
             'timeout' => 5.5,
             'scheme' => 'HTTPS',
+            'tls' => true,
         ]);
 
         self::assertSame(10001, $config->port);
@@ -63,6 +65,7 @@ final class HiveConfigTest extends TestCase
         self::assertFalse($config->verifySsl);
         self::assertSame(5.5, $config->timeout);
         self::assertSame('https', $config->scheme);
+        self::assertTrue($config->tls);
     }
 
     public function test_from_array_accepts_http_scheme_alias(): void

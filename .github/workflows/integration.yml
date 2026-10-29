@@ -37,6 +37,48 @@ jobs:
           http://127.0.0.1:8080/v1/info
       - run: TRINO_HOST=127.0.0.1 CASSANDRA_HOST=127.0.0.1 composer test-integration
 
+  hive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      hive:
+        image: apache/hive:4.0.1
+        ports:
+          - 10000:10000
+        env:
+          SERVICE_NAME: hiveserver2
+          DB_DRIVER: derby
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: none
+          tools: composer:v2
+      - run: composer install --prefer-dist --no-interaction
+      - name: Wait for HiveServer2
+        run: |
+          for i in $(seq 1 60); do
+            if nc -z 127.0.0.1 10000 2>/dev/null; then
+              echo "HiveServer2 is listening on port 10000."
+              exit 0
+            fi
+            echo "Attempt $i/60: port 10000 is not open yet."
+            sleep 5
+          done
+          echo "HiveServer2 did not start in time."
+          exit 1
+      - name: Run Hive integration test
+        run: |
+          for i in 1 2 3; do
+            if HIVE_HOST=127.0.0.1 vendor/bin/phpunit --testsuite integration --filter HiveTest; then
+              exit 0
+            fi
+            echo "Attempt $i/3 failed; retrying in 15s."
+            sleep 15
+          done
+          exit 1
+
   demo:
     runs-on: ubuntu-latest
     timeout-minutes: 25

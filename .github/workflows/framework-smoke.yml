@@ -1,0 +1,70 @@
+name: Framework Smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: ${{ matrix.framework.name }} (${{ matrix.framework.mode }}, PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.2', '8.3']
+        framework:
+          - name: laravel
+            mode: full
+            packages: 'illuminate/support:^10.0 illuminate/config:^10.0'
+          - name: thinkphp
+            mode: partial
+            packages: 'topthink/framework:^8.0'
+          - name: webman
+            mode: partial
+            packages: 'workerman/webman-framework:^2.0'
+          - name: hyperf
+            mode: partial
+            packages: 'hyperf/contract:^3.1'
+          - name: yii2
+            mode: full
+            packages: 'yiisoft/yii2:^2.0'
+          - name: yii3
+            mode: partial
+            packages: 'yiisoft/config:^1.0'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: composer:v2
+
+      - name: Install package
+        run: composer install --prefer-dist --no-interaction --no-dev
+
+      - name: Create framework project
+        run: |
+          project="$RUNNER_TEMP/framework-smoke/${{ matrix.framework.name }}"
+          mkdir -p "$project"
+          cd "$project"
+          if [ "${{ matrix.framework.name }}" = "yii2" ]; then
+            # yiisoft/yii2 requires four bower-asset/* frontend packages that the
+            # console boot never touches. Replacing them keeps the install small
+            # and avoids depending on asset-packagist in CI.
+            printf '%s\n' '{"name":"smoke/yii2","replace":{"bower-asset/jquery":"*","bower-asset/inputmask":"*","bower-asset/punycode":"*","bower-asset/yii2-pjax":"*"}}' > composer.json
+          else
+            printf '{"name":"smoke/%s"}\n' "${{ matrix.framework.name }}" > composer.json
+          fi
+          # No composer plugin affects the classes under test, and disabling them
+          # skips the allow-plugins prompt for yii2-composer and yiisoft/config.
+          composer require --no-interaction --prefer-dist --no-plugins ${{ matrix.framework.packages }}
+          echo "SMOKE_PROJECT_DIR=$project" >> "$GITHUB_ENV"
+
+      - name: Run smoke test
+        run: php tests/FrameworkSmoke/${{ matrix.framework.name }}.php

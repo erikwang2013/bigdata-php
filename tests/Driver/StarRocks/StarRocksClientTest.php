@@ -153,6 +153,24 @@ final class StarRocksClientTest extends TestCase
         }
     }
 
+    public function test_pdo_creation_failure_maps_to_connection_exception(): void
+    {
+        // Port 1 is closed on a normal host, so lazy PDO creation fails fast.
+        $client = new StarRocksClient(StarRocksConfig::fromArray([
+            'host' => '127.0.0.1',
+            'database' => 'demo',
+            'port' => 1,
+        ]));
+
+        try {
+            $client->query('SELECT 1');
+            self::fail('Expected ConnectionException.');
+        } catch (ConnectionException $e) {
+            self::assertInstanceOf(\PDOException::class, $e->getPrevious());
+            self::assertStringContainsString('streamLoad()', $e->getMessage());
+        }
+    }
+
     private function pdoClient(\PDOException $error): StarRocksClient
     {
         return new StarRocksClient(

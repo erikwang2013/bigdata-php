@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Driver\DeltaLake\Exception;
 
-class DeltaLakeException extends \RuntimeException
+use Erikwang2013\BigData\Exception\BigDataException;
+
+class DeltaLakeException extends BigDataException
 {
 }

@@ -126,12 +126,12 @@ from logged URIs, so `user.name` and `delegation` tokens never appear in logs.
 
 ## Errors
 
-All exceptions extend `Erikwang2013\BigData\Driver\Hadoop\Exception\HadoopException`:
-
-- `ConnectionException` — transport failure (DNS, refused connection, timeout).
-- `RequestException` — HTTP status >= 400, invalid JSON, or a WebHDFS
-  `RemoteException`. Exposes `$statusCode` and `$body` when available; the
-  `RemoteException.message` is used as the exception message.
+Transport failures throw `Erikwang2013\BigData\Exception\ConnectionException`.
+HTTP status >= 400, invalid JSON, or a WebHDFS `RemoteException` raises
+`Erikwang2013\BigData\Exception\RequestException`, which exposes public
+`$statusCode` and `$body`; the `RemoteException.message` is used as the
+exception message. Both exceptions extend
+`Erikwang2013\BigData\Exception\BigDataException`.
 
 ## Notes
 

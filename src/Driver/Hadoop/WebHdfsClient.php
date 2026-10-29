@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Driver\Hadoop;
 
-use Erikwang2013\BigData\Driver\Hadoop\Exception\RequestException;
-use Erikwang2013\BigData\Driver\Hadoop\Support\Http;
+use Erikwang2013\BigData\Exception\RequestException;
+use Erikwang2013\BigData\Support\Http;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Query;
@@ -137,6 +137,15 @@ final class WebHdfsClient
             );
         }
 
+        $status = $response->getStatusCode();
+        if ($status < 200 || $status >= 300) {
+            $body = (string) $response->getBody();
+
+            throw $this->mapRemoteException(
+                new RequestException(sprintf('HTTP %d: %s', $status, $body), $status, $body),
+            );
+        }
+
         return $response;
     }
 
@@ -144,11 +153,8 @@ final class WebHdfsClient
     {
         $this->logRequest($method, $uri);
 
-        try {
-            return Http::request($method, $uri, $this->options($options));
-        } catch (RequestException $e) {
-            throw $this->mapRemoteException($e);
-        }
+        // raw() so 3xx redirects can be inspected and followed by the caller.
+        return Http::raw($method, $uri, $this->options($options));
     }
 
     private function logRequest(string $method, string $uri): void

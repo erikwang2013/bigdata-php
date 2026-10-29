@@ -53,6 +53,8 @@ $azkaban = new AzkabanClient(AzkabanConfig::fromArray([
 | `verify_ssl` | `true`   | Verify TLS certificates.               |
 | `timeout`    | `30.0`   | Request timeout in seconds.            |
 
+`baseUrl` is accepted as an alias of `base_url`.
+
 ## Authentication
 
 `login()` posts the credentials to `/manager?action=login` and returns the
@@ -89,13 +91,12 @@ URI only — credentials are never logged.
 
 ## Errors
 
-All exceptions extend `Erikwang2013\BigData\Driver\Azkaban\Exception\AzkabanException`:
-
-- `ConnectionException` — transport failure (DNS, refused connection, timeout).
-- `RequestException` — any non-2xx HTTP status (including 3xx), invalid JSON, a
-  login response without `session.id`, an execution-log response without `data`,
-  or an Azkaban response carrying an `error` field. Exposes `$statusCode` and
-  `$body` when available.
+Transport failures throw `Erikwang2013\BigData\Exception\ConnectionException`.
+Any non-2xx HTTP status (including 3xx), invalid JSON, a login response without
+`session.id`, an execution-log response without `data`, or an Azkaban response
+carrying an `error` field raises `Erikwang2013\BigData\Exception\RequestException`,
+which exposes public `$statusCode` and `$body`. Both exceptions extend
+`Erikwang2013\BigData\Exception\BigDataException`.
 
 ## Notes
 

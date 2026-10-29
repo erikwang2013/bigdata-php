@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Driver\Paimon\Exception;
 
-class PaimonException extends \RuntimeException
+use Erikwang2013\BigData\Exception\BigDataException;
+
+class PaimonException extends BigDataException
 {
 }

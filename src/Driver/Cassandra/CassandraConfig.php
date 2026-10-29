@@ -18,11 +18,23 @@ final class CassandraConfig
         public float $timeout = 10.0,
         public bool $tls = false,
         public bool $verifySsl = true,
+        /**
+         * "random" or "round_robin". php-cassandra v1.2 has no token-aware
+         * replica routing, so this only changes failover order, not partitioning.
+         */
+        public string $nodeSelection = 'random',
     ) {
         if (!in_array($this->protocolVersion, [3, 4, 5], true)) {
             throw new \InvalidArgumentException(sprintf(
                 'Cassandra config "protocol_version" must be 3, 4 or 5, got %d.',
                 $this->protocolVersion,
+            ));
+        }
+
+        if (!in_array($this->nodeSelection, ['random', 'round_robin'], true)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Cassandra config "node_selection" must be "random" or "round_robin", got "%s".',
+                $this->nodeSelection,
             ));
         }
 
@@ -54,6 +66,7 @@ final class CassandraConfig
             timeout: (float) ($config['timeout'] ?? 10.0),
             tls: (bool) ($config['tls'] ?? false),
             verifySsl: (bool) ($config['verify_ssl'] ?? true),
+            nodeSelection: (string) ($config['node_selection'] ?? 'random'),
         );
     }
 }

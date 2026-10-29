@@ -76,7 +76,7 @@ $result->raw();     // raw pages returned by the coordinator
 ```
 
 An `error.message` in any response page raises
-`Erikwang2013\BigData\Driver\Trino\Exception\RequestException`.
+`Erikwang2013\BigData\Exception\RequestException`.
 
 To cancel a running query, pass the `nextUri` of the statement:
 
@@ -104,11 +104,11 @@ never logged.
 
 ## Errors
 
-All exceptions extend `Erikwang2013\BigData\Driver\Trino\Exception\TrinoException`:
-
-- `ConnectionException` — transport failure (DNS, refused connection, timeout).
-- `RequestException` — HTTP status >= 400, invalid JSON, or a Trino error message.
-  Exposes `$statusCode` and `$body` when available.
+Transport failures throw `Erikwang2013\BigData\Exception\ConnectionException`.
+HTTP status >= 400, invalid JSON, or a Trino error message raises
+`Erikwang2013\BigData\Exception\RequestException`, which exposes public
+`$statusCode` and `$body` when available. Both extend
+`Erikwang2013\BigData\Exception\BigDataException`.
 
 ## Notes
 

@@ -110,11 +110,11 @@ only — SQL, query bodies, and auth headers are never logged.
 
 ## Errors
 
-All exceptions extend `Erikwang2013\BigData\Driver\Druid\Exception\DruidException`:
-
-- `ConnectionException` — transport failure (DNS, refused connection, timeout).
-- `RequestException` — HTTP status >= 400, invalid JSON, or an unexpected SQL
-  response shape. Exposes `$statusCode` and `$body` when available.
+Transport failures throw `Erikwang2013\BigData\Exception\ConnectionException`.
+HTTP status >= 400, invalid JSON, or an unexpected SQL response shape raises
+`Erikwang2013\BigData\Exception\RequestException`, which exposes public
+`$statusCode` and `$body` when available. Both extend
+`Erikwang2013\BigData\Exception\BigDataException`.
 
 ## Notes
 

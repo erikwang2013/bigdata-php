@@ -9,8 +9,9 @@ use Psr\Log\LoggerInterface;
 
 /**
  * One package, optional drivers. Drivers are created on demand; optional
- * dependencies (ext-pdo_mysql, apache/thrift, mroosz/php-cassandra) are checked
- * only when the corresponding driver is requested.
+ * dependencies (apache/thrift, mroosz/php-cassandra) are checked only when the
+ * corresponding driver is requested. Doris/StarRocks need no extension for
+ * streamLoad(); their SQL methods check for ext-pdo_mysql lazily.
  */
 final class BigData
 {
@@ -110,9 +111,8 @@ final class BigData
     private static function unavailableReason(string $name): ?string
     {
         return match ($name) {
-            'doris', 'starrocks' => extension_loaded('pdo_mysql')
-                ? null
-                : 'The Doris/StarRocks driver requires ext-pdo_mysql. Install the PHP pdo_mysql extension.',
+            // Doris/StarRocks streamLoad() is HTTP-only; only query()/execute()
+            // need ext-pdo_mysql and they raise ConnectionException without it.
             'hive' => class_exists(\Thrift\Protocol\TBinaryProtocol::class)
                 ? null
                 : 'The Hive driver requires apache/thrift. Run: composer require apache/thrift',
@@ -127,9 +127,7 @@ final class BigData
     private static function hudi(array $config, ?ClientInterface $http, ?LoggerInterface $logger): Driver\Hudi\HudiTable
     {
         $basePath = $config['base_path'] ?? throw new \InvalidArgumentException('The Hudi driver requires "base_path".');
-        $storage = self::storage($config, 'Hudi') === 'webhdfs'
-            ? new Driver\Hudi\WebHdfsStorage(Driver\Hudi\WebHdfsConfig::fromArray($config), $http, $logger)
-            : new Driver\Hudi\LocalStorage();
+        $storage = Driver\Hudi\StorageFactory::create($config, $http, $logger);
 
         return Driver\Hudi\HudiTable::open((string) $basePath, $storage);
     }
@@ -138,25 +136,8 @@ final class BigData
     private static function paimon(array $config, ?ClientInterface $http, ?LoggerInterface $logger): Driver\Paimon\PaimonTable
     {
         $basePath = $config['base_path'] ?? throw new \InvalidArgumentException('The Paimon driver requires "base_path".');
-        $storage = self::storage($config, 'Paimon') === 'webhdfs'
-            ? new Driver\Paimon\WebHdfsStorage(Driver\Paimon\WebHdfsConfig::fromArray($config), $http, $logger)
-            : new Driver\Paimon\LocalStorage();
+        $storage = Driver\Paimon\StorageFactory::create($config, $http, $logger);
 
         return Driver\Paimon\PaimonTable::open((string) $basePath, $storage);
-    }
-
-    /** @param array<string, mixed> $config */
-    private static function storage(array $config, string $driver): string
-    {
-        $storage = strtolower(trim((string) ($config['storage'] ?? 'local')));
-        if (!in_array($storage, ['local', 'webhdfs'], true)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The %s driver "storage" must be "local" or "webhdfs", got "%s".',
-                $driver,
-                $storage,
-            ));
-        }
-
-        return $storage;
     }
 }

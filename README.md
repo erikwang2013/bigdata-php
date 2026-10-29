@@ -2,9 +2,29 @@
 
 # bigdata-php
 
+[![Packagist 版本](https://img.shields.io/packagist/v/erikwang2013/bigdata-php.svg)](https://packagist.org/packages/erikwang2013/bigdata-php)
+[![CI 状态](https://img.shields.io/github/actions/workflow/status/erikwang2013/bigdata-php/ci.yml?branch=main&label=CI)](https://github.com/erikwang2013/bigdata-php/actions/workflows/ci.yml)
+[![许可证](https://img.shields.io/github/license/erikwang2013/bigdata-php.svg)](LICENSE)
+[![PHP 版本](https://img.shields.io/packagist/php-v/erikwang2013/bigdata-php.svg)](composer.json)
+
 一个 Composer 包，19 个大数据平台驱动，按需启用。
 
 项目站点：https://package.erik.xyz/bigdata/ （中文 / English）
+
+**快速链接**：[项目站点](https://package.erik.xyz/bigdata/) · [驱动文档](docs/drivers/) · [框架文档](docs/frameworks/) · [更新日志](CHANGELOG.md) · [版本发布](https://github.com/erikwang2013/bigdata-php/releases)
+
+## 目录
+
+| | |
+|---|---|
+| [1. 项目简介](#1-项目简介) | [9. 功能设计](#9-功能设计) |
+| [2. 功能特性](#2-功能特性) | [10. 请求周期](#10-请求周期) |
+| [3. 环境要求](#3-环境要求) | [11. 生命周期](#11-生命周期) |
+| [4. 安装](#4-安装) | [12. 目录结构](#12-目录结构) |
+| [5. 快速开始](#5-快速开始) | [13. 测试](#13-测试) |
+| [6. 框架集成](#6-框架集成) | [14. 边界与限制](#14-边界与限制) |
+| [7. 驱动矩阵](#7-驱动矩阵) | [15. License](#15-license) |
+| [8. 架构设计](#8-架构设计) | [项目宠物](#项目宠物) |
 
 `erikwang2013/bigdata-php` 用同一套 PHP API 连接 SQL / OLAP 引擎、Hadoop 生态、调度系统、湖仓元数据目录和 NoSQL 存储。HTTP 驱动开箱即用；只有真正使用 Doris / StarRocks、Hive 或 Cassandra 时，才需要安装对应的可选依赖。
 
@@ -15,8 +35,8 @@
 覆盖的平台包括：**Trino、Hadoop、Hive、Spark、Flink、Doris、StarRocks、Kylin、Druid、Iceberg、Hudi、Paimon、Delta Lake、DolphinScheduler、Airflow、Azkaban、Oozie、HBase、Cassandra**（共 19 个）。
 
 - **一个包，19 个平台，21 个驱动键。** Hadoop 提供 `hadoop-webhdfs` 与 `hadoop-yarn` 两个入口，Flink 提供 `flink-sql` 与 `flink-jobs`，其余平台各一个驱动键。
-- **统一入口，驱动隔离。** 包级共享的是 Guzzle 7 / PSR-3 依赖与统一的配置、异常约定；每个驱动仍保留自己的 `XxxConfig`、`XxxClient`、`ResultSet` 和异常类，也可以绕过管理器直接 `new`。
-- **可选依赖不拖累安装。** 基础安装只依赖 `guzzlehttp/guzzle` 与 `psr/log`。`ext-pdo_mysql`、`apache/thrift`、`mroosz/php-cassandra` 只在使用对应驱动时检查。
+- **统一入口，驱动隔离。** 包级共享的是 Guzzle 7 / PSR-3 依赖、`Support` 辅助层与统一的异常约定；每个驱动仍保留自己的 `XxxConfig`、`XxxClient`，并可按需使用专用 `ResultSet` 或异常，也可以绕过管理器直接 `new`。
+- **可选依赖不拖累安装。** 基础安装只依赖 `guzzlehttp/guzzle` 与 `psr/log`。`apache/thrift`、`mroosz/php-cassandra` 在创建对应驱动时检查；`ext-pdo_mysql` 只在 Doris/StarRocks 执行 SQL 时检查。
 - **湖仓格式只做元数据。** Iceberg、Hudi、Paimon、Delta Lake（Delta Sharing）驱动读取目录、schema、快照或文件清单，不解析 Parquet 数据文件；真正的行级查询交给 Trino、Spark 或 Flink。
 - **不隐藏失败，不自动重试。** 连接错误映射为 `ConnectionException`，HTTP 非 2xx 或应用层错误映射为 `RequestException`，是否重试由调用方决定。
 
@@ -31,7 +51,7 @@
 - **湖仓元数据只读**：Iceberg REST Catalog、Hudi `.hoodie` 时间线、Paimon schema/snapshot、Delta Sharing 文件清单。
 - **无自动重试、无统一 SQL 层**：不做查询改写、事务编排、连接池或 ORM；每个驱动保持目标系统本身的语义。
 - **PHP 8.0+**：核心包不依赖任何框架；Laravel、ThinkPHP、Webman、Hyperf、Yii2、Yii3 适配器均为可选薄封装。
-- **测试覆盖**：230 个单元测试、799 个断言，另有 12 个集成测试（16 个断言，缺少外部服务时自动跳过），使用 mock HTTP、本地 fixture 和 fake server，不依赖真实集群。
+- **测试覆盖**：289 个单元测试、969 个断言，另有 14 个集成测试（16 个断言，缺少外部服务时自动跳过），使用 mock HTTP、本地 fixture 和 fake server，不依赖真实集群。
 
 ## 3. 环境要求
 
@@ -40,9 +60,10 @@
 | PHP | 8.0+ |
 | guzzlehttp/guzzle | ^7.0，随包自动安装 |
 | psr/log | ^3.0，随包自动安装 |
-| ext-pdo_mysql | 可选；Doris、StarRocks 的 SQL 与 Stream Load 需要 |
+| ext-pdo_mysql | 可选；Doris、StarRocks 的 SQL 需要；Stream Load 是纯 HTTP，不需要 |
 | apache/thrift | 可选；Hive / Spark Thrift Server 需要，支持 ^0.24 或 ^0.25 |
 | mroosz/php-cassandra | 可选；Cassandra 需要，^1.2 |
+| aws/aws-sdk-php | 可选；Hudi / Paimon 的 S3 存储需要 |
 
 框架适配器的版本与 PHP 下限：
 
@@ -62,7 +83,7 @@
 标准安装方式（Packagist 已上线）：
 
 ```bash
-composer require erikwang2013/bigdata-php:^1.2
+composer require erikwang2013/bigdata-php:^2.0
 ```
 
 按需安装可选依赖：
@@ -142,6 +163,8 @@ $trino = new TrinoClient(TrinoConfig::fromArray([
 ## 6. 框架集成
 
 核心包不依赖任何框架。`src/Integration` 中的适配器只做两件事：读取统一的 `default` / `drivers` 配置，把 `Erikwang2013\BigData\Integration\Manager` 绑定到框架容器。
+
+每个适配器都有独立文档：[Laravel](docs/frameworks/laravel.md)、[ThinkPHP](docs/frameworks/thinkphp.md)、[Webman](docs/frameworks/webman.md)、[Hyperf](docs/frameworks/hyperf.md)、[Yii2](docs/frameworks/yii2.md)、[Yii3](docs/frameworks/yii3.md)。
 
 统一配置结构（所有框架相同）：
 
@@ -328,13 +351,13 @@ $trino = $manager->driver('trino');
 | Spark | `spark` | `Driver\Spark\LivyClient` | — | Livy session / statement / batch | [spark.md](docs/drivers/spark.md) |
 | Flink | `flink-sql` | `Driver\Flink\SqlGatewayClient` | — | Flink SQL Gateway | [flink.md](docs/drivers/flink.md) |
 | Flink | `flink-jobs` | `Driver\Flink\JobClient` | — | JobManager 作业查询与取消 | [flink.md](docs/drivers/flink.md) |
-| Doris | `doris` | `Driver\Doris\DorisClient` | `ext-pdo_mysql` | SQL 9030 + Stream Load 8030 | [doris.md](docs/drivers/doris.md) |
-| StarRocks | `starrocks` | `Driver\StarRocks\StarRocksClient` | `ext-pdo_mysql` | SQL 9030 + Stream Load 8030 | [starrocks.md](docs/drivers/starrocks.md) |
+| Doris | `doris` | `Driver\Doris\DorisClient` | `ext-pdo_mysql` (SQL) | SQL 9030 + Stream Load 8030 | [doris.md](docs/drivers/doris.md) |
+| StarRocks | `starrocks` | `Driver\StarRocks\StarRocksClient` | `ext-pdo_mysql` (SQL) | SQL 9030 + Stream Load 8030 | [starrocks.md](docs/drivers/starrocks.md) |
 | Kylin | `kylin` | `Driver\Kylin\KylinClient` | — | SQL / cube / job | [kylin.md](docs/drivers/kylin.md) |
 | Druid | `druid` | `Driver\Druid\DruidClient` | — | SQL / native query | [druid.md](docs/drivers/druid.md) |
 | Iceberg | `iceberg` | `Driver\Iceberg\RestCatalogClient` | — | REST Catalog 元数据 | [iceberg.md](docs/drivers/iceberg.md) |
-| Hudi | `hudi` | `Driver\Hudi\HudiTable` | — | 只读 `.hoodie` 时间线，本地 / WebHDFS | [hudi.md](docs/drivers/hudi.md) |
-| Paimon | `paimon` | `Driver\Paimon\PaimonTable` | — | 只读 schema / snapshot，本地 / WebHDFS | [paimon.md](docs/drivers/paimon.md) |
+| Hudi | `hudi` | `Driver\Hudi\HudiTable` | `aws/aws-sdk-php` (S3 可选) | 只读 `.hoodie` 时间线，本地 / WebHDFS / S3 | [hudi.md](docs/drivers/hudi.md) |
+| Paimon | `paimon` | `Driver\Paimon\PaimonTable` | `aws/aws-sdk-php` (S3 可选) | 只读 schema / snapshot，本地 / WebHDFS / S3 | [paimon.md](docs/drivers/paimon.md) |
 | Delta Lake | `delta-lake` | `Driver\DeltaLake\DeltaSharingClient` | — | Delta Sharing，返回 Parquet 文件清单 | [delta-lake.md](docs/drivers/delta-lake.md) |
 | DolphinScheduler | `dolphinscheduler` | `Driver\DolphinScheduler\DolphinSchedulerClient` | — | 项目 / 工作流 / 实例 / 日志 | [dolphinscheduler.md](docs/drivers/dolphinscheduler.md) |
 | Airflow | `airflow` | `Driver\Airflow\AirflowClient` | — | DAG / run / task / 变量 | [airflow.md](docs/drivers/airflow.md) |
@@ -361,7 +384,7 @@ $latest = $table->latestCommit();
 1. **应用层**：业务代码直接调用 `BigData::driver()`，或通过框架适配器从容器取得 `Integration\Manager`。
 2. **框架适配层（可选）**：Laravel、ThinkPHP、Webman、Hyperf、Yii2、Yii3 适配器读取 `default` / `drivers` 配置，把 `Manager` 绑定到容器；不引入 ORM、查询构造器或额外抽象。
 3. **Manager / Registry**：`Manager` 负责配置解析和实例缓存；`BigData` 内部维护 21 个驱动键到工厂闭包的静态映射，未知键和缺失的可选依赖都在这里拦截。
-4. **驱动层**：每个平台一个目录，包含 `XxxConfig`、`XxxClient`（部分驱动还有 `ResultSet`、`Support\Http`、`Exception/*`）。驱动只依赖自己的配置和注入的 HTTP / 日志实例。
+4. **驱动层**：每个平台一个目录，包含 `XxxConfig`、`XxxClient`（部分驱动还有专用 `ResultSet` 或异常）。通用 HTTP、结果集、配置读取和异常位于 `src/Support/` 与 `src/Exception/`，驱动只依赖自己的配置和注入的 HTTP / 日志实例。
 5. **外部系统**：HTTP / JSON（Guzzle 7）、Thrift TCLIService、MySQL 协议（PDO）、CQL、本地文件系统或 WebHDFS。
 
 关键约束：驱动按需创建、按名称缓存；`Manager` 不会在构造时连接任何外部系统；HTTP 客户端和日志器可以从上层注入，便于统一超时、代理和日志配置。
@@ -373,9 +396,9 @@ $latest = $table->latestCommit();
 代码分为五层：
 
 - **Core**：`BigData` 门面（`driver` / `drivers` / `available`）、`Integration\Manager`、驱动注册表和可选依赖闸门。核心层只做名称解析、配置合并和工厂调用。
-- **Support**：每个驱动自带的配置对象、`Support\Http`（Guzzle 7 薄封装）、`ResultSet` 和异常体系。异常根类为各驱动的 `XxxException`，连接失败与请求失败分别落到 `ConnectionException` 和 `RequestException`。
+- **Support**：共享的 `Support\Http`（Guzzle 7 薄封装）、`Support\ResultSet`、`Support\Config`，以及以 `BigDataException` 为根的异常体系；连接失败与请求失败分别落到 `ConnectionException` 和 `RequestException`。Hive、Cassandra、Doris、StarRocks 保留专用异常层级，Hudi/Paimon/Delta Lake 的元数据错误保留 `HudiException` / `PaimonException` / `DeltaLakeException`。
 - **Driver**：按平台隔离的 19 个目录，分为 SQL / OLAP、Hadoop / compute、Schedulers、Lakehouse、NoSQL 五组。驱动之间不共享客户端实例，也不存在跨驱动的统一 SQL 层。
-- **Optional dependencies**：`ext-pdo_mysql`、`apache/thrift`、`mroosz/php-cassandra`。只有创建对应驱动时才检查；检查逻辑集中在 `BigData::driver()`。
+- **Optional dependencies**：`ext-pdo_mysql`（仅 Doris/StarRocks SQL）、`apache/thrift`、`mroosz/php-cassandra`、`aws/aws-sdk-php`（仅 S3）。Hive/Cassandra 在创建驱动时检查，PDO 在 SQL 调用时检查，S3 在读取时检查。
 - **Tests**：单元测试使用 mock HTTP、本地 fixture 和 fake server；集成测试独立成组，按需连接真实服务。
 
 这套结构的目标是“统一入口，不统一语义”：配置、结果集和异常命名保持一致，但每个驱动仍按目标系统的协议和错误模型工作。
@@ -410,7 +433,7 @@ $latest = $table->latestCommit();
 | 查询 / 执行 | 执行 SQL、提交作业、读取元数据或写入 Stream Load；结果返回 `ResultSet` 或数组。 |
 | 关闭 | Hive 和 Cassandra 提供 `close()` 释放会话；PDO 和 HTTP 资源随客户端实例释放。 |
 
-可选依赖的生命周期是独立的：创建驱动时检查扩展或类，缺失则抛出带安装提示的 `DriverUnavailableException`；安装后重新调用 `driver()` 即可。直接 `new` 客户端会绕过这道检查。
+可选依赖的生命周期是独立的：Hive/Cassandra 在创建驱动时检查类，`ext-pdo_mysql` 在 Doris/StarRocks 首次执行 SQL 时检查，S3 存储在首次读取时检查；缺失时抛出带安装提示的异常。直接 `new` 客户端会绕过创建期的检查。
 
 ## 12. 目录结构
 
@@ -446,20 +469,32 @@ bigdata-php/
 │   │   ├── Hyperf/
 │   │   ├── Yii2/
 │   │   └── Yii3/
+│   ├── Support/                 # 共享 HTTP、ResultSet、配置辅助
 │   └── Exception/
+│       ├── BigDataException.php
+│       ├── ConnectionException.php
+│       ├── RequestException.php
 │       └── DriverUnavailableException.php
 ├── config/                      # 框架配置样例
 ├── docs/
-│   ├── diagrams/                # 架构、功能、请求周期、生命周期 SVG
-│   └── drivers/                 # 19 个平台的详细文档
+│   ├── diagrams/                # 中英文架构、功能、请求周期、生命周期 SVG
+│   ├── drivers/                 # 19 个平台的详细文档（en/ 为英文版）
+│   ├── frameworks/              # 6 个框架适配文档（en/ 为英文版）
+│   ├── pet.svg / pet-expressions/  # 项目宠物及 12 种表情
+│   └── site/                    # 站点内容源、构建与部署配置
+├── scripts/                     # 站点构建 / 检查脚本
+├── site/                        # 本地站点构建产物（gitignore，不随发布打包）
 ├── tests/
 │   ├── Driver/                  # 单元测试与 fixture
 │   └── Integration/             # 按需运行的集成测试
 ├── demo/                        # Trino / Flink / Airflow / Cassandra 演示
 ├── composer.json
-├── phpunit.xml
+├── phpstan.neon
+├── phpunit.xml / phpunit-8.0.xml
+├── ASSETS-LICENSE.md
 ├── CHANGELOG.md
-└── README.md
+├── README.md
+└── README_EN.md
 ```
 
 ## 13. 测试
@@ -469,7 +504,7 @@ composer test              # 单元测试，不依赖真实集群
 composer test-integration  # 集成测试，需要可用的外部服务
 ```
 
-单元测试使用 mock HTTP 客户端、本地 fixture 和 fake server，覆盖 230 个测试、799 个断言。测试套件在 `phpunit.xml` 中分为 `unit` 和 `integration` 两组；默认的 `composer test` 只运行 `unit`，不包含 `tests/Integration`。
+单元测试使用 mock HTTP 客户端、本地 fixture 和 fake server，覆盖 289 个测试、969 个断言；另有 14 个集成测试。测试套件在 `phpunit.xml` 中分为 `unit` 和 `integration` 两组；默认的 `composer test` 只运行 `unit`，不包含 `tests/Integration`。
 
 集成测试按需运行，例如 Cassandra 需要可访问的实例；`demo/` 下提供了 Trino、Flink、Airflow 和 Cassandra 的 Docker Compose 配置，可作为本地验证起点。
 
@@ -477,7 +512,7 @@ composer test-integration  # 集成测试，需要可用的外部服务
 
 - **湖仓只读元数据**：Iceberg 读取 REST Catalog 和表元数据；Hudi 读取 `.hoodie` 时间线；Paimon 读取 schema / snapshot；Delta Sharing 返回 Parquet 文件清单。它们都不读取 Parquet 行数据，也不做谓词下推或查询执行。
 - **Delta Sharing 不返回行**：`DeltaSharingClient::query()` 返回文件清单和元数据，实际数据需要由调用方按清单读取。
-- **Hive 认证范围**：支持 NONE、SASL PLAIN 和 LDAP（QOP `auth`）；不支持 Kerberos / GSSAPI。binary 传输未内置 TLS；HTTP 传输可通过 Guzzle 使用 HTTPS。
+- **Hive 认证范围**：支持 NONE、SASL PLAIN 和 LDAP（QOP `auth`）；不支持 Kerberos / GSSAPI。binary 传输可通过 `tls => true` 使用 TLS；HTTP 传输通过 `scheme => https`。
 - **Cassandra 可选且可能命名冲突**：驱动包装 `mroosz/php-cassandra`，与 `ext-cassandra` 共用 `Cassandra\` 命名空间，同时加载时可能冲突。
 - **不做自动重试**：连接、HTTP 和应用层错误直接抛出 `ConnectionException` / `RequestException`；重试策略、退避和幂等判断由调用方负责。
 - **没有统一 SQL 层或 ORM**：驱动只做协议适配，不做 SQL 方言转换、跨源 JOIN、事务编排、连接池或模型映射。

@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Driver\Paimon;
 
-use Erikwang2013\BigData\Driver\Paimon\Exception\RequestException;
-use Erikwang2013\BigData\Driver\Paimon\Support\Http;
+use Erikwang2013\BigData\Exception\RequestException;
+use Erikwang2013\BigData\Support\Http;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Query;
@@ -75,6 +75,12 @@ final class WebHdfsStorage implements PaimonStorage
             ]);
         }
 
+        $status = $response->getStatusCode();
+        if ($status < 200 || $status >= 300) {
+            $body = (string) $response->getBody();
+            throw new RequestException(sprintf('HTTP %d: %s', $status, $body), $status, $body);
+        }
+
         return $response;
     }
 
@@ -82,7 +88,15 @@ final class WebHdfsStorage implements PaimonStorage
     {
         $this->logger->debug('WebHDFS request', ['method' => 'GET', 'uri' => $uri]);
 
-        return Http::request('GET', $uri, array_merge($this->options(), $options));
+        $response = Http::raw('GET', $uri, array_merge($this->options(), $options));
+        $status = $response->getStatusCode();
+        // 3xx is followed manually below; only >= 400 is an error.
+        if ($status >= 400) {
+            $body = (string) $response->getBody();
+            throw new RequestException(sprintf('HTTP %d: %s', $status, $body), $status, $body);
+        }
+
+        return $response;
     }
 
     private function isRedirect(ResponseInterface $response): bool

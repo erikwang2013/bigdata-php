@@ -116,11 +116,23 @@ final class DorisClient
 
     private function pdo(): \PDO
     {
-        return $this->pdo ??= new \PDO(
-            $this->config->dsn(),
-            $this->config->username,
-            $this->config->password,
-            [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION],
-        );
+        if ($this->pdo !== null) {
+            return $this->pdo;
+        }
+
+        try {
+            return $this->pdo = new \PDO(
+                $this->config->dsn(),
+                $this->config->username,
+                $this->config->password,
+                [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION],
+            );
+        } catch (\PDOException $e) {
+            $message = str_contains($e->getMessage(), 'could not find driver')
+                ? 'Doris SQL requires ext-pdo_mysql (see composer.json "suggest"). Install the pdo_mysql extension. streamLoad() works over HTTP without PDO.'
+                : 'Doris PDO connection failed: ' . $e->getMessage() . ' streamLoad() works over HTTP without PDO.';
+
+            throw new ConnectionException($message, 0, $e);
+        }
     }
 }

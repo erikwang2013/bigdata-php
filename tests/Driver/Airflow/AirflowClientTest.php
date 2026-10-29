@@ -5,7 +5,7 @@ namespace Erikwang2013\BigData\Tests\Driver\Airflow;
 
 use Erikwang2013\BigData\Driver\Airflow\AirflowClient;
 use Erikwang2013\BigData\Driver\Airflow\AirflowConfig;
-use Erikwang2013\BigData\Driver\Airflow\Exception\RequestException;
+use Erikwang2013\BigData\Exception\RequestException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -153,5 +153,11 @@ final class AirflowClientTest extends TestCase
                 'base_url' => 'http://airflow.alias:8080',
             ])->baseUrl,
         );
+    }
+
+    public function test_verify_ssl_aliases_are_accepted(): void
+    {
+        self::assertFalse(AirflowConfig::fromArray(['baseUrl' => 'http://airflow.local:8080', 'verify_ssl' => false])->verifySsl);
+        self::assertFalse(AirflowConfig::fromArray(['baseUrl' => 'http://airflow.local:8080', 'verifySsl' => false])->verifySsl);
     }
 }

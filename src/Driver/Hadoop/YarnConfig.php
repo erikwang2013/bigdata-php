@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Driver\Hadoop;
 
+use Erikwang2013\BigData\Support\Config;
+
 final class YarnConfig
 {
     public function __construct(
@@ -17,17 +19,18 @@ final class YarnConfig
 
     public static function fromArray(array $config): self
     {
-        if (!isset($config['host']) || $config['host'] === '') {
+        $host = Config::string($config, ['host']);
+        if ($host === null) {
             throw new \InvalidArgumentException('YARN config requires a non-empty "host".');
         }
 
         return new self(
-            host: (string) $config['host'],
-            port: (int) ($config['port'] ?? 8088),
-            scheme: (string) ($config['scheme'] ?? 'http'),
-            user: (string) ($config['user'] ?? 'php'),
-            verifySsl: (bool) ($config['verify_ssl'] ?? true),
-            timeout: (float) ($config['timeout'] ?? 30.0),
+            host: $host,
+            port: Config::int($config, ['port', 'http_port', 'httpPort'], 8088),
+            scheme: Config::string($config, ['scheme'], 'http') ?? 'http',
+            user: Config::string($config, ['user'], 'php') ?? 'php',
+            verifySsl: Config::bool($config, ['verify_ssl', 'verifySsl'], true),
+            timeout: Config::float($config, ['timeout'], 30.0),
         );
     }
 

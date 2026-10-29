@@ -83,6 +83,7 @@ $cassandra = new CassandraClient(CassandraConfig::fromArray([
 | `timeout`          | `10.0`   | Request timeout in seconds.                                        |
 | `tls`              | `false`  | Enable TLS to the cluster.                                         |
 | `verify_ssl`       | `true`   | Verify TLS peer and peer name when `tls` is enabled.               |
+| `node_selection`   | `random` | `random` or `round_robin`; controls failover order only (no token-aware routing). |
 
 `contactPoints` / `contact_points` and the other snake_case keys are accepted;
 the constructor properties are camelCase/read-only.
@@ -91,9 +92,9 @@ the constructor properties are camelCase/read-only.
 
 ```php
 $cassandra->connect(): void;                 // lazy; called by query/prepare/execute
-$cassandra->query(string $cql, array $params = [], int $consistency = Consistency::ONE): ResultSet;
+$cassandra->query(string $cql, array $params = [], int $consistency = Consistency::ONE, ?int $pageSize = null, ?string $pagingState = null): ResultSet;
 $cassandra->prepare(string $cql): PreparedStatement;
-$cassandra->execute(PreparedStatement $statement, array $params = [], int $consistency = Consistency::ONE): ResultSet;
+$cassandra->execute(PreparedStatement $statement, array $params = [], int $consistency = Consistency::ONE, ?int $pageSize = null, ?string $pagingState = null): ResultSet;
 $cassandra->close(): void;
 ```
 
@@ -130,6 +131,19 @@ $statement->query(); // original CQL
 $statement->id();    // prepared id as hex, or a stable sha256 fallback
 ```
 
+### Paging
+
+Pass `pageSize` to cap a page, then feed the returned `pagingState` into the
+next call. The client does not fetch pages automatically:
+
+```php
+$page = $cassandra->query('SELECT * FROM users', [], Consistency::ONE, 100);
+while (($state = $page->pagingState()) !== null) {
+    $page = $cassandra->query('SELECT * FROM users', [], Consistency::ONE, 100, $state);
+    // consume $page->rows()
+}
+```
+
 ## Logging
 
 `CassandraClient` accepts an optional PSR-3 logger as its third constructor
@@ -138,8 +152,10 @@ operation name and consistency level, never the CQL text or bound values.
 
 ## Errors
 
-All exceptions extend
-`Erikwang2013\BigData\Driver\Cassandra\Exception\CassandraException`:
+Cassandra keeps its own exception hierarchy: all of these are driver-specific
+classes: `ConnectionException` / `RequestException` extend
+`Erikwang2013\BigData\Driver\Cassandra\Exception\CassandraException`, which
+extends `\RuntimeException`:
 
 - `ConnectionException` — connection or driver-level connection failure.
 - `RequestException` — query, prepare or execute failure; wraps the underlying
@@ -156,6 +172,8 @@ The client connects lazily and reconnects after a driver-level connection error.
 - Namespace conflict: this driver and the `ext-cassandra` extension both use the
   `Cassandra\` namespace. Loading both at the same time can conflict; use one or
   the other.
-- Paging is exposed through `ResultSet::pagingState()`, but the client does not
-  fetch subsequent pages for you.
+- Paging is caller-driven: pass `$pageSize` and reuse `ResultSet::pagingState()`;
+  the client never fetches subsequent pages for you.
+- `node_selection` changes failover order only. php-cassandra v1.2 has no
+  token-aware replica routing, so it does not reduce cross-node hops.
 - No automatic retries are performed.

@@ -22,4 +22,10 @@ final class TrinoConfigTest extends TestCase
         self::assertSame('php', $config->user);
         self::assertTrue($config->verifySsl);
     }
+
+    public function test_verify_ssl_aliases_are_accepted(): void
+    {
+        self::assertFalse(TrinoConfig::fromArray(['host' => 'trino.local', 'verify_ssl' => false])->verifySsl);
+        self::assertFalse(TrinoConfig::fromArray(['host' => 'trino.local', 'verifySsl' => false])->verifySsl);
+    }
 }

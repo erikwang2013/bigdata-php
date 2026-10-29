@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Tests\Driver\Iceberg;
 
+use Erikwang2013\BigData\Exception\RequestException;
 use Erikwang2013\BigData\Driver\Iceberg\RestCatalogClient;
 use Erikwang2013\BigData\Driver\Iceberg\RestCatalogConfig;
 use Erikwang2013\BigData\Driver\Iceberg\TableMetadata;
@@ -184,6 +185,19 @@ final class RestCatalogClientTest extends TestCase
         $request = $this->history[0]['request'];
         self::assertSame('HEAD', $request->getMethod());
         self::assertSame('/v1/namespaces/analytics/tables/missing', $request->getUri()->getPath());
+    }
+
+    public function test_table_exists_rethrows_non_404(): void
+    {
+        $client = $this->client([new Response(500, [], 'boom')]);
+
+        try {
+            $client->tableExists('analytics', 'events');
+            self::fail('Expected a RequestException for HTTP 500.');
+        } catch (RequestException $e) {
+            self::assertSame(500, $e->statusCode);
+            self::assertSame('boom', $e->body);
+        }
     }
 
     public function test_table_exists_returns_true_on_200(): void

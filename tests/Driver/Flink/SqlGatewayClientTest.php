@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Tests\Driver\Flink;
 
-use Erikwang2013\BigData\Driver\Flink\Exception\RequestException;
 use Erikwang2013\BigData\Driver\Flink\FlinkConfig;
 use Erikwang2013\BigData\Driver\Flink\SqlGatewayClient;
+use Erikwang2013\BigData\Exception\RequestException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;

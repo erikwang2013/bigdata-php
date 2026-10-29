@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Driver\Airflow;
 
+use Erikwang2013\BigData\Support\Config;
+
 final class AirflowConfig
 {
     public function __construct(
@@ -18,19 +20,19 @@ final class AirflowConfig
 
     public static function fromArray(array $config): self
     {
-        $baseUrl = $config['baseUrl'] ?? $config['base_url'] ?? '';
-        if ($baseUrl === '') {
+        $baseUrl = Config::string($config, ['baseUrl', 'base_url']);
+        if ($baseUrl === null) {
             throw new \InvalidArgumentException('Airflow config requires a non-empty "baseUrl".');
         }
 
         return new self(
-            baseUrl: (string) $baseUrl,
-            username: isset($config['username']) ? (string) $config['username'] : null,
-            password: isset($config['password']) ? (string) $config['password'] : null,
-            token: isset($config['token']) ? (string) $config['token'] : null,
-            apiPath: (string) ($config['api_path'] ?? '/api/v1'),
-            verifySsl: (bool) ($config['verify_ssl'] ?? true),
-            timeout: (float) ($config['timeout'] ?? 30.0),
+            baseUrl: $baseUrl,
+            username: Config::string($config, ['username']),
+            password: Config::string($config, ['password']),
+            token: Config::string($config, ['token']),
+            apiPath: Config::string($config, ['api_path'], '/api/v1'),
+            verifySsl: Config::bool($config, ['verify_ssl', 'verifySsl'], true),
+            timeout: Config::float($config, ['timeout'], 30.0),
         );
     }
 

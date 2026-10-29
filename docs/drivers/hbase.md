@@ -100,11 +100,11 @@ value straight to `scannerGet()` and `scannerDelete()`.
 
 ## Errors
 
-- Non-2xx responses throw `Erikwang2013\BigData\Driver\HBase\Exception\RequestException`
-  with the status code and response body.
+- Non-2xx responses throw `Erikwang2013\BigData\Exception\RequestException`
+  with the status code and response body (`$statusCode`, `$body`).
 - Network and timeout failures throw
-  `Erikwang2013\BigData\Driver\HBase\Exception\ConnectionException`.
-- Both extend `Erikwang2013\BigData\Driver\HBase\Exception\HBaseException`.
+  `Erikwang2013\BigData\Exception\ConnectionException`.
+- Both extend `Erikwang2013\BigData\Exception\BigDataException`.
 
 ## Notes
 

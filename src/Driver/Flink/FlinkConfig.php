@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Driver\Flink;
 
+use Erikwang2013\BigData\Support\Config;
+
 final class FlinkConfig
 {
     public function __construct(
@@ -15,16 +17,16 @@ final class FlinkConfig
 
     public static function fromArray(array $config): self
     {
-        $baseUrl = $config['baseUrl'] ?? $config['base_url'] ?? '';
-        if ($baseUrl === '') {
+        $baseUrl = Config::string($config, ['baseUrl', 'base_url']);
+        if ($baseUrl === null) {
             throw new \InvalidArgumentException('Flink config requires a non-empty "baseUrl".');
         }
 
         return new self(
-            baseUrl: rtrim((string) $baseUrl, '/'),
-            token: isset($config['token']) ? (string) $config['token'] : null,
-            verifySsl: (bool) ($config['verify_ssl'] ?? true),
-            timeout: (float) ($config['timeout'] ?? 30.0),
+            baseUrl: rtrim($baseUrl, '/'),
+            token: Config::string($config, ['token']),
+            verifySsl: Config::bool($config, ['verify_ssl', 'verifySsl'], true),
+            timeout: Config::float($config, ['timeout'], 30.0),
         );
     }
 }

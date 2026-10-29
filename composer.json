@@ -39,12 +39,14 @@
     "require-dev": {
         "apache/thrift": "^0.24 || ^0.25",
         "mroosz/php-cassandra": "^1.2",
+        "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^9.6 || ^10.5"
     },
     "suggest": {
-        "ext-pdo_mysql": "Required for the Doris and StarRocks SQL/Stream Load drivers.",
+        "ext-pdo_mysql": "Required for Doris/StarRocks SQL; Stream Load works without it.",
         "apache/thrift": "Required for the Hive / Spark Thrift Server driver.",
-        "mroosz/php-cassandra": "Required for the Cassandra driver."
+        "mroosz/php-cassandra": "Required for the Cassandra driver.",
+        "aws/aws-sdk-php": "Optional S3 storage for the Hudi and Paimon drivers."
     },
     "autoload": {
         "psr-4": {

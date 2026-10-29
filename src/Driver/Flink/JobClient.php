@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Driver\Flink;
 
-use Erikwang2013\BigData\Driver\Flink\Support\Http;
+use Erikwang2013\BigData\Support\Http;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use Psr\Log\LoggerInterface;

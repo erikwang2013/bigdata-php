@@ -5,8 +5,8 @@ namespace Erikwang2013\BigData\Tests\Driver\DolphinScheduler;
 
 use Erikwang2013\BigData\Driver\DolphinScheduler\DolphinSchedulerClient;
 use Erikwang2013\BigData\Driver\DolphinScheduler\DolphinSchedulerConfig;
-use Erikwang2013\BigData\Driver\DolphinScheduler\Exception\ConnectionException;
-use Erikwang2013\BigData\Driver\DolphinScheduler\Exception\RequestException;
+use Erikwang2013\BigData\Exception\ConnectionException;
+use Erikwang2013\BigData\Exception\RequestException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Handler\MockHandler;
@@ -292,5 +292,17 @@ final class DolphinSchedulerClientTest extends TestCase
                 'base_url' => 'http://ds.alias:12345/dolphinscheduler',
             ])->baseUrl,
         );
+    }
+
+    public function test_verify_ssl_aliases_are_accepted(): void
+    {
+        $config = [
+            'baseUrl' => 'http://ds.local:12345/dolphinscheduler',
+            'username' => 'admin',
+            'password' => 'secret',
+        ];
+
+        self::assertFalse(DolphinSchedulerConfig::fromArray($config + ['verify_ssl' => false])->verifySsl);
+        self::assertFalse(DolphinSchedulerConfig::fromArray($config + ['verifySsl' => false])->verifySsl);
     }
 }

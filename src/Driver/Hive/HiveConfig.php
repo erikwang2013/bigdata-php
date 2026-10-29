@@ -17,6 +17,7 @@ final class HiveConfig
         public bool $verifySsl = true,
         public float $timeout = 30.0,
         public string $scheme = 'http',
+        public bool $tls = false,
     ) {
     }
 
@@ -54,6 +55,7 @@ final class HiveConfig
             verifySsl: (bool) ($config['verifySsl'] ?? $config['verify_ssl'] ?? true),
             timeout: (float) ($config['timeout'] ?? 30.0),
             scheme: $scheme,
+            tls: (bool) ($config['tls'] ?? false),
         );
     }
 }

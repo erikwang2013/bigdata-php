@@ -14,21 +14,21 @@ StarRocks exposes two entry points, and this driver uses both:
 | Driver name | `starrocks` |
 | Client | `Erikwang2013\BigData\Driver\StarRocks\StarRocksClient` |
 | Config | `Erikwang2013\BigData\Driver\StarRocks\StarRocksConfig` |
-| Optional dependency | `ext-pdo_mysql` |
+| Optional dependency | `ext-pdo_mysql` (SQL only; Stream Load needs no extension) |
 
 ## Installation
 
-The driver ships with `erikwang2013/bigdata-php`, but SQL and configuration
-require PHP's `pdo_mysql` extension:
+The driver ships with `erikwang2013/bigdata-php`. Only the SQL path needs PHP's
+`pdo_mysql` extension; Stream Load uses HTTP and works without it:
 
 ```bash
 composer require erikwang2013/bigdata-php
-# enable ext-pdo_mysql in php.ini
+# enable ext-pdo_mysql in php.ini if you use query()/execute()
 ```
 
-`BigData::driver('starrocks', ...)` throws
-`Erikwang2013\BigData\Exception\DriverUnavailableException` when `pdo_mysql` is
-missing.
+`BigData::driver('starrocks', ...)` always creates the client. When `pdo_mysql` is
+missing, `query()` / `execute()` throw the driver-specific `ConnectionException` with
+an install hint; `streamLoad()` keeps working.
 
 ## Quick start
 
@@ -144,7 +144,7 @@ exception in the `exception` context key.
 
 ## Errors
 
-Stream Load errors extend
+Stream Load errors use the driver-specific hierarchy rooted at
 `Erikwang2013\BigData\Driver\StarRocks\Exception\StarRocksException`:
 
 - `ConnectionException` — transport failure (DNS, refused connection, timeout).
@@ -154,11 +154,14 @@ Stream Load errors extend
 
 SQL errors are also mapped: connection failures to `ConnectionException`, all
 other PDO errors to `RequestException` (the original `\PDOException` is the
-`previous` exception).
+`previous` exception). `StarRocksException`, `ConnectionException` and
+`RequestException` are driver-specific classes: they extend
+`\RuntimeException` (through `StarRocksException`), not the shared
+`Erikwang2013\BigData\Exception` hierarchy.
 
 ## Notes
 
-- Requires `ext-pdo_mysql`; the HTTP Stream Load path alone would not, but the
-  unified factory still gates the whole driver on the extension.
+- `query()` and `execute()` require `ext-pdo_mysql`; `streamLoad()` is HTTP-only
+  and works without the extension. The driver is no longer gated at creation.
 - Stream Load sends data as-is; it does not convert or validate payloads.
 - No automatic retries are performed.

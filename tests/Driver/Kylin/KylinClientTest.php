@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Tests\Driver\Kylin;
 
-use Erikwang2013\BigData\Driver\Kylin\Exception\RequestException;
 use Erikwang2013\BigData\Driver\Kylin\KylinClient;
 use Erikwang2013\BigData\Driver\Kylin\KylinConfig;
-use Erikwang2013\BigData\Driver\Kylin\ResultSet;
+use Erikwang2013\BigData\Exception\RequestException;
+use Erikwang2013\BigData\Support\ResultSet;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -200,6 +200,14 @@ final class KylinClientTest extends TestCase
                 self::assertStringContainsString($missing, $e->getMessage());
             }
         }
+    }
+
+    public function test_verify_ssl_aliases_are_accepted(): void
+    {
+        $credentials = ['host' => 'kylin.local', 'username' => 'admin', 'password' => 'KYLIN'];
+
+        self::assertFalse(KylinConfig::fromArray($credentials + ['verify_ssl' => false])->verifySsl);
+        self::assertFalse(KylinConfig::fromArray($credentials + ['verifySsl' => false])->verifySsl);
     }
 
     public function test_query_logs_method_and_uri_but_never_sql_or_credentials(): void

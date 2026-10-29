@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Tests\Driver\Hadoop;
 
-use Erikwang2013\BigData\Driver\Hadoop\Exception\RequestException;
+use Erikwang2013\BigData\Exception\RequestException;
 use Erikwang2013\BigData\Driver\Hadoop\WebHdfsClient;
 use Erikwang2013\BigData\Driver\Hadoop\WebHdfsConfig;
 use GuzzleHttp\Client;
@@ -163,6 +163,23 @@ final class WebHdfsClientTest extends TestCase
         $this->expectException(RequestException::class);
         $this->expectExceptionMessage('File does not exist');
         $client->fileStatus('/missing');
+    }
+
+    public function test_follow_throws_request_exception_for_final_non_2xx(): void
+    {
+        $client = $this->client([
+            new Response(307, ['Location' => 'http://datanode:9864/webhdfs/v1/data/file.txt?op=OPEN'], ''),
+            new Response(500, [], json_encode(['RemoteException' => ['message' => 'DataNode failed']])),
+        ]);
+
+        try {
+            $client->read('/data/file.txt');
+            self::fail('Expected a RequestException for HTTP 500.');
+        } catch (RequestException $e) {
+            self::assertSame(500, $e->statusCode);
+            self::assertSame('DataNode failed', $e->getMessage());
+            self::assertSame('{"RemoteException":{"message":"DataNode failed"}}', $e->body);
+        }
     }
 
     public function test_write_resends_body_on_307(): void

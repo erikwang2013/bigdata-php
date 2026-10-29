@@ -152,6 +152,29 @@ final class CassandraClientTest extends TestCase
         self::assertSame([], $statement->columns());
     }
 
+    public function test_node_selection_maps_to_driver_strategy(): void
+    {
+        if (!class_exists(\Cassandra\Connection\NodeSelectionStrategy::class)) {
+            self::markTestSkipped('mroosz/php-cassandra is not installed.');
+        }
+
+        $strategy = function (string $nodeSelection): \Cassandra\Connection\NodeSelectionStrategy {
+            $session = new PhpCassandraSession(CassandraConfig::fromArray([
+                'contact_points' => ['127.0.0.1:9042'],
+                'node_selection' => $nodeSelection,
+            ]));
+            $options = new \ReflectionMethod($session, 'connectionOptions');
+            if (PHP_VERSION_ID < 80100) {
+                $options->setAccessible(true);
+            }
+
+            return $options->invoke($session)->nodeSelectionStrategy;
+        };
+
+        self::assertSame(\Cassandra\Connection\NodeSelectionStrategy::Random, $strategy('random'));
+        self::assertSame(\Cassandra\Connection\NodeSelectionStrategy::RoundRobin, $strategy('round_robin'));
+    }
+
     public function test_non_rows_results_map_to_an_empty_result_set(): void
     {
         if (!class_exists(\Cassandra\Response\Result::class)) {

@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Tests\Driver\Spark;
 
-use Erikwang2013\BigData\Driver\Spark\Exception\RequestException;
 use Erikwang2013\BigData\Driver\Spark\LivyClient;
 use Erikwang2013\BigData\Driver\Spark\LivyConfig;
+use Erikwang2013\BigData\Exception\RequestException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -178,6 +178,12 @@ final class LivyClientTest extends TestCase
             self::assertSame('{"msg":"Not modified"}', $e->body);
             self::assertStringContainsString('304', $e->getMessage());
         }
+    }
+
+    public function test_verify_ssl_aliases_are_accepted(): void
+    {
+        self::assertFalse(LivyConfig::fromArray(['host' => 'livy.local', 'verify_ssl' => false])->verifySsl);
+        self::assertFalse(LivyConfig::fromArray(['host' => 'livy.local', 'verifySsl' => false])->verifySsl);
     }
 
     public function test_debug_logging_omits_code_and_credentials(): void

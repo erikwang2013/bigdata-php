@@ -9,6 +9,8 @@ use Erikwang2013\BigData\Driver\Hive\HiveConfig;
 use Erikwang2013\BigData\Driver\Hive\ThriftTransport;
 use Erikwang2013\BigData\Driver\Hive\Thrift\{
     TCLIServiceClient,
+    TCloseOperationReq,
+    TCloseOperationResp,
     TCloseSessionReq,
     TCloseSessionResp,
     TColumn,
@@ -45,6 +47,10 @@ use Erikwang2013\BigData\Driver\Hive\Thrift\{
 use PHPUnit\Framework\TestCase;
 use Thrift\Exception\TApplicationException;
 use Thrift\Exception\TTransportException;
+use Thrift\Transport\TBufferedTransport;
+use Thrift\Transport\THttpClient;
+use Thrift\Transport\TSocket;
+use Thrift\Transport\TSSLSocket;
 
 final class ThriftTransportTest extends TestCase
 {
@@ -121,9 +127,147 @@ final class ThriftTransportTest extends TestCase
         $transport->execute('SELECT id, name FROM users');
 
         self::assertTrue($transport->fetch(1000)['hasMore']);
+        self::assertArrayNotHasKey('CloseOperation', $client->requests);
+
         self::assertFalse($transport->fetch(1000)['hasMore']);
         self::assertSame(1000, $client->requests['FetchResults'][0]->maxRows);
         self::assertSame(TFetchOrientation::FETCH_NEXT, $client->requests['FetchResults'][0]->orientation);
+    }
+
+    public function test_fetch_closes_operation_once_exhausted(): void
+    {
+        $client = new ScriptedClient();
+        $client->openSessionResponse = self::openSessionResponse();
+        $client->executeStatementResponse = self::executeStatementResponse();
+        $client->getResultSetMetadataResponse = self::metadataResponse();
+        $client->fetchResponses = [self::columnarFetchResponse()];
+        $client->closeOperationResponse = new TCloseOperationResp(['status' => self::successStatus()]);
+
+        $transport = new ThriftTransport(HiveConfig::fromArray(['host' => 'hive.local']), $client);
+        $transport->execute('SELECT id, name FROM users');
+
+        self::assertFalse($transport->fetch(1000)['hasMore']);
+        self::assertArrayHasKey('CloseOperation', $client->requests);
+        self::assertInstanceOf(TCloseOperationReq::class, $client->requests['CloseOperation'][0]);
+        self::assertSame(
+            $client->executeStatementResponse->operationHandle,
+            $client->requests['CloseOperation'][0]->operationHandle,
+        );
+
+        // The cleared operation must not be fetched from again.
+        self::assertSame(['rows' => [], 'hasMore' => false], $transport->fetch(1000));
+        self::assertCount(1, $client->requests['FetchResults']);
+    }
+
+    public function test_fetch_returns_rows_when_close_operation_fails(): void
+    {
+        $client = new ScriptedClient();
+        $client->openSessionResponse = self::openSessionResponse();
+        $client->executeStatementResponse = self::executeStatementResponse();
+        $client->getResultSetMetadataResponse = self::metadataResponse();
+        $client->fetchResponses = [self::columnarFetchResponse()];
+        $client->closeOperationException = new TTransportException('connection gone');
+
+        $transport = new ThriftTransport(HiveConfig::fromArray(['host' => 'hive.local']), $client);
+        $transport->execute('SELECT id, name FROM users');
+        $batch = $transport->fetch(1000);
+
+        self::assertSame([[1, 'a'], [null, 'b'], [3, null]], $batch['rows']);
+        self::assertFalse($batch['hasMore']);
+    }
+
+    public function test_binary_transport_uses_tls_socket_when_enabled(): void
+    {
+        $socket = self::inspectSocket(new ThriftTransport(HiveConfig::fromArray([
+            'host' => 'hive.local',
+            'tls' => true,
+        ])));
+
+        self::assertInstanceOf(TSSLSocket::class, $socket);
+        self::assertSame('ssl://hive.local', $socket->getHost());
+
+        $options = stream_context_get_options(self::sslContext($socket));
+        self::assertTrue($options['ssl']['verify_peer']);
+        self::assertTrue($options['ssl']['verify_peer_name']);
+    }
+
+    public function test_tls_transport_disables_verification_when_verify_ssl_is_false(): void
+    {
+        $socket = self::inspectSocket(new ThriftTransport(HiveConfig::fromArray([
+            'host' => 'hive.local',
+            'tls' => true,
+            'verify_ssl' => false,
+        ])));
+
+        self::assertInstanceOf(TSSLSocket::class, $socket);
+
+        $options = stream_context_get_options(self::sslContext($socket));
+        self::assertFalse($options['ssl']['verify_peer']);
+        self::assertFalse($options['ssl']['verify_peer_name']);
+    }
+
+    public function test_http_transport_scheme_is_unaffected_by_tls_option(): void
+    {
+        $transport = new ThriftTransport(HiveConfig::fromArray([
+            'host' => 'hive.local',
+            'transport' => 'http',
+            'scheme' => 'https',
+            'tls' => true,
+        ]));
+
+        $method = new \ReflectionMethod($transport, 'createTransport');
+        $http = $method->invoke($transport);
+
+        self::assertInstanceOf(THttpClient::class, $http);
+        $scheme = new \ReflectionProperty(THttpClient::class, 'scheme');
+        self::assertSame('https', $scheme->getValue($http));
+    }
+
+    public function test_binary_socket_timeouts_convert_config_seconds_to_milliseconds(): void
+    {
+        foreach ([false, true] as $tls) {
+            $socket = self::inspectSocket(new ThriftTransport(HiveConfig::fromArray([
+                'host' => 'hive.local',
+                'timeout' => 2.5,
+                'tls' => $tls,
+            ])));
+
+            foreach (['connect', 'send', 'recv'] as $prefix) {
+                self::assertSame(2500, self::timeoutMillis($socket, $prefix), $prefix . ' timeout');
+            }
+        }
+    }
+
+    private static function inspectSocket(ThriftTransport $transport): TSocket
+    {
+        $method = new \ReflectionMethod($transport, 'createTransport');
+        $wrapped = $method->invoke($transport);
+
+        self::assertInstanceOf(TBufferedTransport::class, $wrapped);
+        $inner = new \ReflectionProperty(TBufferedTransport::class, 'transport');
+        $socket = $inner->getValue($wrapped);
+
+        self::assertInstanceOf(TSocket::class, $socket);
+
+        return $socket;
+    }
+
+    /**
+     * @return resource
+     */
+    private static function sslContext(TSSLSocket $socket)
+    {
+        $context = new \ReflectionProperty(TSSLSocket::class, 'context');
+
+        return $context->getValue($socket);
+    }
+
+    private static function timeoutMillis(TSocket $socket, string $prefix): int
+    {
+        $sec = new \ReflectionProperty(TSocket::class, $prefix . 'TimeoutSec');
+        $usec = new \ReflectionProperty(TSocket::class, $prefix . 'TimeoutUsec');
+
+        return $sec->getValue($socket) * 1000 + intdiv((int) $usec->getValue($socket), 1000);
     }
 
     public function test_fetch_supports_row_based_results(): void
@@ -376,12 +520,16 @@ final class ScriptedClient extends TCLIServiceClient
 
     public ?TCloseSessionResp $closeSessionResponse = null;
 
+    public ?TCloseOperationResp $closeOperationResponse = null;
+
     /** @var list<TFetchResultsResp> */
     public array $fetchResponses = [];
 
     public ?\Throwable $executeStatementException = null;
 
     public ?\Throwable $fetchResultsException = null;
+
+    public ?\Throwable $closeOperationException = null;
 
     public function __construct()
     {
@@ -421,6 +569,17 @@ final class ScriptedClient extends TCLIServiceClient
         }
 
         return array_shift($this->fetchResponses);
+    }
+
+    public function CloseOperation(TCloseOperationReq $req)
+    {
+        $this->requests['CloseOperation'][] = $req;
+
+        if ($this->closeOperationException !== null) {
+            throw $this->closeOperationException;
+        }
+
+        return $this->closeOperationResponse;
     }
 
     public function CloseSession(TCloseSessionReq $req)

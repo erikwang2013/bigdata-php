@@ -1,0 +1,2 @@
+{"commitInfo":{"timestamp":1704240000000,"operation":"WRITE","operationParameters":{},"version":2}}
+{"metaData":{"id":"delta-table-1","name":"orders","format":{"provider":"parquet","options":{}},"schemaString":"{\"type\":\"struct\",\"fields\":[{\"name\":\"id\",\"type\":\"long\",\"nullable\":true,\"metadata\":{}}]}","partitionColumns":["dt"],"configuration":{"delta.appendOnly":"false"},"createdTime":1704067200000}}

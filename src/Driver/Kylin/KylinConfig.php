@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Driver\Kylin;
 
+use Erikwang2013\BigData\Support\Config;
+
 final class KylinConfig
 {
     public function __construct(
@@ -21,21 +23,21 @@ final class KylinConfig
     public static function fromArray(array $config): self
     {
         foreach (['host', 'username', 'password'] as $key) {
-            if (!isset($config[$key]) || $config[$key] === '') {
+            if (Config::string($config, [$key]) === null) {
                 throw new \InvalidArgumentException(sprintf('Kylin config requires a non-empty "%s".', $key));
             }
         }
 
         return new self(
-            host: (string) $config['host'],
-            username: (string) $config['username'],
-            password: (string) $config['password'],
-            port: (int) ($config['port'] ?? 7070),
-            scheme: (string) ($config['scheme'] ?? 'http'),
-            project: isset($config['project']) ? (string) $config['project'] : null,
-            verifySsl: (bool) ($config['verify_ssl'] ?? true),
-            timeout: (float) ($config['timeout'] ?? 30.0),
-            basePath: '/' . trim((string) ($config['base_path'] ?? '/kylin'), '/'),
+            host: Config::string($config, ['host']),
+            username: Config::string($config, ['username']),
+            password: Config::string($config, ['password']),
+            port: Config::int($config, ['port'], 7070),
+            scheme: Config::string($config, ['scheme'], 'http'),
+            project: Config::string($config, ['project']),
+            verifySsl: Config::bool($config, ['verify_ssl', 'verifySsl'], true),
+            timeout: Config::float($config, ['timeout'], 30.0),
+            basePath: '/' . trim(Config::string($config, ['base_path'], '/kylin'), '/'),
         );
     }
 

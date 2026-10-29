@@ -80,7 +80,7 @@ $result->raw();     // raw responses returned by Kylin
 ```
 
 When `project` is omitted the configured default is used. A response with
-`isException = true` raises `Erikwang2013\BigData\Driver\Kylin\Exception\RequestException`
+`isException = true` raises `Erikwang2013\BigData\Exception\RequestException`
 whose message is the server's `exceptionMessage`.
 
 ## Metadata
@@ -118,11 +118,11 @@ URI only — SQL and the Authorization header are never logged.
 
 ## Errors
 
-All exceptions extend `Erikwang2013\BigData\Driver\Kylin\Exception\KylinException`:
-
-- `ConnectionException` — transport failure (DNS, refused connection, timeout).
-- `RequestException` — any non-2xx HTTP response, invalid JSON, or a Kylin
-  `isException` response. Exposes `$statusCode` and `$body` when available.
+Transport failures throw `Erikwang2013\BigData\Exception\ConnectionException`.
+Any non-2xx HTTP response, invalid JSON, or a Kylin `isException` response
+raises `Erikwang2013\BigData\Exception\RequestException`, which exposes public
+`$statusCode` and `$body` when available. Both extend
+`Erikwang2013\BigData\Exception\BigDataException`.
 
 ## Notes
 

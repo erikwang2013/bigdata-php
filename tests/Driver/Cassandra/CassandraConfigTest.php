@@ -25,6 +25,28 @@ final class CassandraConfigTest extends TestCase
         self::assertSame(10.0, $config->timeout);
         self::assertFalse($config->tls);
         self::assertTrue($config->verifySsl);
+        self::assertSame('random', $config->nodeSelection);
+    }
+
+    public function test_accepts_round_robin_node_selection(): void
+    {
+        $config = CassandraConfig::fromArray([
+            'contact_points' => ['127.0.0.1:9042'],
+            'node_selection' => 'round_robin',
+        ]);
+
+        self::assertSame('round_robin', $config->nodeSelection);
+    }
+
+    public function test_rejects_unknown_node_selection(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('node_selection');
+
+        CassandraConfig::fromArray([
+            'contact_points' => ['127.0.0.1:9042'],
+            'node_selection' => 'token_aware',
+        ]);
     }
 
     public function test_rejects_unsupported_protocol_version(): void

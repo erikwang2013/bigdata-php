@@ -5,6 +5,7 @@ namespace Erikwang2013\BigData\Driver\Cassandra;
 
 use Cassandra\Connection;
 use Cassandra\Connection\ConnectionOptions;
+use Cassandra\Connection\NodeSelectionStrategy;
 use Cassandra\Connection\StreamNodeConfig;
 use Cassandra\Consistency as DriverConsistency;
 use Cassandra\Protocol\ProtocolVersion;
@@ -57,9 +58,7 @@ final class PhpCassandraSession implements SessionInterface
             $this->connection = new Connection(
                 $nodes,
                 $this->config->keyspace,
-                new ConnectionOptions(
-                    initialProtocolVersion: $this->protocolVersion(),
-                ),
+                $this->connectionOptions(),
             );
             $this->connection->connect();
         } catch (\Throwable $e) {
@@ -180,6 +179,16 @@ final class PhpCassandraSession implements SessionInterface
         }
 
         return [substr($point, 0, $pos), (int) substr($point, $pos + 1)];
+    }
+
+    private function connectionOptions(): ConnectionOptions
+    {
+        return new ConnectionOptions(
+            nodeSelectionStrategy: $this->config->nodeSelection === 'round_robin'
+                ? NodeSelectionStrategy::RoundRobin
+                : NodeSelectionStrategy::Random,
+            initialProtocolVersion: $this->protocolVersion(),
+        );
     }
 
     private function protocolVersion(): ProtocolVersion

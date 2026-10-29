@@ -1,0 +1,16 @@
+parameters:
+    level: 5
+    paths:
+        - src/BigData.php
+        - src/Support
+        - src/Exception
+        - src/Integration
+    excludePaths:
+        # These adapters extend classes from optional framework packages that are
+        # not installed here; PHPStan cannot resolve their symbols. The
+        # framework-agnostic Manager and Yii3 provider are still analysed.
+        - src/Integration/Hyperf
+        - src/Integration/Laravel
+        - src/Integration/ThinkPHP
+        - src/Integration/Webman
+        - src/Integration/Yii2

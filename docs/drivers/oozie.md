@@ -119,11 +119,11 @@ URI only — credentials and job XML are never logged.
 
 ## Errors
 
-All exceptions extend `Erikwang2013\BigData\Driver\Oozie\Exception\OozieException`:
-
-- `ConnectionException` — transport failure (DNS, refused connection, timeout).
-- `RequestException` — any non-2xx response (including 3xx such as 304), an Oozie
-  error body, or invalid JSON. Exposes `$statusCode` and `$body` when available.
+Transport failures throw `Erikwang2013\BigData\Exception\ConnectionException`.
+Any non-2xx response (including 3xx such as 304), an Oozie error body, or
+invalid JSON raises `Erikwang2013\BigData\Exception\RequestException`, which
+exposes public `$statusCode` and `$body`. Both exceptions extend
+`Erikwang2013\BigData\Exception\BigDataException`.
 
 ## Notes
 

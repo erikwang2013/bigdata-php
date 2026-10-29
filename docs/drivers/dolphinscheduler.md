@@ -114,13 +114,12 @@ never logged.
 
 ## Errors
 
-All exceptions extend
-`Erikwang2013\BigData\Driver\DolphinScheduler\Exception\DolphinSchedulerException`:
-
-- `ConnectionException` — transport failure (DNS, refused connection, timeout).
-- `RequestException` — any final non-2xx response (exposes `$statusCode` and
-  `$body`), an invalid JSON body, or a JSON response whose `code` is not `0`.
-  Application errors use the response `msg` as the exception message.
+Transport failures throw `Erikwang2013\BigData\Exception\ConnectionException`.
+Any final non-2xx response, an invalid JSON body, or a JSON response whose
+`code` is not `0` raises `Erikwang2013\BigData\Exception\RequestException`,
+which exposes public `$statusCode` and `$body`. Application errors use the
+response `msg` as the exception message. Both exceptions extend
+`Erikwang2013\BigData\Exception\BigDataException`.
 
 ## Notes
 

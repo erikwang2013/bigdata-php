@@ -2,9 +2,29 @@
 
 # bigdata-php
 
+[![Packagist Version](https://img.shields.io/packagist/v/erikwang2013/bigdata-php.svg)](https://packagist.org/packages/erikwang2013/bigdata-php)
+[![CI](https://img.shields.io/github/actions/workflow/status/erikwang2013/bigdata-php/ci.yml?branch=main&label=CI)](https://github.com/erikwang2013/bigdata-php/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/erikwang2013/bigdata-php.svg)](LICENSE)
+[![PHP Version](https://img.shields.io/packagist/php-v/erikwang2013/bigdata-php.svg)](composer.json)
+
 A Composer package with 19 big-data platform drivers, enabled on demand.
 
 Project site: https://package.erik.xyz/bigdata/ (Chinese / English)
+
+**Quick links**: [Project site](https://package.erik.xyz/bigdata/en.html) · [Driver docs](docs/drivers/en/) · [Framework docs](docs/frameworks/en/) · [Changelog](CHANGELOG.md) · [Releases](https://github.com/erikwang2013/bigdata-php/releases)
+
+## Table of Contents
+
+| | |
+|---|---|
+| [1. Introduction](#1-introduction) | [9. Functional Design](#9-functional-design) |
+| [2. Features](#2-features) | [10. Request Lifecycle](#10-request-lifecycle) |
+| [3. Requirements](#3-requirements) | [11. Lifecycle](#11-lifecycle) |
+| [4. Installation](#4-installation) | [12. Directory Structure](#12-directory-structure) |
+| [5. Quick Start](#5-quick-start) | [13. Tests](#13-tests) |
+| [6. Framework Integration](#6-framework-integration) | [14. Limitations](#14-limitations) |
+| [7. Driver Matrix](#7-driver-matrix) | [15. License](#15-license) |
+| [8. Architecture](#8-architecture) | [Project Pet](#project-pet) |
 
 `erikwang2013/bigdata-php` connects to SQL / OLAP engines, the Hadoop ecosystem, schedulers, lakehouse metadata catalogs, and NoSQL stores through one PHP API. HTTP drivers work out of the box; optional dependencies are only needed when you actually use Doris / StarRocks, Hive, or Cassandra.
 
@@ -16,7 +36,7 @@ Covered platforms: **Trino, Hadoop, Hive, Spark, Flink, Doris, StarRocks, Kylin,
 
 - **One package, 19 platforms, 21 driver keys.** Hadoop exposes `hadoop-webhdfs` and `hadoop-yarn`; Flink exposes `flink-sql` and `flink-jobs`; every other platform has one driver key.
 - **Unified entry point, isolated drivers.** What the package shares is the Guzzle 7 / PSR-3 dependency and common config and exception conventions; each driver keeps its own `XxxConfig`, `XxxClient`, `ResultSet`, and exception classes, and can also be `new`-ed directly, bypassing the manager.
-- **Optional dependencies do not weigh down installation.** A base install depends only on `guzzlehttp/guzzle` and `psr/log`. `ext-pdo_mysql`, `apache/thrift`, and `mroosz/php-cassandra` are checked only when the corresponding driver is used.
+- **Optional dependencies do not weigh down installation.** A base install depends only on `guzzlehttp/guzzle` and `psr/log`. `apache/thrift` and `mroosz/php-cassandra` are checked when the driver is created; `ext-pdo_mysql` is checked only when Doris/StarRocks executes SQL.
 - **Lakehouse formats are metadata-only.** The Iceberg, Hudi, Paimon, and Delta Lake (Delta Sharing) drivers read catalogs, schemas, snapshots, or file manifests; they do not parse Parquet data files. Actual row-level queries are delegated to Trino, Spark, or Flink.
 - **No hidden failures, no automatic retries.** Connection errors map to `ConnectionException`; HTTP non-2xx responses or application-level errors map to `RequestException`. The caller decides whether to retry.
 
@@ -31,7 +51,7 @@ Covered platforms: **Trino, Hadoop, Hive, Spark, Flink, Doris, StarRocks, Kylin,
 - **Read-only lakehouse metadata**: Iceberg REST Catalog, Hudi `.hoodie` timeline, Paimon schema/snapshot, Delta Sharing file manifests.
 - **No automatic retries, no unified SQL layer**: no query rewriting, transaction orchestration, connection pooling, or ORM; each driver preserves the semantics of the target system.
 - **PHP 8.0+**: the core package depends on no framework; the Laravel, ThinkPHP, Webman, Hyperf, Yii2, and Yii3 adapters are all optional thin wrappers.
-- **Test coverage**: 230 unit tests and 799 assertions, plus 12 integration tests (16 assertions, automatically skipped when external services are unavailable), using mock HTTP, local fixtures, and a fake server, with no dependency on a real cluster.
+- **Test coverage**: 289 unit tests and 969 assertions, plus 14 integration tests (16 assertions, automatically skipped when external services are unavailable), using mock HTTP, local fixtures, and a fake server, with no dependency on a real cluster.
 
 ## 3. Requirements
 
@@ -40,9 +60,10 @@ Covered platforms: **Trino, Hadoop, Hive, Spark, Flink, Doris, StarRocks, Kylin,
 | PHP | 8.0+ |
 | guzzlehttp/guzzle | ^7.0, installed automatically with the package |
 | psr/log | ^3.0, installed automatically with the package |
-| ext-pdo_mysql | Optional; required for Doris and StarRocks SQL and Stream Load |
+| ext-pdo_mysql | Optional; required for Doris/StarRocks SQL; Stream Load is plain HTTP |
 | apache/thrift | Optional; required for Hive / Spark Thrift Server, supports ^0.24 or ^0.25 |
 | mroosz/php-cassandra | Optional; required for Cassandra, ^1.2 |
+| aws/aws-sdk-php | Optional; required for Hudi/Paimon S3 storage |
 
 Framework adapter versions and minimum PHP versions:
 
@@ -62,7 +83,7 @@ A framework's own minimum PHP version may be higher than this package's 8.0; the
 Standard installation (available on Packagist):
 
 ```bash
-composer require erikwang2013/bigdata-php:^1.2
+composer require erikwang2013/bigdata-php:^2.0
 ```
 
 Install optional dependencies as needed:
@@ -142,6 +163,8 @@ $trino = new TrinoClient(TrinoConfig::fromArray([
 ## 6. Framework Integration
 
 The core package depends on no framework. The adapters in `src/Integration` do only two things: read the unified `default` / `drivers` configuration and bind `Erikwang2013\BigData\Integration\Manager` to the framework container.
+
+Each adapter has a dedicated guide: [Laravel](docs/frameworks/en/laravel.md), [ThinkPHP](docs/frameworks/en/thinkphp.md), [Webman](docs/frameworks/en/webman.md), [Hyperf](docs/frameworks/en/hyperf.md), [Yii2](docs/frameworks/en/yii2.md), [Yii3](docs/frameworks/en/yii3.md).
 
 Unified configuration structure (identical across frameworks):
 
@@ -321,27 +344,27 @@ $trino = $manager->driver('trino');
 
 | Platform | Driver key | Client | Optional dependency | Description | Docs |
 |---|---|---|---|---|---|
-| Trino | `trino` | `Driver\Trino\TrinoClient` | — | SQL queries, catalog / schema / table browsing | [trino.md](docs/drivers/trino.md) |
-| Hadoop | `hadoop-webhdfs` | `Driver\Hadoop\WebHdfsClient` | — | HDFS reads and writes, WebHDFS REST, including 307 redirects | [hadoop.md](docs/drivers/hadoop.md) |
-| Hadoop | `hadoop-yarn` | `Driver\Hadoop\YarnClient` | — | YARN application queries and termination | [hadoop.md](docs/drivers/hadoop.md) |
-| Hive | `hive` | `Driver\Hive\HiveClient` | `apache/thrift` | HiveServer2 / Spark Thrift Server, NONE / PLAIN / LDAP | [hive.md](docs/drivers/hive.md) |
-| Spark | `spark` | `Driver\Spark\LivyClient` | — | Livy session / statement / batch | [spark.md](docs/drivers/spark.md) |
-| Flink | `flink-sql` | `Driver\Flink\SqlGatewayClient` | — | Flink SQL Gateway | [flink.md](docs/drivers/flink.md) |
-| Flink | `flink-jobs` | `Driver\Flink\JobClient` | — | JobManager job queries and cancellation | [flink.md](docs/drivers/flink.md) |
-| Doris | `doris` | `Driver\Doris\DorisClient` | `ext-pdo_mysql` | SQL 9030 + Stream Load 8030 | [doris.md](docs/drivers/doris.md) |
-| StarRocks | `starrocks` | `Driver\StarRocks\StarRocksClient` | `ext-pdo_mysql` | SQL 9030 + Stream Load 8030 | [starrocks.md](docs/drivers/starrocks.md) |
-| Kylin | `kylin` | `Driver\Kylin\KylinClient` | — | SQL / cube / job | [kylin.md](docs/drivers/kylin.md) |
-| Druid | `druid` | `Driver\Druid\DruidClient` | — | SQL / native query | [druid.md](docs/drivers/druid.md) |
-| Iceberg | `iceberg` | `Driver\Iceberg\RestCatalogClient` | — | REST Catalog metadata | [iceberg.md](docs/drivers/iceberg.md) |
-| Hudi | `hudi` | `Driver\Hudi\HudiTable` | — | Read-only `.hoodie` timeline, local / WebHDFS | [hudi.md](docs/drivers/hudi.md) |
-| Paimon | `paimon` | `Driver\Paimon\PaimonTable` | — | Read-only schema / snapshot, local / WebHDFS | [paimon.md](docs/drivers/paimon.md) |
-| Delta Lake | `delta-lake` | `Driver\DeltaLake\DeltaSharingClient` | — | Delta Sharing, returns Parquet file manifests | [delta-lake.md](docs/drivers/delta-lake.md) |
-| DolphinScheduler | `dolphinscheduler` | `Driver\DolphinScheduler\DolphinSchedulerClient` | — | Project / workflow / instance / log | [dolphinscheduler.md](docs/drivers/dolphinscheduler.md) |
-| Airflow | `airflow` | `Driver\Airflow\AirflowClient` | — | DAG / run / task / variables | [airflow.md](docs/drivers/airflow.md) |
-| Azkaban | `azkaban` | `Driver\Azkaban\AzkabanClient` | — | Login / flow / execution / log | [azkaban.md](docs/drivers/azkaban.md) |
-| Oozie | `oozie` | `Driver\Oozie\OozieClient` | — | workflow / coordinator / bundle | [oozie.md](docs/drivers/oozie.md) |
-| HBase | `hbase` | `Driver\HBase\HBaseClient` | — | Stargate REST, Base64 cells | [hbase.md](docs/drivers/hbase.md) |
-| Cassandra | `cassandra` | `Driver\Cassandra\CassandraClient` | `mroosz/php-cassandra` | CQL, protocol v3 / v4 / v5 | [cassandra.md](docs/drivers/cassandra.md) |
+| Trino | `trino` | `Driver\Trino\TrinoClient` | — | SQL queries, catalog / schema / table browsing | [trino.md](docs/drivers/en/trino.md) |
+| Hadoop | `hadoop-webhdfs` | `Driver\Hadoop\WebHdfsClient` | — | HDFS reads and writes, WebHDFS REST, including 307 redirects | [hadoop.md](docs/drivers/en/hadoop.md) |
+| Hadoop | `hadoop-yarn` | `Driver\Hadoop\YarnClient` | — | YARN application queries and termination | [hadoop.md](docs/drivers/en/hadoop.md) |
+| Hive | `hive` | `Driver\Hive\HiveClient` | `apache/thrift` | HiveServer2 / Spark Thrift Server, NONE / PLAIN / LDAP | [hive.md](docs/drivers/en/hive.md) |
+| Spark | `spark` | `Driver\Spark\LivyClient` | — | Livy session / statement / batch | [spark.md](docs/drivers/en/spark.md) |
+| Flink | `flink-sql` | `Driver\Flink\SqlGatewayClient` | — | Flink SQL Gateway | [flink.md](docs/drivers/en/flink.md) |
+| Flink | `flink-jobs` | `Driver\Flink\JobClient` | — | JobManager job queries and cancellation | [flink.md](docs/drivers/en/flink.md) |
+| Doris | `doris` | `Driver\Doris\DorisClient` | `ext-pdo_mysql` (SQL) | SQL 9030 + Stream Load 8030 | [doris.md](docs/drivers/en/doris.md) |
+| StarRocks | `starrocks` | `Driver\StarRocks\StarRocksClient` | `ext-pdo_mysql` (SQL) | SQL 9030 + Stream Load 8030 | [starrocks.md](docs/drivers/en/starrocks.md) |
+| Kylin | `kylin` | `Driver\Kylin\KylinClient` | — | SQL / cube / job | [kylin.md](docs/drivers/en/kylin.md) |
+| Druid | `druid` | `Driver\Druid\DruidClient` | — | SQL / native query | [druid.md](docs/drivers/en/druid.md) |
+| Iceberg | `iceberg` | `Driver\Iceberg\RestCatalogClient` | — | REST Catalog metadata | [iceberg.md](docs/drivers/en/iceberg.md) |
+| Hudi | `hudi` | `Driver\Hudi\HudiTable` | `aws/aws-sdk-php` (S3 optional) | Read-only `.hoodie` timeline, local / WebHDFS / S3 | [hudi.md](docs/drivers/en/hudi.md) |
+| Paimon | `paimon` | `Driver\Paimon\PaimonTable` | `aws/aws-sdk-php` (S3 optional) | Read-only schema / snapshot, local / WebHDFS / S3 | [paimon.md](docs/drivers/en/paimon.md) |
+| Delta Lake | `delta-lake` | `Driver\DeltaLake\DeltaSharingClient` | — | Delta Sharing, returns Parquet file manifests | [delta-lake.md](docs/drivers/en/delta-lake.md) |
+| DolphinScheduler | `dolphinscheduler` | `Driver\DolphinScheduler\DolphinSchedulerClient` | — | Project / workflow / instance / log | [dolphinscheduler.md](docs/drivers/en/dolphinscheduler.md) |
+| Airflow | `airflow` | `Driver\Airflow\AirflowClient` | — | DAG / run / task / variables | [airflow.md](docs/drivers/en/airflow.md) |
+| Azkaban | `azkaban` | `Driver\Azkaban\AzkabanClient` | — | Login / flow / execution / log | [azkaban.md](docs/drivers/en/azkaban.md) |
+| Oozie | `oozie` | `Driver\Oozie\OozieClient` | — | workflow / coordinator / bundle | [oozie.md](docs/drivers/en/oozie.md) |
+| HBase | `hbase` | `Driver\HBase\HBaseClient` | — | Stargate REST, Base64 cells | [hbase.md](docs/drivers/en/hbase.md) |
+| Cassandra | `cassandra` | `Driver\Cassandra\CassandraClient` | `mroosz/php-cassandra` | CQL, protocol v3 / v4 / v5 | [cassandra.md](docs/drivers/en/cassandra.md) |
 
 The full namespace prefix for driver keys and client classes is `Erikwang2013\BigData\`. For example, the fully qualified class name of `Driver\Trino\TrinoClient` is `Erikwang2013\BigData\Driver\Trino\TrinoClient`.
 
@@ -361,7 +384,7 @@ Call path:
 1. **Application layer**: business code calls `BigData::driver()` directly, or obtains `Integration\Manager` from the container through a framework adapter.
 2. **Framework adapter layer (optional)**: the Laravel, ThinkPHP, Webman, Hyperf, Yii2, and Yii3 adapters read the `default` / `drivers` configuration and bind `Manager` to the container; they introduce no ORM, query builder, or extra abstraction.
 3. **Manager / Registry**: `Manager` handles configuration resolution and instance caching; `BigData` internally maintains a static map from the 21 driver keys to factory closures, and both unknown keys and missing optional dependencies are intercepted here.
-4. **Driver layer**: one directory per platform, containing `XxxConfig`, `XxxClient` (some drivers also have `ResultSet`, `Support\Http`, `Exception/*`). A driver depends only on its own configuration and the injected HTTP / log instances.
+4. **Driver layer**: one directory per platform, containing `XxxConfig`, `XxxClient` (some drivers also have a dedicated `ResultSet` or exceptions). Shared HTTP, result-set, config, and exception code lives in `src/Support/` and `src/Exception/`; a driver depends only on its own configuration and the injected HTTP / log instances.
 5. **External systems**: HTTP / JSON (Guzzle 7), Thrift TCLIService, MySQL protocol (PDO), CQL, local filesystem, or WebHDFS.
 
 Key constraints: drivers are created on demand and cached by name; `Manager` never connects to any external system during construction; the HTTP client and logger can be injected from above, making it easy to apply uniform timeout, proxy, and logging settings.
@@ -373,9 +396,9 @@ Key constraints: drivers are created on demand and cached by name; `Manager` nev
 The code is divided into five layers:
 
 - **Core**: the `BigData` facade (`driver` / `drivers` / `available`), `Integration\Manager`, the driver registry, and the optional dependency gate. The core layer only does name resolution, config merging, and factory invocation.
-- **Support**: per-driver configuration objects, `Support\Http` (a thin Guzzle 7 wrapper), `ResultSet`, and the exception hierarchy. The root exception classes are each driver's `XxxException`; connection failures and request failures land in `ConnectionException` and `RequestException` respectively.
+- **Support**: shared `Support\Http` (a thin Guzzle 7 wrapper), `Support\ResultSet`, `Support\Config`, and an exception hierarchy rooted at `BigDataException`; connection and request failures land in `ConnectionException` and `RequestException` respectively. Hive, Cassandra, Doris, and StarRocks keep dedicated hierarchies, while Hudi/Paimon/Delta Lake metadata errors keep `HudiException` / `PaimonException` / `DeltaLakeException`.
 - **Driver**: 19 platform-isolated directories, grouped into five categories: SQL / OLAP, Hadoop / compute, Schedulers, Lakehouse, and NoSQL. Drivers do not share client instances, and there is no cross-driver unified SQL layer.
-- **Optional dependencies**: `ext-pdo_mysql`, `apache/thrift`, `mroosz/php-cassandra`. They are checked only when the corresponding driver is created; the check logic is centralized in `BigData::driver()`.
+- **Optional dependencies**: `ext-pdo_mysql` (Doris/StarRocks SQL only), `apache/thrift`, `mroosz/php-cassandra`, `aws/aws-sdk-php` (S3 only). Hive and Cassandra are checked when the driver is created, PDO when SQL is invoked, and S3 when storage is read.
 - **Tests**: unit tests use mock HTTP, local fixtures, and a fake server; integration tests form a separate group and connect to real services on demand.
 
 The goal of this structure is "a unified entry point without unified semantics": configuration, result sets, and exception naming stay consistent, but each driver still works according to the target system's protocol and error model.
@@ -410,7 +433,7 @@ Error mapping: transport failures, timeouts, and connection errors throw `Connec
 | Query / execute | Run SQL, submit jobs, read metadata, or write via Stream Load; results come back as `ResultSet` or arrays. |
 | Close | Hive and Cassandra provide `close()` to release the session; PDO and HTTP resources are released with the client instance. |
 
-Optional dependencies have an independent lifecycle: when a driver is created, the extension or class is checked, and if it is missing, a `DriverUnavailableException` with an install hint is thrown; after installing, call `driver()` again. Directly `new`-ing a client bypasses this check.
+Optional dependencies have an independent lifecycle: Hive/Cassandra check their class when the driver is created, `ext-pdo_mysql` is checked on the first Doris/StarRocks SQL call, and S3 storage is checked on the first read; a missing dependency raises an exception with an install hint. Directly `new`-ing a client bypasses the creation-time check.
 
 ## 12. Directory Structure
 
@@ -446,20 +469,32 @@ bigdata-php/
 │   │   ├── Hyperf/
 │   │   ├── Yii2/
 │   │   └── Yii3/
+│   ├── Support/                 # Shared HTTP, ResultSet, and config helpers
 │   └── Exception/
+│       ├── BigDataException.php
+│       ├── ConnectionException.php
+│       ├── RequestException.php
 │       └── DriverUnavailableException.php
 ├── config/                      # Framework config samples
 ├── docs/
-│   ├── diagrams/                # Architecture, functional, request lifecycle, and lifecycle SVGs
-│   └── drivers/                 # Detailed docs for the 19 platforms
+│   ├── diagrams/                # Chinese/English architecture, functional, request lifecycle, and lifecycle SVGs
+│   ├── drivers/                 # Detailed docs for the 19 platforms (en/ for English)
+│   ├── frameworks/              # Six framework guides (en/ for English)
+│   ├── pet.svg / pet-expressions/  # Project pet and 12 expressions
+│   └── site/                    # Site content source, build and deployment config
+├── scripts/                     # Site build / check scripts
+├── site/                        # Local site build output (gitignored, not packaged in releases)
 ├── tests/
 │   ├── Driver/                  # Unit tests and fixtures
 │   └── Integration/             # Integration tests, run on demand
 ├── demo/                        # Trino / Flink / Airflow / Cassandra demos
 ├── composer.json
-├── phpunit.xml
+├── phpstan.neon
+├── phpunit.xml / phpunit-8.0.xml
+├── ASSETS-LICENSE.md
 ├── CHANGELOG.md
-└── README.md
+├── README.md
+└── README_EN.md
 ```
 
 ## 13. Tests
@@ -469,7 +504,7 @@ composer test              # Unit tests, no real cluster required
 composer test-integration  # Integration tests, require available external services
 ```
 
-Unit tests use a mock HTTP client, local fixtures, and a fake server, covering 230 tests and 799 assertions. The test suite is split into the `unit` and `integration` groups in `phpunit.xml`; the default `composer test` runs only `unit` and excludes `tests/Integration`.
+Unit tests use a mock HTTP client, local fixtures, and a fake server, covering 289 tests and 969 assertions, plus 14 integration tests. The test suite is split into the `unit` and `integration` groups in `phpunit.xml`; the default `composer test` runs only `unit` and excludes `tests/Integration`.
 
 Integration tests run on demand—Cassandra, for example, requires a reachable instance; `demo/` provides Docker Compose configurations for Trino, Flink, Airflow, and Cassandra as a starting point for local verification.
 
@@ -477,12 +512,12 @@ Integration tests run on demand—Cassandra, for example, requires a reachable i
 
 - **Lakehouse metadata is read-only**: Iceberg reads the REST Catalog and table metadata; Hudi reads the `.hoodie` timeline; Paimon reads schema / snapshot; Delta Sharing returns Parquet file manifests. None of them read Parquet row data or perform predicate pushdown or query execution.
 - **Delta Sharing returns no rows**: `DeltaSharingClient::query()` returns file manifests and metadata; the caller must read the actual data according to the manifest.
-- **Hive authentication scope**: supports NONE, SASL PLAIN, and LDAP (QOP `auth`); Kerberos / GSSAPI are not supported. Binary transport has no built-in TLS; HTTP transport can use HTTPS through Guzzle.
+- **Hive authentication scope**: supports NONE, SASL PLAIN, and LDAP (QOP `auth`); Kerberos / GSSAPI are not supported. Binary transport can use TLS via `tls => true`; HTTP transport uses `scheme => https`.
 - **Cassandra is optional and may collide on names**: the driver wraps `mroosz/php-cassandra`, which shares the `Cassandra\` namespace with `ext-cassandra`; loading both at the same time may conflict.
 - **No automatic retries**: connection, HTTP, and application-level errors are thrown directly as `ConnectionException` / `RequestException`; retry policies, backoff, and idempotency decisions are the caller's responsibility.
 - **No unified SQL layer or ORM**: drivers only adapt protocols; they do not perform SQL dialect translation, cross-source JOINs, transaction orchestration, connection pooling, or model mapping.
 - **Optional dependency checks happen only in `BigData::driver()`**: directly instantiating a client skips the check, and a missing extension or class surfaces as a PHP error at runtime.
-- **Driver capabilities are asymmetric**: each platform covers only part of its public API; refer to the docs under `docs/drivers/` for specific methods, config fields, and limitations.
+- **Driver capabilities are asymmetric**: each platform covers only part of its public API; refer to the docs under `docs/drivers/en/` for specific methods, config fields, and limitations.
 
 ## 15. License
 

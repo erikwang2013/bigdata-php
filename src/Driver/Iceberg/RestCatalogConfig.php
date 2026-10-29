@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Driver\Iceberg;
 
+use Erikwang2013\BigData\Support\Config;
+
 final class RestCatalogConfig
 {
     public function __construct(
@@ -20,20 +22,21 @@ final class RestCatalogConfig
 
     public static function fromArray(array $config): self
     {
-        if (!isset($config['base_url']) || !is_string($config['base_url']) || $config['base_url'] === '') {
+        $baseUrl = Config::string($config, ['base_url', 'baseUrl']);
+        if ($baseUrl === null) {
             throw new \InvalidArgumentException('Iceberg config requires a non-empty "base_url".');
         }
 
         return new self(
-            baseUrl: $config['base_url'],
-            token: isset($config['token']) ? (string) $config['token'] : null,
-            clientId: isset($config['client_id']) ? (string) $config['client_id'] : null,
-            clientSecret: isset($config['client_secret']) ? (string) $config['client_secret'] : null,
-            scope: (string) ($config['scope'] ?? 'catalog'),
-            warehouse: isset($config['warehouse']) ? (string) $config['warehouse'] : null,
-            prefix: isset($config['prefix']) ? (string) $config['prefix'] : null,
-            verifySsl: (bool) ($config['verify_ssl'] ?? true),
-            timeout: (float) ($config['timeout'] ?? 30.0),
+            baseUrl: $baseUrl,
+            token: Config::string($config, ['token']),
+            clientId: Config::string($config, ['client_id']),
+            clientSecret: Config::string($config, ['client_secret']),
+            scope: Config::string($config, ['scope'], 'catalog') ?? 'catalog',
+            warehouse: Config::string($config, ['warehouse']),
+            prefix: Config::string($config, ['prefix']),
+            verifySsl: Config::bool($config, ['verify_ssl', 'verifySsl'], true),
+            timeout: Config::float($config, ['timeout'], 30.0),
         );
     }
 

@@ -5,7 +5,7 @@ namespace Erikwang2013\BigData\Tests\Driver\Azkaban;
 
 use Erikwang2013\BigData\Driver\Azkaban\AzkabanClient;
 use Erikwang2013\BigData\Driver\Azkaban\AzkabanConfig;
-use Erikwang2013\BigData\Driver\Azkaban\Exception\RequestException;
+use Erikwang2013\BigData\Exception\RequestException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -15,6 +15,17 @@ use PHPUnit\Framework\TestCase;
 
 final class AzkabanClientTest extends TestCase
 {
+    public function test_accepts_base_url_camel_case_alias(): void
+    {
+        $config = AzkabanConfig::fromArray([
+            'baseUrl' => 'https://azkaban.local:8443',
+            'username' => 'alice',
+            'password' => 'secret',
+        ]);
+
+        self::assertSame('https://azkaban.local:8443', $config->baseUrl);
+    }
+
     private array $history = [];
 
     private function client(array $responses): AzkabanClient
@@ -134,6 +145,14 @@ final class AzkabanClientTest extends TestCase
         $this->expectException(RequestException::class);
         $this->expectExceptionMessage('Azkaban execution log response does not contain "data".');
         $client->executionLog('42');
+    }
+
+    public function test_verify_ssl_aliases_are_accepted(): void
+    {
+        $config = ['base_url' => 'https://azkaban.local:8443', 'username' => 'alice', 'password' => 'secret'];
+
+        self::assertFalse(AzkabanConfig::fromArray($config + ['verify_ssl' => false])->verifySsl);
+        self::assertFalse(AzkabanConfig::fromArray($config + ['verifySsl' => false])->verifySsl);
     }
 
     public function test_304_response_throws_with_status_and_body(): void
