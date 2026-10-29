@@ -292,6 +292,8 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 /* Hero */
 .hero {
   overflow: clip;
+  min-height: 100vh;
+  min-height: 100svh;
   padding-top: calc(var(--header-h) + clamp(32px, 5vw, 72px));
   padding-bottom: clamp(52px, 7vw, 96px);
 }
@@ -1744,10 +1746,15 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
       <div class="versions-intro reveal">
         <h2 id="versions-title">Changelog</h2>
         <p>Recent releases; the full list is on GitHub Releases.</p>
-        <span class="latest-badge"><svg class="icon icon-xs" aria-hidden="true"><use href="#i-check"></use></svg> Latest v1.2.0</span>
+        <span class="latest-badge"><svg class="icon icon-xs" aria-hidden="true"><use href="#i-check"></use></svg> Latest v1.2.1</span>
         <a class="btn btn-secondary" href="https://github.com/erikwang2013/bigdata-php/releases" target="_blank" rel="noopener">All versions <svg class="icon icon-xs" aria-hidden="true"><use href="#i-external"></use></svg></a>
       </div>
       <div class="release-list reveal" style="--delay:90ms">
+        <div class="release">
+          <div><span class="release-ver">v1.2.1</span><span class="release-date">2026-10-30</span></div>
+          <div class="release-body"><p>CI: PHP 8.0 full-lane platform-check fix; no runtime changes.</p></div>
+          <a href="https://github.com/erikwang2013/bigdata-php/releases/tag/v1.2.1" target="_blank" rel="noopener" aria-label="v1.2.1 release page"><svg class="icon icon-xs" aria-hidden="true"><use href="#i-external"></use></svg></a>
+        </div>
         <div class="release">
           <div><span class="release-ver">v1.2.0</span><span class="release-date">2026-10-30</span></div>
           <div class="release-body"><p>Integration tests, Cassandra paging and writes, Hudi 1.0, and framework smoke tests.</p></div>

@@ -3,6 +3,14 @@
 All notable changes to `erikwang2013/bigdata-php` are documented here.
 Versions follow `vMAJOR.MINOR.PATCH`.
 
+## [1.2.1] - 2026-10-30
+
+### Fixed
+
+- CI: the PHP 8.0 full unit lane now disables Composer's generated
+  platform-check, which included resolved dev packages that need PHP 8.1+.
+  No runtime code changed; v1.2.0 remains the feature release.
+
 ## [1.2.0] - 2026-10-30
 
 ### Added
