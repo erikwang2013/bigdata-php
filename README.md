@@ -57,17 +57,7 @@
 
 ## 4. 安装
 
-标准安装方式：
-
-```bash
-composer require erikwang2013/bigdata-php
-```
-
-> Packagist 收录仍在进行中。在包页上线前，先在项目的 `composer.json` 中加入 VCS 仓库，再执行安装：
-
-```json
-{"repositories":[{"type":"vcs","url":"https://github.com/erikwang2013/bigdata-php"}]}
-```
+标准安装方式（Packagist 已上线）：
 
 ```bash
 composer require erikwang2013/bigdata-php:^1.2

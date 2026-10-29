@@ -3,6 +3,15 @@
 All notable changes to `erikwang2013/bigdata-php` are documented here.
 Versions follow `vMAJOR.MINOR.PATCH`.
 
+## [1.2.2] - 2026-10-30
+
+### Changed
+
+- Packagist is live. Installation docs now use
+  `composer require erikwang2013/bigdata-php:^1.2`; the VCS fallback is no longer
+  needed.
+- Site version log includes v1.2.2.
+
 ## [1.2.1] - 2026-10-30
 
 ### Fixed
@@ -46,7 +55,7 @@ Versions follow `vMAJOR.MINOR.PATCH`.
   bootstraps remain a follow-up.
 - Live Docker/cluster runs were blocked locally; the integration workflow runs
   them on GitHub Actions.
-- Packagist submission is still pending.
+- Packagist is live; v1.2.0+ is installable from the default repository.
 
 ## [1.1.0] - 2026-10-29
 
