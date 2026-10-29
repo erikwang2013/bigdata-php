@@ -3,6 +3,15 @@
 All notable changes to `erikwang2013/bigdata-php` are documented here.
 Versions follow `vMAJOR.MINOR.PATCH`.
 
+## [Unreleased]
+
+### Changed
+
+- The project site uses a refined light theme with brand blue, teal and violet
+  tints, glass panels, rounded cards and a richer hero. The shared site builder
+  is unchanged; `docs/site/theme.css` is injected at build time. The site
+  version list is trimmed to the six most recent releases.
+
 ## [2.1.2] - 2026-10-30
 
 ### Changed

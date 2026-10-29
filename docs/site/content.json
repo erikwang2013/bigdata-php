@@ -7,7 +7,7 @@
   "description": "把 Trino、Hadoop、Hive、Spark、Flink、Doris、StarRocks 等 19 个大数据平台的客户端收进一个 Composer 包，21 个驱动键按需启用，可选依赖只在真正使用时检查。",
   "github": "https://github.com/erikwang2013/bigdata-php",
   "siteUrl": "https://package.erik.xyz/bigdata/",
-  "accent": "#0ea5e9",
+  "accent": "#3355e8",
   "pet": {
     "name": "多多",
     "title": "数据章鱼多多",
@@ -164,36 +164,6 @@
         "date": "2026-10-30",
         "summary": "New data-octopus pet Duoduo, 12 expressions and README pet section.",
         "url": "https://github.com/erikwang2013/bigdata-php/releases/tag/v1.2.3"
-      },
-      {
-        "version": "v1.2.2",
-        "date": "2026-10-30",
-        "summary": "Packagist is live; installation docs and version log updated.",
-        "url": "https://github.com/erikwang2013/bigdata-php/releases/tag/v1.2.2"
-      },
-      {
-        "version": "v1.2.1",
-        "date": "2026-10-30",
-        "summary": "CI: PHP 8.0 full lane platform-check fix; no runtime changes.",
-        "url": "https://github.com/erikwang2013/bigdata-php/releases/tag/v1.2.1"
-      },
-      {
-        "version": "v1.2.0",
-        "date": "2026-10-30",
-        "summary": "集成测试、Cassandra 分页与写入、Hudi 1.0 与框架冒烟测试。",
-        "url": "https://github.com/erikwang2013/bigdata-php/releases/tag/v1.2.0"
-      },
-      {
-        "version": "v1.1.0",
-        "date": "2026-10-29",
-        "summary": "PHP 8.0 兼容、六框架适配、完整文档与评审修复。",
-        "url": "https://github.com/erikwang2013/bigdata-php/releases/tag/v1.1.0"
-      },
-      {
-        "version": "v1.0.0",
-        "date": "2026-10-29",
-        "summary": "首个统一 Composer 包，19 个平台、21 个驱动键。",
-        "url": "https://github.com/erikwang2013/bigdata-php/releases/tag/v1.0.0"
       }
     ]
   },
@@ -350,21 +320,6 @@
         },
         {
           "summary": "New data-octopus pet Duoduo, 12 expressions and README pet section."
-        },
-        {
-          "summary": "Packagist is live; installation docs and version log updated."
-        },
-        {
-          "summary": "CI: PHP 8.0 full-lane platform-check fix; no runtime changes."
-        },
-        {
-          "summary": "Integration tests, Cassandra paging and writes, Hudi 1.0, and framework smoke tests."
-        },
-        {
-          "summary": "PHP 8.0 compatibility, six framework adapters, full docs, and review fixes."
-        },
-        {
-          "summary": "The first unified Composer package with 19 platforms and 21 driver keys."
         }
       ]
     },

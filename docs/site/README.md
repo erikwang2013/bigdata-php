@@ -6,6 +6,7 @@ Source and deployment files for <https://package.erik.xyz/bigdata/>. The generat
 | Path | Purpose |
 |------|---------|
 | `docs/site/content.json` | Committed copy of the site content source |
+| `docs/site/theme.css` | Project visual overrides, injected after the builder CSS |
 | `docs/site/nginx.conf` | Static-server sample (caching, compression, security headers) |
 | `scripts/build-site.sh` | Reproducible build into `site/` |
 | `scripts/site-check.py` | Playwright audit: LCP, CLS, overflow, search/lightbox/pet tiles |
@@ -27,6 +28,11 @@ message when `.site-builder` is missing. The build takes about one second and
 writes `site/index.html`, `site/en.html`, `site/404.html`, SEO files and local
 assets.
 
+After the builder finishes, the script appends `docs/site/theme.css` to each
+generated page as an inline `<style id="project-theme">` block. This keeps the
+shared builder CSS and templates untouched while giving bigdata-php its own
+refined light theme. Edit the theme file, not `site/`, and rebuild.
+
 `docs/site/content.json` is the source of truth. Refresh it when the external
 content source changes, then rebuild:
 
@@ -36,7 +42,7 @@ cp ../.site-builder/data/bigdata-php.json docs/site/content.json
 ```
 
 Current snapshot: 2026-10-30, SHA-256
-`6da5eda0fd525c8791083fd08d4049916ca5244c4e75e8f21d06d1902047bac3`.
+`ddbd8639a8846e4a8fbb8c76975e6182c086cb7bd6d6c27c57f50d787e5557e4`.
 
 ## Audit
 
@@ -58,16 +64,16 @@ It loads the built site in headless Chrome through Playwright at mobile
 Results from 2026-10-30 (Chrome 156, local server):
 
 ```
-[PASS] mobile  390x844  LCP 1432 ms (<= 2500)  CLS 0.000 (<= 0.1)  overflow 0 px (<= 1)
-[PASS] search: 8 results for 版本
+[PASS] mobile  390x844  LCP 1456 ms (<= 2500)  CLS 0.000 (<= 0.1)  overflow 0 px (<= 1)
+[PASS] search: 7 results for 版本
 [PASS] gallery lightbox: opens and closes
 [PASS] pet tiles: 12 tiles, lightbox opens and closes
-[PASS] desktop 1440x900  LCP 348 ms (<= 2500)  CLS 0.000 (<= 0.1)  overflow 0 px (<= 1)
+[PASS] desktop 1440x900  LCP 408 ms (<= 2500)  CLS 0.000 (<= 0.1)  overflow 0 px (<= 1)
 RESULT PASS
 ```
 
-Mobile LCP varies on a cold local server: one run measured 2556 ms, the next
-passed at 1432 ms.
+Mobile LCP is noisy on a cold local server: one run measured 2960 ms; three
+later runs passed between 672 ms and 1456 ms.
 
 The builder's broader interaction test also passes:
 `python3 .site-builder/test_ui.py bigdata-php` (start a static server on
@@ -135,9 +141,9 @@ cleaner footer. Do not edit the builder for this; keep it a deploy-time step.
 
 ## Performance notes
 
-- 36 files, 2.2 MB total (the two 1200x630 social previews account for about
-  0.6 MB and are not loaded by the page). The 670 KB three.js bundle loads after the page load
-  event; HTML gzips to 23 KB and the hero script to 2.3 KB.
+- 36 files, 2.4 MB total (the two 1200x630 social previews account for about
+  0.9 MB and are not loaded by the page). The 670 KB three.js bundle loads after
+  the page load event; HTML gzips to 25 KB and the hero script to 2.3 KB.
 - Static-server benchmark (`python3 .site-builder/bench.py`): 245 responses for
   bigdata-php, median 0.58 ms, max 2.21 ms. nginx is faster than the Python
   server.

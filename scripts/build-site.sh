@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# Build site/ from docs/site/content.json using the project site builder.
+# Build site/ from docs/site/content.json using the project site builder,
+# then inject the project theme over the shared builder CSS.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SLUG=bigdata-php
 CONTENT="$ROOT/docs/site/content.json"
+THEME="$ROOT/docs/site/theme.css"
 
 BUILDER="${SITE_BUILDER:-}"
 if [ -z "$BUILDER" ]; then
@@ -24,6 +26,10 @@ fi
 
 if [ ! -f "$CONTENT" ]; then
   echo "error: content source missing: $CONTENT" >&2
+  exit 1
+fi
+if [ ! -f "$THEME" ]; then
+  echo "error: theme source missing: $THEME" >&2
   exit 1
 fi
 if ! python3 -c 'import json, sys; json.load(open(sys.argv[1]))' "$CONTENT"; then
@@ -59,4 +65,25 @@ for page in index.html en.html 404.html; do
     exit 1
   fi
 done
+
+python3 - "$ROOT/site" "$THEME" <<'PY'
+import sys
+from pathlib import Path
+
+site = Path(sys.argv[1])
+theme = Path(sys.argv[2]).read_text(encoding="utf-8")
+marker = "<!-- project theme: docs/site/theme.css -->"
+tag = f'{marker}\n<style id="project-theme">\n{theme}\n</style>\n</head>'
+
+for name in ("index.html", "en.html", "404.html"):
+    page = site / name
+    html = page.read_text(encoding="utf-8")
+    if marker in html:
+        raise SystemExit(f"error: theme already injected in {page}")
+    if "</head>" not in html:
+        raise SystemExit(f"error: no </head> in {page}")
+    page.write_text(html.replace("</head>", tag, 1), encoding="utf-8")
+print("Injected docs/site/theme.css")
+PY
+
 echo "Built $ROOT/site from $CONTENT (site/ is git-ignored)"
