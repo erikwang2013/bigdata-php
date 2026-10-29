@@ -1,0 +1,154 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 910" width="1200" height="910" role="img" aria-labelledby="fd-title fd-desc">
+  <title id="fd-title">bigdata-php functional design</title>
+  <desc id="fd-desc">Five layers: core facade and manager, support utilities, driver groups, optional dependencies, and tests. Core uses support code to construct drivers; drivers require optional dependencies only when selected.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; }
+    .title { font-size: 26px; font-weight: 700; fill: #0f172a; }
+    .subtitle { font-size: 14px; fill: #475569; }
+    .layer { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; fill: #64748b; }
+    .box-title { font-size: 14px; font-weight: 600; fill: #0f172a; }
+    .box-sub { font-size: 11.5px; fill: #475569; }
+    .group-title { font-size: 13.5px; font-weight: 700; fill: #1e293b; }
+    .entry { font-size: 11.5px; fill: #334155; }
+    .note { font-size: 11.5px; fill: #64748b; }
+    .arrow-label { font-size: 11px; fill: #64748b; }
+  </style>
+
+  <rect width="1200" height="910" fill="#f8fafc"/>
+
+  <text class="title" x="40" y="46">bigdata-php 功能设计</text>
+  <text class="subtitle" x="40" y="70">核心、共享支撑、驱动分组、可选依赖与测试</text>
+
+  <rect x="40" y="92" width="1120" height="132" rx="10" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text class="layer" x="58" y="116">核心层</text>
+
+  <rect x="50" y="130" width="260" height="76" rx="8" fill="#ffffff" stroke="#93c5fd"/>
+  <text class="box-title" x="180" y="156" text-anchor="middle">BigData 门面</text>
+  <text class="box-sub" x="180" y="176" text-anchor="middle">driver · drivers · available</text>
+  <text class="box-sub" x="180" y="194" text-anchor="middle">也支持直接 new</text>
+
+  <rect x="330" y="130" width="260" height="76" rx="8" fill="#ffffff" stroke="#93c5fd"/>
+  <text class="box-title" x="460" y="156" text-anchor="middle">Integration Manager</text>
+  <text class="box-sub" x="460" y="176" text-anchor="middle">default + drivers 配置</text>
+  <text class="box-sub" x="460" y="194" text-anchor="middle">轻量框架绑定（计划中）</text>
+
+  <rect x="610" y="130" width="260" height="76" rx="8" fill="#ffffff" stroke="#93c5fd"/>
+  <text class="box-title" x="740" y="156" text-anchor="middle">注册表与工厂</text>
+  <text class="box-sub" x="740" y="176" text-anchor="middle">21 个驱动键</text>
+  <text class="box-sub" x="740" y="194" text-anchor="middle">惰性、按需构建</text>
+
+  <rect x="890" y="130" width="260" height="76" rx="8" fill="#ffffff" stroke="#93c5fd"/>
+  <text class="box-title" x="1020" y="156" text-anchor="middle">依赖门禁</text>
+  <text class="box-sub" x="1020" y="176" text-anchor="middle">ext-pdo_mysql · thrift · cassandra</text>
+  <text class="box-sub" x="1020" y="194" text-anchor="middle">仅检查所选驱动</text>
+
+  <line x1="600" y1="224" x2="600" y2="250" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text class="arrow-label" x="612" y="242">使用</text>
+
+  <rect x="40" y="252" width="1120" height="116" rx="10" fill="#ecfdf5" stroke="#a7f3d0"/>
+  <text class="layer" x="58" y="276">支撑层</text>
+
+  <rect x="58" y="288" width="200" height="66" rx="8" fill="#ffffff" stroke="#6ee7b7"/>
+  <text class="box-title" x="158" y="312" text-anchor="middle">配置对象</text>
+  <text class="box-sub" x="158" y="332" text-anchor="middle">fromArray() validation</text>
+
+  <rect x="273" y="288" width="200" height="66" rx="8" fill="#ffffff" stroke="#6ee7b7"/>
+  <text class="box-title" x="373" y="312" text-anchor="middle">Support\Http</text>
+  <text class="box-sub" x="373" y="332" text-anchor="middle">Guzzle 7 封装</text>
+  <text class="box-sub" x="373" y="348" text-anchor="middle">可注入客户端</text>
+
+  <rect x="488" y="288" width="200" height="66" rx="8" fill="#ffffff" stroke="#6ee7b7"/>
+  <text class="box-title" x="588" y="312" text-anchor="middle">ResultSet</text>
+  <text class="box-sub" x="588" y="332" text-anchor="middle">columns · rows · raw · count</text>
+
+  <rect x="703" y="288" width="200" height="66" rx="8" fill="#ffffff" stroke="#6ee7b7"/>
+  <text class="box-title" x="803" y="312" text-anchor="middle">异常层次</text>
+  <text class="box-sub" x="803" y="332" text-anchor="middle">DriverException 基类</text>
+  <text class="box-sub" x="803" y="348" text-anchor="middle">Connection / Request</text>
+
+  <rect x="918" y="288" width="200" height="66" rx="8" fill="#ffffff" stroke="#6ee7b7"/>
+  <text class="box-title" x="1018" y="312" text-anchor="middle">PSR-3 日志器</text>
+  <text class="box-sub" x="1018" y="332" text-anchor="middle">可选、可注入</text>
+
+  <line x1="600" y1="368" x2="600" y2="394" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text class="arrow-label" x="612" y="386">构建</text>
+
+  <rect x="40" y="396" width="1120" height="250" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
+  <text class="layer" x="58" y="420">驱动层 — 5 个分组 · 19 个平台 · 21 个键</text>
+
+  <rect x="58" y="432" width="250" height="190" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text class="group-title" x="183" y="456" text-anchor="middle">SQL / OLAP</text>
+  <text class="entry" x="183" y="482" text-anchor="middle">trino · TrinoClient</text>
+  <text class="entry" x="183" y="504" text-anchor="middle">hive * · HiveClient</text>
+  <text class="entry" x="183" y="526" text-anchor="middle">doris * · DorisClient</text>
+  <text class="entry" x="183" y="548" text-anchor="middle">starrocks * · StarRocksClient</text>
+  <text class="entry" x="183" y="570" text-anchor="middle">kylin · KylinClient</text>
+  <text class="entry" x="183" y="592" text-anchor="middle">druid · DruidClient</text>
+
+  <rect x="323" y="432" width="195" height="190" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text class="group-title" x="420" y="456" text-anchor="middle">Hadoop / 计算</text>
+  <text class="entry" x="420" y="482" text-anchor="middle">hadoop-webhdfs</text>
+  <text class="entry" x="420" y="504" text-anchor="middle">hadoop-yarn</text>
+  <text class="entry" x="420" y="526" text-anchor="middle">spark · LivyClient</text>
+  <text class="entry" x="420" y="548" text-anchor="middle">flink-sql · SqlGateway</text>
+  <text class="entry" x="420" y="570" text-anchor="middle">flink-jobs · JobClient</text>
+
+  <rect x="533" y="432" width="210" height="190" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text class="group-title" x="638" y="456" text-anchor="middle">调度器</text>
+  <text class="entry" x="638" y="482" text-anchor="middle">dolphinscheduler</text>
+  <text class="entry" x="638" y="504" text-anchor="middle">airflow</text>
+  <text class="entry" x="638" y="526" text-anchor="middle">azkaban</text>
+  <text class="entry" x="638" y="548" text-anchor="middle">oozie</text>
+
+  <rect x="758" y="432" width="200" height="190" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text class="group-title" x="858" y="456" text-anchor="middle">湖仓一体</text>
+  <text class="entry" x="858" y="482" text-anchor="middle">iceberg · REST 目录</text>
+  <text class="entry" x="858" y="504" text-anchor="middle">hudi · 只读</text>
+  <text class="entry" x="858" y="526" text-anchor="middle">paimon · 只读</text>
+  <text class="entry" x="858" y="548" text-anchor="middle">delta-lake · 清单</text>
+
+  <rect x="973" y="432" width="165" height="190" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text class="group-title" x="1055" y="456" text-anchor="middle">NoSQL</text>
+  <text class="entry" x="1055" y="482" text-anchor="middle">hbase</text>
+  <text class="entry" x="1055" y="504" text-anchor="middle">Stargate REST</text>
+  <text class="entry" x="1055" y="530" text-anchor="middle">cassandra *</text>
+  <text class="entry" x="1055" y="552" text-anchor="middle">CQL v3 / v4 / v5</text>
+
+  <text class="note" x="58" y="638">* 需要可选依赖 — 见下方图层</text>
+
+  <line x1="600" y1="646" x2="600" y2="672" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text class="arrow-label" x="612" y="664">仅在被选中时依赖</text>
+
+  <rect x="40" y="674" width="1120" height="96" rx="10" fill="#fffbeb" stroke="#fcd34d"/>
+  <text class="layer" x="58" y="698">可选依赖 — 在驱动创建时检查</text>
+
+  <rect x="58" y="710" width="340" height="46" rx="8" fill="#ffffff" stroke="#fbbf24"/>
+  <text class="box-title" x="228" y="730" text-anchor="middle">ext-pdo_mysql</text>
+  <text class="box-sub" x="228" y="746" text-anchor="middle">Doris · StarRocks</text>
+
+  <rect x="418" y="710" width="340" height="46" rx="8" fill="#ffffff" stroke="#fbbf24"/>
+  <text class="box-title" x="588" y="730" text-anchor="middle">apache/thrift ^0.24 或 ^0.25</text>
+  <text class="box-sub" x="588" y="746" text-anchor="middle">Hive / Spark Thrift Server</text>
+
+  <rect x="778" y="710" width="340" height="46" rx="8" fill="#ffffff" stroke="#fbbf24"/>
+  <text class="box-title" x="948" y="730" text-anchor="middle">mroosz/php-cassandra ^1.2</text>
+  <text class="box-sub" x="948" y="746" text-anchor="middle">Cassandra</text>
+
+  <rect x="40" y="788" width="1120" height="90" rx="10" fill="#f5f3ff" stroke="#ddd6fe"/>
+  <text class="layer" x="58" y="812">测试</text>
+
+  <rect x="58" y="820" width="540" height="50" rx="8" fill="#ffffff" stroke="#c4b5fd"/>
+  <text class="box-title" x="328" y="840" text-anchor="middle">单元测试 — 200+ 个测试、744 个断言</text>
+  <text class="box-sub" x="328" y="858" text-anchor="middle">模拟 HTTP · 本地夹具 · 假服务器</text>
+
+  <rect x="618" y="820" width="540" height="50" rx="8" fill="#ffffff" stroke="#c4b5fd"/>
+  <text class="box-title" x="888" y="840" text-anchor="middle">集成测试 — 可选加入</text>
+  <text class="box-sub" x="888" y="858" text-anchor="middle">composer test-integration · Docker 服务</text>
+
+  <text class="note" x="40" y="900">核心与驱动代码不依赖框架；适配器只是轻量配置与容器绑定。</text>
+</svg>

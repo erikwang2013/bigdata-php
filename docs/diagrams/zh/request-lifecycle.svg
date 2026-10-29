@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 920" width="1200" height="920" role="img" aria-labelledby="rl-title rl-desc">
+  <title id="rl-title">bigdata-php request lifecycle</title>
+  <desc id="rl-desc">A numbered eight-step path from configuration to ResultSet, plus error branches for missing optional dependencies, credential handling, transport failures and value fidelity.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; }
+    .title { font-size: 26px; font-weight: 700; fill: #0f172a; }
+    .subtitle { font-size: 14px; fill: #475569; }
+    .step-title { font-size: 14px; font-weight: 600; fill: #0f172a; }
+    .step-text { font-size: 12px; fill: #475569; }
+    .step-small { font-size: 11.5px; fill: #64748b; }
+    .num { font-size: 15px; font-weight: 700; fill: #ffffff; }
+    .note-title { font-size: 13px; font-weight: 700; }
+    .note-text { font-size: 11.5px; }
+    .legend { font-size: 11.5px; fill: #64748b; }
+  </style>
+
+  <rect width="1200" height="920" fill="#f8fafc"/>
+
+  <text class="title" x="40" y="46">请求周期</text>
+  <text class="subtitle" x="40" y="70">配置 → 驱动创建 → 认证 → 传输 → 解析 → ResultSet 或数组</text>
+
+  <rect x="118" y="100" width="560" height="74" rx="9" fill="#ffffff" stroke="#cbd5e1"/>
+  <circle cx="84" cy="137" r="19" fill="#2563eb"/>
+  <text class="num" x="84" y="142" text-anchor="middle">1</text>
+  <text class="step-title" x="138" y="126">读取配置</text>
+  <text class="step-text" x="138" y="148">default 选择一个驱动；drivers 保存各驱动配置数组。</text>
+  <text class="step-small" x="138" y="164">框架适配器与独立脚本读取相同结构。</text>
+
+  <line x1="398" y1="174" x2="398" y2="192" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="118" y="194" width="560" height="74" rx="9" fill="#ffffff" stroke="#cbd5e1"/>
+  <circle cx="84" cy="231" r="19" fill="#2563eb"/>
+  <text class="num" x="84" y="236" text-anchor="middle">2</text>
+  <text class="step-title" x="138" y="220">解析驱动名称</text>
+  <text class="step-text" x="138" y="242">Manager 应用显式名称或配置的默认值。</text>
+  <text class="step-small" x="138" y="258">每次调用的覆盖项在构建前合并。</text>
+
+  <line x1="398" y1="268" x2="398" y2="286" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="118" y="288" width="560" height="74" rx="9" fill="#ffffff" stroke="#cbd5e1"/>
+  <circle cx="84" cy="325" r="19" fill="#2563eb"/>
+  <text class="num" x="84" y="330" text-anchor="middle">3</text>
+  <text class="step-title" x="138" y="314">校验键与依赖</text>
+  <text class="step-text" x="138" y="336">注册表查询以 DriverUnavailableException 拒绝未知名称。</text>
+  <text class="step-small" x="138" y="352">可选依赖门禁仅对所选驱动运行。</text>
+
+  <line x1="398" y1="362" x2="398" y2="380" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="118" y="382" width="560" height="74" rx="9" fill="#ffffff" stroke="#cbd5e1"/>
+  <circle cx="84" cy="419" r="19" fill="#2563eb"/>
+  <text class="num" x="84" y="424" text-anchor="middle">4</text>
+  <text class="step-title" x="138" y="408">创建配置与客户端</text>
+  <text class="step-text" x="138" y="430">XxxConfig::fromArray() 校验并规范化选项。</text>
+  <text class="step-small" x="138" y="446">new XxxClient()；Guzzle 客户端与 PSR-3 日志器可注入。</text>
+
+  <line x1="398" y1="456" x2="398" y2="474" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="118" y="476" width="560" height="74" rx="9" fill="#ffffff" stroke="#cbd5e1"/>
+  <circle cx="84" cy="513" r="19" fill="#2563eb"/>
+  <text class="num" x="84" y="518" text-anchor="middle">5</text>
+  <text class="step-title" x="138" y="502">认证（当已配置时）</text>
+  <text class="step-text" x="138" y="524">Basic / Bearer / token；Hive SASL PLAIN 或 LDAP。</text>
+  <text class="step-small" x="138" y="540">Doris 与 StarRocks 使用 PDO 登录；Cassandra 使用 CQL 认证。</text>
+
+  <line x1="398" y1="550" x2="398" y2="568" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="118" y="570" width="560" height="74" rx="9" fill="#ffffff" stroke="#cbd5e1"/>
+  <circle cx="84" cy="607" r="19" fill="#2563eb"/>
+  <text class="num" x="84" y="612" text-anchor="middle">6</text>
+  <text class="step-title" x="138" y="596">发送传输请求</text>
+  <text class="step-text" x="138" y="618">HTTP/JSON、Thrift TCLIService、PDO MySQL、CQL、本地或 WebHDFS 读取。</text>
+  <text class="step-small" x="138" y="634">一次调用在分页时可能发出多个请求。</text>
+
+  <line x1="398" y1="644" x2="398" y2="662" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="118" y="664" width="560" height="74" rx="9" fill="#ffffff" stroke="#cbd5e1"/>
+  <circle cx="84" cy="701" r="19" fill="#2563eb"/>
+  <text class="num" x="84" y="706" text-anchor="middle">7</text>
+  <text class="step-title" x="138" y="690">解析响应</text>
+  <text class="step-text" x="138" y="712">JSON 与应用级错误；通过 nextUri、令牌或 offset 分页。</text>
+  <text class="step-small" x="138" y="728">Thrift 行批次、PDO 行、Base64 解码的 HBase 单元格。</text>
+
+  <line x1="398" y1="738" x2="398" y2="756" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="118" y="758" width="560" height="74" rx="9" fill="#ffffff" stroke="#cbd5e1"/>
+  <circle cx="84" cy="795" r="19" fill="#2563eb"/>
+  <text class="num" x="84" y="800" text-anchor="middle">8</text>
+  <text class="step-title" x="138" y="784">返回给应用</text>
+  <text class="step-text" x="138" y="806">ResultSet 提供 columns()、rows()、raw() 与 count()。</text>
+  <text class="step-small" x="138" y="822">调度器与目录驱动返回驱动特有的数组。</text>
+
+  <rect x="740" y="288" width="420" height="74" rx="8" fill="#fef2f2" stroke="#fecaca"/>
+  <text class="note-title" x="760" y="314" fill="#b91c1c">缺少依赖</text>
+  <text class="note-text" x="760" y="334" fill="#7f1d1d">DriverUnavailableException</text>
+  <text class="note-text" x="760" y="351" fill="#7f1d1d">携带确切的安装命令。</text>
+  <line x1="740" y1="325" x2="682" y2="325" stroke="#ef4444" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#arrow-red)"/>
+
+  <rect x="740" y="476" width="420" height="74" rx="8" fill="#fffbeb" stroke="#fcd34d"/>
+  <text class="note-title" x="760" y="502" fill="#b45309">凭据范围</text>
+  <text class="note-text" x="760" y="522" fill="#78350f">WebHDFS 307 重定向不会转发</text>
+  <text class="note-text" x="760" y="539" fill="#78350f">Basic 或委派凭据至 DataNodes。</text>
+  <line x1="740" y1="513" x2="682" y2="513" stroke="#ef4444" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#arrow-red)"/>
+
+  <rect x="740" y="664" width="420" height="90" rx="8" fill="#fef2f2" stroke="#fecaca"/>
+  <text class="note-title" x="760" y="692" fill="#b91c1c">故障映射</text>
+  <text class="note-text" x="760" y="713" fill="#7f1d1d">传输或超时 → ConnectionException。</text>
+  <text class="note-text" x="760" y="730" fill="#7f1d1d">非 2xx 或应用错误 → RequestException。</text>
+  <text class="note-text" x="760" y="747" fill="#7f1d1d">不自动重试；由调用方决定。</text>
+  <line x1="740" y1="709" x2="682" y2="709" stroke="#ef4444" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#arrow-red)"/>
+
+  <rect x="740" y="758" width="420" height="74" rx="8" fill="#ecfdf5" stroke="#a7f3d0"/>
+  <text class="note-title" x="760" y="784" fill="#047857">值保真</text>
+  <text class="note-text" x="760" y="804" fill="#065f46">Null 值保持 null；湖仓驱动返回</text>
+  <text class="note-text" x="760" y="821" fill="#065f46">元数据或 Parquet 清单，而非数据行。</text>
+  <line x1="740" y1="795" x2="682" y2="795" stroke="#ef4444" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#arrow-red)"/>
+
+  <line x1="118" y1="878" x2="158" y2="878" stroke="#64748b" stroke-width="1.6"/>
+  <text class="legend" x="168" y="882">成功路径</text>
+  <line x1="300" y1="878" x2="340" y2="878" stroke="#ef4444" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text class="legend" x="350" y="882">错误 / 防护分支</text>
+  <text class="legend" x="740" y="882">步骤按每次驱动调用运行；不保留全局状态。</text>
+  <text class="legend" x="40" y="906">HTTP 驱动无状态；Hive 与 Cassandra 会话会被显式关闭。</text>
+</svg>

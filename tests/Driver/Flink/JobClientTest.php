@@ -79,4 +79,20 @@ final class JobClientTest extends TestCase
         self::assertSame('/jobs/job-1', $request->getUri()->getPath());
         self::assertSame('mode=cancel', $request->getUri()->getQuery());
     }
+
+    public function test_base_url_alias_is_accepted(): void
+    {
+        self::assertSame(
+            'http://flink.alias:8081',
+            FlinkConfig::fromArray(['base_url' => 'http://flink.alias:8081/'])->baseUrl,
+        );
+
+        self::assertSame(
+            'http://flink.explicit:8081',
+            FlinkConfig::fromArray([
+                'baseUrl' => 'http://flink.explicit:8081',
+                'base_url' => 'http://flink.alias:8081',
+            ])->baseUrl,
+        );
+    }
 }

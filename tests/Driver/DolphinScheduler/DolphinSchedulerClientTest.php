@@ -275,4 +275,22 @@ final class DolphinSchedulerClientTest extends TestCase
         self::assertStringContainsString('/login', $logs);
         self::assertStringNotContainsString('secret', $logs);
     }
+
+    public function test_base_url_alias_is_accepted(): void
+    {
+        $credentials = ['username' => 'admin', 'password' => 'secret'];
+
+        self::assertSame(
+            'http://ds.alias:12345/dolphinscheduler',
+            DolphinSchedulerConfig::fromArray($credentials + ['base_url' => 'http://ds.alias:12345/dolphinscheduler/'])->baseUrl,
+        );
+
+        self::assertSame(
+            'http://ds.explicit:12345/dolphinscheduler',
+            DolphinSchedulerConfig::fromArray($credentials + [
+                'baseUrl' => 'http://ds.explicit:12345/dolphinscheduler',
+                'base_url' => 'http://ds.alias:12345/dolphinscheduler',
+            ])->baseUrl,
+        );
+    }
 }

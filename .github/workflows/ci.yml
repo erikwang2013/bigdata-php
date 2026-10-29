@@ -37,3 +37,20 @@ jobs:
       - run: composer install --no-dev --prefer-dist --no-interaction --ignore-platform-req=php
       - run: find src tests -name '*.php' -print0 | xargs -0 -n1 php -l
       - run: php tests/php80-smoke.php
+
+  php80-full:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          coverage: none
+          tools: composer:v2, phpunit:9.6
+      # composer.lock is gitignored, so Composer resolves require-dev as well;
+      # apache/thrift and mroosz/php-cassandra need PHP newer than 8.0. --no-dev
+      # keeps them out of vendor; the flag skips only their platform constraint.
+      - run: composer install --no-dev --prefer-dist --no-interaction --ignore-platform-req=php
+      # --no-dev omits autoload-dev; regenerate it so the Tests\ namespace resolves.
+      - run: composer dump-autoload --dev
+      - run: phpunit -c phpunit-8.0.xml

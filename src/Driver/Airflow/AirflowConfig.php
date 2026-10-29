@@ -18,12 +18,13 @@ final class AirflowConfig
 
     public static function fromArray(array $config): self
     {
-        if (!isset($config['baseUrl']) || $config['baseUrl'] === '') {
+        $baseUrl = $config['baseUrl'] ?? $config['base_url'] ?? '';
+        if ($baseUrl === '') {
             throw new \InvalidArgumentException('Airflow config requires a non-empty "baseUrl".');
         }
 
         return new self(
-            baseUrl: (string) $config['baseUrl'],
+            baseUrl: (string) $baseUrl,
             username: isset($config['username']) ? (string) $config['username'] : null,
             password: isset($config['password']) ? (string) $config['password'] : null,
             token: isset($config['token']) ? (string) $config['token'] : null,

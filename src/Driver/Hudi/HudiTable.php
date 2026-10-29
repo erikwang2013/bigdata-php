@@ -6,8 +6,10 @@ namespace Erikwang2013\BigData\Driver\Hudi;
 /**
  * Read-only view of a Hudi table's metadata: hoodie.properties and the timeline.
  *
- * Instant file names are "{timestamp}.{action}" for completed instants and
- * "{timestamp}.{action}.{state}" for in-flight ones (requested/inflight).
+ * Instant file names are "{timestamp}.{action}" (0.x) or
+ * "{begin}_{completion}.{action}" (1.0) for completed instants, with a
+ * trailing ".{state}" for in-flight ones (requested/inflight). When present,
+ * the completion timestamp is the instant's effective timestamp.
  */
 final class HudiTable
 {
@@ -90,14 +92,16 @@ final class HudiTable
 
         $timeline = [];
         foreach ($names as $name) {
-            if (preg_match('/^(\d{14})\.([A-Za-z]+)(?:\.([A-Za-z]+))?$/', $name, $matches) !== 1) {
+            if (preg_match('/^(\d{14})(?:_(\d{14}))?\.([A-Za-z]+)(?:\.([A-Za-z]+))?$/', $name, $matches) !== 1) {
                 continue;
             }
 
+            $completion = $matches[2] ?? '';
+
             $timeline[] = [
-                'timestamp' => $matches[1],
-                'action' => $matches[2],
-                'state' => $matches[3] ?? null,
+                'timestamp' => $completion === '' ? $matches[1] : $completion,
+                'action' => $matches[3],
+                'state' => $matches[4] ?? null,
             ];
         }
 

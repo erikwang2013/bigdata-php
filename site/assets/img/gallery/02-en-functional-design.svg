@@ -1,0 +1,154 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 910" width="1200" height="910" role="img" aria-labelledby="fd-title fd-desc">
+  <title id="fd-title">bigdata-php functional design</title>
+  <desc id="fd-desc">Five layers: core facade and manager, support utilities, driver groups, optional dependencies, and tests. Core uses support code to construct drivers; drivers require optional dependencies only when selected.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; }
+    .title { font-size: 26px; font-weight: 700; fill: #0f172a; }
+    .subtitle { font-size: 14px; fill: #475569; }
+    .layer { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; fill: #64748b; }
+    .box-title { font-size: 14px; font-weight: 600; fill: #0f172a; }
+    .box-sub { font-size: 11.5px; fill: #475569; }
+    .group-title { font-size: 13.5px; font-weight: 700; fill: #1e293b; }
+    .entry { font-size: 11.5px; fill: #334155; }
+    .note { font-size: 11.5px; fill: #64748b; }
+    .arrow-label { font-size: 11px; fill: #64748b; }
+  </style>
+
+  <rect width="1200" height="910" fill="#f8fafc"/>
+
+  <text class="title" x="40" y="46">bigdata-php functional design</text>
+  <text class="subtitle" x="40" y="70">Core, shared support, driver groups, optional dependencies and tests</text>
+
+  <rect x="40" y="92" width="1120" height="132" rx="10" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text class="layer" x="58" y="116">CORE LAYER</text>
+
+  <rect x="50" y="130" width="260" height="76" rx="8" fill="#ffffff" stroke="#93c5fd"/>
+  <text class="box-title" x="180" y="156" text-anchor="middle">BigData facade</text>
+  <text class="box-sub" x="180" y="176" text-anchor="middle">driver · drivers · available</text>
+  <text class="box-sub" x="180" y="194" text-anchor="middle">direct new also supported</text>
+
+  <rect x="330" y="130" width="260" height="76" rx="8" fill="#ffffff" stroke="#93c5fd"/>
+  <text class="box-title" x="460" y="156" text-anchor="middle">Integration Manager</text>
+  <text class="box-sub" x="460" y="176" text-anchor="middle">default + drivers config</text>
+  <text class="box-sub" x="460" y="194" text-anchor="middle">thin framework bindings (planned)</text>
+
+  <rect x="610" y="130" width="260" height="76" rx="8" fill="#ffffff" stroke="#93c5fd"/>
+  <text class="box-title" x="740" y="156" text-anchor="middle">Registry and factories</text>
+  <text class="box-sub" x="740" y="176" text-anchor="middle">21 driver keys</text>
+  <text class="box-sub" x="740" y="194" text-anchor="middle">lazy, on-demand construction</text>
+
+  <rect x="890" y="130" width="260" height="76" rx="8" fill="#ffffff" stroke="#93c5fd"/>
+  <text class="box-title" x="1020" y="156" text-anchor="middle">Dependency gate</text>
+  <text class="box-sub" x="1020" y="176" text-anchor="middle">ext-pdo_mysql · thrift · cassandra</text>
+  <text class="box-sub" x="1020" y="194" text-anchor="middle">checked only for the selected driver</text>
+
+  <line x1="600" y1="224" x2="600" y2="250" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text class="arrow-label" x="612" y="242">uses</text>
+
+  <rect x="40" y="252" width="1120" height="116" rx="10" fill="#ecfdf5" stroke="#a7f3d0"/>
+  <text class="layer" x="58" y="276">SUPPORT LAYER</text>
+
+  <rect x="58" y="288" width="200" height="66" rx="8" fill="#ffffff" stroke="#6ee7b7"/>
+  <text class="box-title" x="158" y="312" text-anchor="middle">Config objects</text>
+  <text class="box-sub" x="158" y="332" text-anchor="middle">fromArray() validation</text>
+
+  <rect x="273" y="288" width="200" height="66" rx="8" fill="#ffffff" stroke="#6ee7b7"/>
+  <text class="box-title" x="373" y="312" text-anchor="middle">Support\Http</text>
+  <text class="box-sub" x="373" y="332" text-anchor="middle">Guzzle 7 wrapper</text>
+  <text class="box-sub" x="373" y="348" text-anchor="middle">injectable client</text>
+
+  <rect x="488" y="288" width="200" height="66" rx="8" fill="#ffffff" stroke="#6ee7b7"/>
+  <text class="box-title" x="588" y="312" text-anchor="middle">ResultSet</text>
+  <text class="box-sub" x="588" y="332" text-anchor="middle">columns · rows · raw · count</text>
+
+  <rect x="703" y="288" width="200" height="66" rx="8" fill="#ffffff" stroke="#6ee7b7"/>
+  <text class="box-title" x="803" y="312" text-anchor="middle">Exception hierarchy</text>
+  <text class="box-sub" x="803" y="332" text-anchor="middle">DriverException base</text>
+  <text class="box-sub" x="803" y="348" text-anchor="middle">Connection / Request</text>
+
+  <rect x="918" y="288" width="200" height="66" rx="8" fill="#ffffff" stroke="#6ee7b7"/>
+  <text class="box-title" x="1018" y="312" text-anchor="middle">PSR-3 logger</text>
+  <text class="box-sub" x="1018" y="332" text-anchor="middle">optional, injectable</text>
+
+  <line x1="600" y1="368" x2="600" y2="394" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text class="arrow-label" x="612" y="386">constructs</text>
+
+  <rect x="40" y="396" width="1120" height="250" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
+  <text class="layer" x="58" y="420">DRIVER LAYER — 5 GROUPS · 19 PLATFORMS · 21 KEYS</text>
+
+  <rect x="58" y="432" width="250" height="190" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text class="group-title" x="183" y="456" text-anchor="middle">SQL / OLAP</text>
+  <text class="entry" x="183" y="482" text-anchor="middle">trino · TrinoClient</text>
+  <text class="entry" x="183" y="504" text-anchor="middle">hive * · HiveClient</text>
+  <text class="entry" x="183" y="526" text-anchor="middle">doris * · DorisClient</text>
+  <text class="entry" x="183" y="548" text-anchor="middle">starrocks * · StarRocksClient</text>
+  <text class="entry" x="183" y="570" text-anchor="middle">kylin · KylinClient</text>
+  <text class="entry" x="183" y="592" text-anchor="middle">druid · DruidClient</text>
+
+  <rect x="323" y="432" width="195" height="190" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text class="group-title" x="420" y="456" text-anchor="middle">Hadoop / compute</text>
+  <text class="entry" x="420" y="482" text-anchor="middle">hadoop-webhdfs</text>
+  <text class="entry" x="420" y="504" text-anchor="middle">hadoop-yarn</text>
+  <text class="entry" x="420" y="526" text-anchor="middle">spark · LivyClient</text>
+  <text class="entry" x="420" y="548" text-anchor="middle">flink-sql · SqlGateway</text>
+  <text class="entry" x="420" y="570" text-anchor="middle">flink-jobs · JobClient</text>
+
+  <rect x="533" y="432" width="210" height="190" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text class="group-title" x="638" y="456" text-anchor="middle">Schedulers</text>
+  <text class="entry" x="638" y="482" text-anchor="middle">dolphinscheduler</text>
+  <text class="entry" x="638" y="504" text-anchor="middle">airflow</text>
+  <text class="entry" x="638" y="526" text-anchor="middle">azkaban</text>
+  <text class="entry" x="638" y="548" text-anchor="middle">oozie</text>
+
+  <rect x="758" y="432" width="200" height="190" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text class="group-title" x="858" y="456" text-anchor="middle">Lakehouse</text>
+  <text class="entry" x="858" y="482" text-anchor="middle">iceberg · REST catalog</text>
+  <text class="entry" x="858" y="504" text-anchor="middle">hudi · read-only</text>
+  <text class="entry" x="858" y="526" text-anchor="middle">paimon · read-only</text>
+  <text class="entry" x="858" y="548" text-anchor="middle">delta-lake · manifest</text>
+
+  <rect x="973" y="432" width="165" height="190" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text class="group-title" x="1055" y="456" text-anchor="middle">NoSQL</text>
+  <text class="entry" x="1055" y="482" text-anchor="middle">hbase</text>
+  <text class="entry" x="1055" y="504" text-anchor="middle">Stargate REST</text>
+  <text class="entry" x="1055" y="530" text-anchor="middle">cassandra *</text>
+  <text class="entry" x="1055" y="552" text-anchor="middle">CQL v3 / v4 / v5</text>
+
+  <text class="note" x="58" y="638">* optional dependency required — see the layer below</text>
+
+  <line x1="600" y1="646" x2="600" y2="672" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text class="arrow-label" x="612" y="664">requires only when selected</text>
+
+  <rect x="40" y="674" width="1120" height="96" rx="10" fill="#fffbeb" stroke="#fcd34d"/>
+  <text class="layer" x="58" y="698">OPTIONAL DEPENDENCIES — CHECKED AT DRIVER CREATION</text>
+
+  <rect x="58" y="710" width="340" height="46" rx="8" fill="#ffffff" stroke="#fbbf24"/>
+  <text class="box-title" x="228" y="730" text-anchor="middle">ext-pdo_mysql</text>
+  <text class="box-sub" x="228" y="746" text-anchor="middle">Doris · StarRocks</text>
+
+  <rect x="418" y="710" width="340" height="46" rx="8" fill="#ffffff" stroke="#fbbf24"/>
+  <text class="box-title" x="588" y="730" text-anchor="middle">apache/thrift ^0.24 or ^0.25</text>
+  <text class="box-sub" x="588" y="746" text-anchor="middle">Hive / Spark Thrift Server</text>
+
+  <rect x="778" y="710" width="340" height="46" rx="8" fill="#ffffff" stroke="#fbbf24"/>
+  <text class="box-title" x="948" y="730" text-anchor="middle">mroosz/php-cassandra ^1.2</text>
+  <text class="box-sub" x="948" y="746" text-anchor="middle">Cassandra</text>
+
+  <rect x="40" y="788" width="1120" height="90" rx="10" fill="#f5f3ff" stroke="#ddd6fe"/>
+  <text class="layer" x="58" y="812">TESTS</text>
+
+  <rect x="58" y="820" width="540" height="50" rx="8" fill="#ffffff" stroke="#c4b5fd"/>
+  <text class="box-title" x="328" y="840" text-anchor="middle">Unit suite — 200+ tests, 744 assertions</text>
+  <text class="box-sub" x="328" y="858" text-anchor="middle">mock HTTP · local fixtures · fake servers</text>
+
+  <rect x="618" y="820" width="540" height="50" rx="8" fill="#ffffff" stroke="#c4b5fd"/>
+  <text class="box-title" x="888" y="840" text-anchor="middle">Integration suite — opt-in</text>
+  <text class="box-sub" x="888" y="858" text-anchor="middle">composer test-integration · Docker services</text>
+
+  <text class="note" x="40" y="900">Core and driver code has no framework dependency; adapters are thin config and container bindings.</text>
+</svg>

@@ -1,0 +1,91 @@
+name: Integration
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  services:
+    runs-on: ubuntu-latest
+    services:
+      trino:
+        image: trinodb/trino:latest
+        ports:
+          - 8080:8080
+      cassandra:
+        image: cassandra:5.0
+        ports:
+          - 9042:9042
+        options: >-
+          --health-cmd "cqlsh -e 'SELECT release_version FROM system.local' >/dev/null 2>&1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 30
+          --health-start-period 60s
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: none
+          tools: composer:v2
+      - run: composer install --prefer-dist --no-interaction
+      - name: Wait for Trino
+        run: >
+          curl -fsS --retry 60 --retry-delay 5 --retry-connrefused --retry-max-time 300
+          http://127.0.0.1:8080/v1/info
+      - run: TRINO_HOST=127.0.0.1 CASSANDRA_HOST=127.0.0.1 composer test-integration
+
+  demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: none
+          tools: composer:v2
+      - run: composer install --prefer-dist --no-interaction
+      - name: Start demo stack
+        working-directory: demo
+        run: docker compose up -d
+      - name: Wait for demo services to be healthy
+        working-directory: demo
+        run: |
+          for i in $(seq 1 60); do
+            total=0
+            pending=""
+            for container in $(docker compose ps -aq); do
+              total=$((total + 1))
+              status=$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$container")
+              [ "$status" = "healthy" ] || pending="$pending $container:$status"
+            done
+            if [ "$total" -gt 0 ] && [ -z "$pending" ]; then
+              echo "All $total demo services are healthy."
+              exit 0
+            fi
+            echo "Attempt $i/60; not healthy:$pending"
+            sleep 10
+          done
+          echo "Demo stack did not become healthy in time."
+          docker compose ps -a
+          docker compose logs --tail=200
+          exit 1
+      - name: Run demo scripts
+        working-directory: demo
+        run: |
+          php trino.php
+          php flink.php
+          php airflow.php
+      - name: Dump demo logs on failure
+        if: failure()
+        working-directory: demo
+        run: |
+          docker compose ps -a
+          docker compose logs --tail=200
+      - name: Stop demo stack
+        if: always()
+        working-directory: demo
+        run: docker compose down -v

@@ -127,16 +127,42 @@ final class StarRocksClientTest extends TestCase
         $this->pdoClient($error)->execute('DELETE FROM orders');
     }
 
+    public function test_connection_sqlstate_maps_to_connection_exception(): void
+    {
+        $error = new \PDOException('SQLSTATE[08006] Unable to connect');
+        $error->errorInfo = ['08006', 7, 'Unable to connect'];
+
+        try {
+            $this->pdoClient($error)->query('SELECT 1');
+            self::fail('Expected ConnectionException.');
+        } catch (ConnectionException $e) {
+            self::assertSame($error, $e->getPrevious());
+        }
+    }
+
+    public function test_execute_sql_error_maps_to_request_exception(): void
+    {
+        $error = new \PDOException('SQLSTATE[42S02]: Base table or view not found');
+        $error->errorInfo = ['42S02', 1146, 'Table missing'];
+
+        try {
+            $this->pdoClient($error)->execute('DELETE FROM missing');
+            self::fail('Expected RequestException.');
+        } catch (RequestException $e) {
+            self::assertSame($error, $e->getPrevious());
+        }
+    }
+
     private function pdoClient(\PDOException $error): StarRocksClient
     {
         return new StarRocksClient(
             StarRocksConfig::fromArray(['host' => 'starrocks.local', 'database' => 'demo']),
-            new ThrowingPdo($error),
+            new FakePdo($error),
         );
     }
 }
 
-final class ThrowingPdo extends \PDO
+final class FakePdo extends \PDO
 {
     public function __construct(private \PDOException $error)
     {

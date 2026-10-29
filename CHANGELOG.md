@@ -3,6 +3,43 @@
 All notable changes to `erikwang2013/bigdata-php` are documented here.
 Versions follow `vMAJOR.MINOR.PATCH`.
 
+## [1.2.0] - 2026-10-30
+
+### Added
+
+- Bilingual static project site under `site/`: responsive layout, project intro,
+  feature iterations, version log, install/usage docs, per-driver docs links,
+  image gallery with zoomable lightbox, pet expressions, textless pet back-to-top,
+  client-side search, WeChat/Alipay donation QR modals, busuanzi counter, Three.js
+  hero, 404 page, SEO metadata/sitemap/robots and social previews.
+- Chinese/English SVG architecture, functional design, request lifecycle and
+  lifecycle diagrams, with separate image sets per language.
+- Cassandra paging (`pageSize`, `pagingState`) and prepared-statement column
+  metadata; integration test covers CREATE/INSERT/UPDATE/DELETE/DROP.
+- Hudi 1.0 timeline naming (`{begin}_{completion}.{action}`).
+- `base_url` aliases for Airflow, Flink, DolphinScheduler and Oozie configs.
+- GitHub Actions integration workflow (Trino and Cassandra service containers plus
+  the Docker demo stack) and a PHP 8.0 full unit-test lane.
+- Hive TCLIService generated classes moved into
+  `Erikwang2013\BigData\Driver\Hive\Thrift`, removing the global class namespace
+  collision.
+
+### Tests
+
+- 230 unit tests / 799 assertions; 12 integration tests / 16 assertions (4
+  external-service skips).
+- Static site audit, mobile UI test and 10 ms first-byte benchmark pass locally:
+  median 0.52 ms, max 1.73 ms.
+
+### Notes
+
+- Framework boot smoke CI was not completed in this environment; the framework
+  Manager/adapter tests run, but real Laravel/ThinkPHP/Webman/Hyperf/Yii2/Yii3
+  bootstraps remain a follow-up.
+- Live Docker/cluster runs were blocked locally; the integration workflow runs
+  them on GitHub Actions.
+- Packagist submission is still pending.
+
 ## [1.1.0] - 2026-10-29
 
 ### Added

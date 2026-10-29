@@ -5,10 +5,13 @@ namespace Erikwang2013\BigData\Tests\Integration;
 
 use Erikwang2013\BigData\Driver\Cassandra\CassandraClient;
 use Erikwang2013\BigData\Driver\Cassandra\CassandraConfig;
+use Erikwang2013\BigData\Driver\Cassandra\ResultSet;
 use PHPUnit\Framework\TestCase;
 
 final class CassandraTest extends TestCase
 {
+    private const KEYSPACE = 'bigdata_php_test';
+
     private ?CassandraClient $client = null;
 
     protected function setUp(): void
@@ -50,6 +53,57 @@ final class CassandraTest extends TestCase
 
         self::assertGreaterThanOrEqual(1, $result->count());
         self::assertArrayHasKey('release_version', $result->rows()[0]);
+
+        $columns = $statement->columns();
+        self::assertNotEmpty($columns);
+        self::assertSame('key', $columns[0]['name']);
+        self::assertArrayHasKey('type', $columns[0]);
+    }
+
+    public function test_full_write_path(): void
+    {
+        $client = $this->client();
+
+        try {
+            $client->query(sprintf(
+                "CREATE KEYSPACE IF NOT EXISTS %s WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1}",
+                self::KEYSPACE,
+            ));
+            self::assertEmptyResultSet($client->query('USE ' . self::KEYSPACE));
+
+            $client->query('DROP TABLE IF EXISTS items');
+            self::assertEmptyResultSet($client->query('CREATE TABLE items (id int PRIMARY KEY, name text)'));
+
+            $insert = $client->prepare('INSERT INTO items (id, name) VALUES (?, ?)');
+            self::assertEmptyResultSet($client->execute($insert, [1, 'alice']));
+
+            $select = $client->prepare('SELECT id, name FROM items WHERE id = ?');
+            self::assertSame([['id' => 1, 'name' => 'alice']], $client->execute($select, [1])->rows());
+
+            $update = $client->prepare('UPDATE items SET name = ? WHERE id = ?');
+            self::assertEmptyResultSet($client->execute($update, ['bob', 1]));
+            self::assertSame('bob', $client->execute($select, [1])->rows()[0]['name']);
+
+            $delete = $client->prepare('DELETE FROM items WHERE id = ?');
+            self::assertEmptyResultSet($client->execute($delete, [1]));
+            self::assertSame(0, $client->execute($select, [1])->count());
+        } finally {
+            try {
+                $client->query('DROP TABLE IF EXISTS items');
+                $client->query('DROP KEYSPACE IF EXISTS ' . self::KEYSPACE);
+            } catch (\Throwable) {
+                // Cleanup is best-effort; a failed drop must not mask the test result.
+            }
+        }
+    }
+
+    private static function assertEmptyResultSet(ResultSet $result): void
+    {
+        self::assertSame([], $result->columns());
+        self::assertSame([], $result->rows());
+        self::assertSame([], $result->raw());
+        self::assertSame(0, $result->count());
+        self::assertNull($result->pagingState());
     }
 
     private function client(): CassandraClient

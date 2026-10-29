@@ -17,7 +17,8 @@ final class DolphinSchedulerConfig
 
     public static function fromArray(array $config): self
     {
-        if (!isset($config['baseUrl']) || $config['baseUrl'] === '') {
+        $baseUrl = $config['baseUrl'] ?? $config['base_url'] ?? '';
+        if ($baseUrl === '') {
             throw new \InvalidArgumentException('DolphinScheduler config requires a non-empty "baseUrl".');
         }
         if (!isset($config['username']) || $config['username'] === '') {
@@ -28,7 +29,7 @@ final class DolphinSchedulerConfig
         }
 
         return new self(
-            baseUrl: rtrim((string) $config['baseUrl'], '/'),
+            baseUrl: rtrim((string) $baseUrl, '/'),
             username: (string) $config['username'],
             password: (string) $config['password'],
             token: isset($config['token']) ? (string) $config['token'] : null,

@@ -138,4 +138,20 @@ final class AirflowClientTest extends TestCase
             (string) $this->history[0]['request']->getUri(),
         );
     }
+
+    public function test_base_url_alias_is_accepted(): void
+    {
+        self::assertSame(
+            'http://airflow.alias:8080',
+            AirflowConfig::fromArray(['base_url' => 'http://airflow.alias:8080'])->baseUrl,
+        );
+
+        self::assertSame(
+            'http://airflow.explicit:8080',
+            AirflowConfig::fromArray([
+                'baseUrl' => 'http://airflow.explicit:8080',
+                'base_url' => 'http://airflow.alias:8080',
+            ])->baseUrl,
+        );
+    }
 }

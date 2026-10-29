@@ -1,0 +1,22 @@
+# 视觉资产商业授权 / Visual Assets Commercial License
+
+Copyright (c) 2026 erik <erik@erik.xyz> - https://erik.xyz
+All rights reserved.
+
+本项目中的**项目宠物（project pet）、图片（images）、图标（icons）、表情（expression
+forms）及其源文件**（包括但不限于 SVG、PNG、ICO 及字体中的图形字形）均为
+**非开源资产**。未经作者书面许可，任何人不得复制、修改、再分发、公开传播或将其用于
+商业目的。商业使用必须取得商业授权。
+
+The project pet, images, icons, expression forms and their source files in this
+repository are **NOT open-source assets**. All rights are reserved. No copying,
+modification, redistribution, public transmission, or commercial use is permitted
+without prior written permission. A commercial license is required for commercial use.
+
+**商业授权 / Commercial licensing:** erik@erik.xyz
+
+## 例外 / Exceptions
+
+- 第三方素材仍遵循其原许可证，不因本文件而改变。
+- 代码部分遵循仓库根目录的 MIT `LICENSE`；本文件仅覆盖视觉资产。
+- `site/assets/vendor/three.module.min.js` 遵循其自带的 MIT 许可证。

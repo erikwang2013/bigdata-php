@@ -45,11 +45,13 @@ final class CassandraClient
         string $cql,
         array $params = [],
         int $consistency = Consistency::ONE,
+        ?int $pageSize = null,
+        ?string $pagingState = null,
     ): ResultSet {
         $this->connect();
         $this->logger->debug('Cassandra query', ['consistency' => $consistency]);
 
-        return $this->call(fn (): ResultSet => $this->session->query($cql, $params, $consistency));
+        return $this->call(fn (): ResultSet => $this->session->query($cql, $params, $consistency, $pageSize, $pagingState));
     }
 
     public function prepare(string $cql): PreparedStatement
@@ -64,11 +66,13 @@ final class CassandraClient
         PreparedStatement $statement,
         array $params = [],
         int $consistency = Consistency::ONE,
+        ?int $pageSize = null,
+        ?string $pagingState = null,
     ): ResultSet {
         $this->connect();
         $this->logger->debug('Cassandra execute', ['consistency' => $consistency]);
 
-        return $this->call(fn (): ResultSet => $this->session->execute($statement, $params, $consistency));
+        return $this->call(fn (): ResultSet => $this->session->execute($statement, $params, $consistency, $pageSize, $pagingState));
     }
 
     public function close(): void

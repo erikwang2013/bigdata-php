@@ -220,4 +220,20 @@ final class OozieClientTest extends TestCase
         $this->expectException(ConnectionException::class);
         $client->status('job-1');
     }
+
+    public function test_base_url_alias_is_accepted(): void
+    {
+        self::assertSame(
+            'http://oozie.alias:11000/oozie',
+            OozieConfig::fromArray(['base_url' => 'http://oozie.alias:11000/oozie'])->baseUrl,
+        );
+
+        self::assertSame(
+            'http://oozie.explicit:11000/oozie',
+            OozieConfig::fromArray([
+                'baseUrl' => 'http://oozie.explicit:11000/oozie',
+                'base_url' => 'http://oozie.alias:11000/oozie',
+            ])->baseUrl,
+        );
+    }
 }

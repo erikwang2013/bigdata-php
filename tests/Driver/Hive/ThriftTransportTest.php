@@ -7,6 +7,41 @@ use Erikwang2013\BigData\Driver\Hive\Exception\ConnectionException;
 use Erikwang2013\BigData\Driver\Hive\Exception\RequestException;
 use Erikwang2013\BigData\Driver\Hive\HiveConfig;
 use Erikwang2013\BigData\Driver\Hive\ThriftTransport;
+use Erikwang2013\BigData\Driver\Hive\Thrift\{
+    TCLIServiceClient,
+    TCloseSessionReq,
+    TCloseSessionResp,
+    TColumn,
+    TColumnDesc,
+    TColumnValue,
+    TExecuteStatementReq,
+    TExecuteStatementResp,
+    TFetchOrientation,
+    TFetchResultsReq,
+    TFetchResultsResp,
+    TGetResultSetMetadataReq,
+    TGetResultSetMetadataResp,
+    THandleIdentifier,
+    TI32Column,
+    TI32Value,
+    TOpenSessionReq,
+    TOpenSessionResp,
+    TOperationHandle,
+    TOperationType,
+    TPrimitiveTypeEntry,
+    TProtocolVersion,
+    TRow,
+    TRowSet,
+    TSessionHandle,
+    TStatus,
+    TStatusCode,
+    TStringColumn,
+    TStringValue,
+    TTableSchema,
+    TTypeDesc,
+    TTypeEntry,
+    TTypeId,
+};
 use PHPUnit\Framework\TestCase;
 use Thrift\Exception\TApplicationException;
 use Thrift\Exception\TTransportException;
@@ -27,8 +62,8 @@ final class ThriftTransportTest extends TestCase
         (new ThriftTransport($config, $client))->open();
 
         $request = $client->requests['OpenSession'][0];
-        self::assertInstanceOf(\TOpenSessionReq::class, $request);
-        self::assertSame(\TProtocolVersion::HIVE_CLI_SERVICE_PROTOCOL_V10, $request->client_protocol);
+        self::assertInstanceOf(TOpenSessionReq::class, $request);
+        self::assertSame(TProtocolVersion::HIVE_CLI_SERVICE_PROTOCOL_V10, $request->client_protocol);
         self::assertSame('alice', $request->username);
         self::assertSame('secret', $request->password);
     }
@@ -48,7 +83,7 @@ final class ThriftTransportTest extends TestCase
             ['name' => 'id', 'type' => 'int'],
             ['name' => 'name', 'type' => 'string'],
         ], $result['columns']);
-        self::assertInstanceOf(\TOperationHandle::class, $result['handle']);
+        self::assertInstanceOf(TOperationHandle::class, $result['handle']);
     }
 
     public function test_fetch_maps_columnar_results_and_preserves_nulls(): void
@@ -74,10 +109,10 @@ final class ThriftTransportTest extends TestCase
         $client->executeStatementResponse = self::executeStatementResponse();
         $client->getResultSetMetadataResponse = self::metadataResponse();
         $client->fetchResponses = [
-            new \TFetchResultsResp([
+            new TFetchResultsResp([
                 'status' => self::successStatus(),
                 'hasMoreRows' => true,
-                'results' => new \TRowSet(['startRowOffset' => 0, 'rows' => []]),
+                'results' => new TRowSet(['startRowOffset' => 0, 'rows' => []]),
             ]),
             self::emptyFetchResponse(),
         ];
@@ -88,7 +123,7 @@ final class ThriftTransportTest extends TestCase
         self::assertTrue($transport->fetch(1000)['hasMore']);
         self::assertFalse($transport->fetch(1000)['hasMore']);
         self::assertSame(1000, $client->requests['FetchResults'][0]->maxRows);
-        self::assertSame(\TFetchOrientation::FETCH_NEXT, $client->requests['FetchResults'][0]->orientation);
+        self::assertSame(TFetchOrientation::FETCH_NEXT, $client->requests['FetchResults'][0]->orientation);
     }
 
     public function test_fetch_supports_row_based_results(): void
@@ -98,19 +133,19 @@ final class ThriftTransportTest extends TestCase
         $client->executeStatementResponse = self::executeStatementResponse();
         $client->getResultSetMetadataResponse = self::metadataResponse();
         $client->fetchResponses = [
-            new \TFetchResultsResp([
+            new TFetchResultsResp([
                 'status' => self::successStatus(),
                 'hasMoreRows' => false,
-                'results' => new \TRowSet([
+                'results' => new TRowSet([
                     'startRowOffset' => 0,
                     'rows' => [
-                        new \TRow(['colVals' => [
-                            new \TColumnValue(['i32Val' => new \TI32Value(['value' => 7])]),
-                            new \TColumnValue(['stringVal' => new \TStringValue(['value' => 'x'])]),
+                        new TRow(['colVals' => [
+                            new TColumnValue(['i32Val' => new TI32Value(['value' => 7])]),
+                            new TColumnValue(['stringVal' => new TStringValue(['value' => 'x'])]),
                         ]]),
-                        new \TRow(['colVals' => [
-                            new \TColumnValue(['i32Val' => new \TI32Value()]),
-                            new \TColumnValue(['stringVal' => new \TStringValue(['value' => 'y'])]),
+                        new TRow(['colVals' => [
+                            new TColumnValue(['i32Val' => new TI32Value()]),
+                            new TColumnValue(['stringVal' => new TStringValue(['value' => 'y'])]),
                         ]]),
                     ],
                 ]),
@@ -127,7 +162,7 @@ final class ThriftTransportTest extends TestCase
     {
         $client = new ScriptedClient();
         $client->openSessionResponse = self::openSessionResponse();
-        $client->executeStatementResponse = new \TExecuteStatementResp([
+        $client->executeStatementResponse = new TExecuteStatementResp([
             'status' => self::successStatus(),
             'operationHandle' => self::operationHandle(false),
         ]);
@@ -144,9 +179,9 @@ final class ThriftTransportTest extends TestCase
     {
         $client = new ScriptedClient();
         $client->openSessionResponse = self::openSessionResponse();
-        $client->executeStatementResponse = new \TExecuteStatementResp([
-            'status' => new \TStatus([
-                'statusCode' => \TStatusCode::ERROR_STATUS,
+        $client->executeStatementResponse = new TExecuteStatementResp([
+            'status' => new TStatus([
+                'statusCode' => TStatusCode::ERROR_STATUS,
                 'sqlState' => '42000',
                 'errorCode' => 10001,
                 'errorMessage' => 'Invalid table alias',
@@ -221,7 +256,7 @@ final class ThriftTransportTest extends TestCase
     {
         $client = new ScriptedClient();
         $client->openSessionResponse = self::openSessionResponse();
-        $client->closeSessionResponse = new \TCloseSessionResp(['status' => self::successStatus()]);
+        $client->closeSessionResponse = new TCloseSessionResp(['status' => self::successStatus()]);
 
         $transport = new ThriftTransport(HiveConfig::fromArray(['host' => 'hive.local']), $client);
         $transport->open();
@@ -234,59 +269,59 @@ final class ThriftTransportTest extends TestCase
         );
     }
 
-    private static function successStatus(): \TStatus
+    private static function successStatus(): TStatus
     {
-        return new \TStatus(['statusCode' => \TStatusCode::SUCCESS_STATUS]);
+        return new TStatus(['statusCode' => TStatusCode::SUCCESS_STATUS]);
     }
 
-    private static function openSessionResponse(): \TOpenSessionResp
+    private static function openSessionResponse(): TOpenSessionResp
     {
-        return new \TOpenSessionResp([
+        return new TOpenSessionResp([
             'status' => self::successStatus(),
-            'serverProtocolVersion' => \TProtocolVersion::HIVE_CLI_SERVICE_PROTOCOL_V10,
-            'sessionHandle' => new \TSessionHandle([
-                'sessionId' => new \THandleIdentifier(['guid' => 'session-guid', 'secret' => 'session-secret']),
+            'serverProtocolVersion' => TProtocolVersion::HIVE_CLI_SERVICE_PROTOCOL_V10,
+            'sessionHandle' => new TSessionHandle([
+                'sessionId' => new THandleIdentifier(['guid' => 'session-guid', 'secret' => 'session-secret']),
             ]),
         ]);
     }
 
-    private static function executeStatementResponse(): \TExecuteStatementResp
+    private static function executeStatementResponse(): TExecuteStatementResp
     {
-        return new \TExecuteStatementResp([
+        return new TExecuteStatementResp([
             'status' => self::successStatus(),
             'operationHandle' => self::operationHandle(true),
         ]);
     }
 
-    private static function operationHandle(bool $hasResultSet): \TOperationHandle
+    private static function operationHandle(bool $hasResultSet): TOperationHandle
     {
-        return new \TOperationHandle([
-            'operationId' => new \THandleIdentifier(['guid' => 'op-guid', 'secret' => 'op-secret']),
-            'operationType' => \TOperationType::EXECUTE_STATEMENT,
+        return new TOperationHandle([
+            'operationId' => new THandleIdentifier(['guid' => 'op-guid', 'secret' => 'op-secret']),
+            'operationType' => TOperationType::EXECUTE_STATEMENT,
             'hasResultSet' => $hasResultSet,
         ]);
     }
 
-    private static function metadataResponse(): \TGetResultSetMetadataResp
+    private static function metadataResponse(): TGetResultSetMetadataResp
     {
-        return new \TGetResultSetMetadataResp([
+        return new TGetResultSetMetadataResp([
             'status' => self::successStatus(),
-            'schema' => new \TTableSchema([
+            'schema' => new TTableSchema([
                 'columns' => [
-                    new \TColumnDesc([
+                    new TColumnDesc([
                         'columnName' => 'id',
-                        'typeDesc' => new \TTypeDesc([
-                            'types' => [new \TTypeEntry([
-                                'primitiveEntry' => new \TPrimitiveTypeEntry(['type' => \TTypeId::INT_TYPE]),
+                        'typeDesc' => new TTypeDesc([
+                            'types' => [new TTypeEntry([
+                                'primitiveEntry' => new TPrimitiveTypeEntry(['type' => TTypeId::INT_TYPE]),
                             ])],
                         ]),
                         'position' => 1,
                     ]),
-                    new \TColumnDesc([
+                    new TColumnDesc([
                         'columnName' => 'name',
-                        'typeDesc' => new \TTypeDesc([
-                            'types' => [new \TTypeEntry([
-                                'primitiveEntry' => new \TPrimitiveTypeEntry(['type' => \TTypeId::STRING_TYPE]),
+                        'typeDesc' => new TTypeDesc([
+                            'types' => [new TTypeEntry([
+                                'primitiveEntry' => new TPrimitiveTypeEntry(['type' => TTypeId::STRING_TYPE]),
                             ])],
                         ]),
                         'position' => 2,
@@ -296,20 +331,20 @@ final class ThriftTransportTest extends TestCase
         ]);
     }
 
-    private static function columnarFetchResponse(): \TFetchResultsResp
+    private static function columnarFetchResponse(): TFetchResultsResp
     {
-        return new \TFetchResultsResp([
+        return new TFetchResultsResp([
             'status' => self::successStatus(),
             'hasMoreRows' => false,
-            'results' => new \TRowSet([
+            'results' => new TRowSet([
                 'startRowOffset' => 0,
                 'rows' => [],
                 'columns' => [
-                    new \TColumn(['i32Val' => new \TI32Column([
+                    new TColumn(['i32Val' => new TI32Column([
                         'values' => [1, 0, 3],
                         'nulls' => "\x02",
                     ])]),
-                    new \TColumn(['stringVal' => new \TStringColumn([
+                    new TColumn(['stringVal' => new TStringColumn([
                         'values' => ['a', 'b', ''],
                         'nulls' => "\x04",
                     ])]),
@@ -318,30 +353,30 @@ final class ThriftTransportTest extends TestCase
         ]);
     }
 
-    private static function emptyFetchResponse(): \TFetchResultsResp
+    private static function emptyFetchResponse(): TFetchResultsResp
     {
-        return new \TFetchResultsResp([
+        return new TFetchResultsResp([
             'status' => self::successStatus(),
             'hasMoreRows' => false,
-            'results' => new \TRowSet(['startRowOffset' => 0, 'rows' => []]),
+            'results' => new TRowSet(['startRowOffset' => 0, 'rows' => []]),
         ]);
     }
 }
 
-final class ScriptedClient extends \TCLIServiceClient
+final class ScriptedClient extends TCLIServiceClient
 {
     /** @var array<string, list<object>> */
     public array $requests = [];
 
-    public ?\TOpenSessionResp $openSessionResponse = null;
+    public ?TOpenSessionResp $openSessionResponse = null;
 
-    public ?\TExecuteStatementResp $executeStatementResponse = null;
+    public ?TExecuteStatementResp $executeStatementResponse = null;
 
-    public ?\TGetResultSetMetadataResp $getResultSetMetadataResponse = null;
+    public ?TGetResultSetMetadataResp $getResultSetMetadataResponse = null;
 
-    public ?\TCloseSessionResp $closeSessionResponse = null;
+    public ?TCloseSessionResp $closeSessionResponse = null;
 
-    /** @var list<\TFetchResultsResp> */
+    /** @var list<TFetchResultsResp> */
     public array $fetchResponses = [];
 
     public ?\Throwable $executeStatementException = null;
@@ -352,14 +387,14 @@ final class ScriptedClient extends \TCLIServiceClient
     {
     }
 
-    public function OpenSession(\TOpenSessionReq $req)
+    public function OpenSession(TOpenSessionReq $req)
     {
         $this->requests['OpenSession'][] = $req;
 
         return $this->openSessionResponse;
     }
 
-    public function ExecuteStatement(\TExecuteStatementReq $req)
+    public function ExecuteStatement(TExecuteStatementReq $req)
     {
         $this->requests['ExecuteStatement'][] = $req;
 
@@ -370,14 +405,14 @@ final class ScriptedClient extends \TCLIServiceClient
         return $this->executeStatementResponse;
     }
 
-    public function GetResultSetMetadata(\TGetResultSetMetadataReq $req)
+    public function GetResultSetMetadata(TGetResultSetMetadataReq $req)
     {
         $this->requests['GetResultSetMetadata'][] = $req;
 
         return $this->getResultSetMetadataResponse;
     }
 
-    public function FetchResults(\TFetchResultsReq $req)
+    public function FetchResults(TFetchResultsReq $req)
     {
         $this->requests['FetchResults'][] = $req;
 
@@ -388,7 +423,7 @@ final class ScriptedClient extends \TCLIServiceClient
         return array_shift($this->fetchResponses);
     }
 
-    public function CloseSession(\TCloseSessionReq $req)
+    public function CloseSession(TCloseSessionReq $req)
     {
         $this->requests['CloseSession'][] = $req;
 

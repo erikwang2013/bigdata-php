@@ -8,6 +8,8 @@ use Cassandra\Connection\ConnectionOptions;
 use Cassandra\Connection\StreamNodeConfig;
 use Cassandra\Consistency as DriverConsistency;
 use Cassandra\Protocol\ProtocolVersion;
+use Cassandra\Request\Options\ExecuteOptions;
+use Cassandra\Request\Options\QueryOptions;
 use Cassandra\Response\Result\FetchType;
 use Erikwang2013\BigData\Driver\Cassandra\Exception\ConnectionException;
 use Erikwang2013\BigData\Driver\Cassandra\Exception\RequestException;
@@ -66,7 +68,7 @@ final class PhpCassandraSession implements SessionInterface
         }
     }
 
-    public function query(string $cql, array $params, int $consistency): ResultSet
+    public function query(string $cql, array $params, int $consistency, ?int $pageSize = null, ?string $pagingState = null): ResultSet
     {
         $this->connect();
 
@@ -75,6 +77,7 @@ final class PhpCassandraSession implements SessionInterface
                 $cql,
                 $params,
                 DriverConsistency::from($consistency),
+                new QueryOptions(pageSize: $pageSize, pagingState: $pagingState),
             );
 
             return $this->mapResult($result);
@@ -100,7 +103,7 @@ final class PhpCassandraSession implements SessionInterface
         }
     }
 
-    public function execute(PreparedStatement $statement, array $params, int $consistency): ResultSet
+    public function execute(PreparedStatement $statement, array $params, int $consistency, ?int $pageSize = null, ?string $pagingState = null): ResultSet
     {
         $this->connect();
 
@@ -109,6 +112,7 @@ final class PhpCassandraSession implements SessionInterface
                 $statement->driverResult(),
                 $params,
                 DriverConsistency::from($consistency),
+                new ExecuteOptions(pageSize: $pageSize, pagingState: $pagingState),
             );
 
             return $this->mapResult($result);

@@ -30,21 +30,29 @@ final class HudiTableTest extends TestCase
         $timeline = $this->table()->timeline();
 
         self::assertSame(
-            ['20231231000000', '20240101000000', '20240101000000', '20240102000000', '20240103000000'],
+            [
+                '20231231000000',
+                '20240101000000',
+                '20240101000000',
+                '20240101000005',
+                '20240101000005',
+                '20240102000000',
+                '20240103000000',
+            ],
             array_column($timeline, 'timestamp'),
         );
         self::assertSame(
-            ['commit', 'commit', 'commit', 'deltacommit', 'deltacommit'],
+            ['commit', 'commit', 'commit', 'commit', 'commit', 'deltacommit', 'deltacommit'],
             array_column($timeline, 'action'),
         );
         self::assertSame(
-            [null, null, 'requested', 'requested', 'inflight'],
+            [null, null, 'requested', null, 'requested', 'requested', 'inflight'],
             array_column($timeline, 'state'),
         );
     }
 
-    public function test_latest_commit_ignores_inflight_and_requested(): void
+    public function test_latest_commit_uses_1_0_completion_time_and_ignores_inflight_and_requested(): void
     {
-        self::assertSame('20240101000000', $this->table()->latestCommit());
+        self::assertSame('20240101000005', $this->table()->latestCommit());
     }
 }

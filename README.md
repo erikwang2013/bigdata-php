@@ -2,11 +2,15 @@
 
 一个 Composer 包，19 个大数据平台驱动，按需启用。
 
+项目站点：https://package.erik.xyz/bigdata/ （中文 / English）
+
 `erikwang2013/bigdata-php` 用同一套 PHP API 连接 SQL / OLAP 引擎、Hadoop 生态、调度系统、湖仓元数据目录和 NoSQL 存储。HTTP 驱动开箱即用；只有真正使用 Doris / StarRocks、Hive 或 Cassandra 时，才需要安装对应的可选依赖。
 
 ## 1. 项目简介
 
-大数据平台的 PHP 客户端通常是十几个互不相关的小包：每个包各带一份 HTTP 封装、配置解析、结果集和异常层，版本各自漂移，升级时很难保持一致。本项目把它们收进一个 Composer 包，但保留“可选驱动”的边界：
+大数据平台的 PHP 客户端通常是十几个互不相关的小包：每个包各带一份 HTTP 封装、配置解析、结果集和异常层，版本各自漂移，升级时很难保持一致。本项目把它们收进一个 Composer 包，但保留“可选驱动”的边界。
+
+覆盖的平台包括：**Trino、Hadoop、Hive、Spark、Flink、Doris、StarRocks、Kylin、Druid、Iceberg、Hudi、Paimon、Delta Lake、DolphinScheduler、Airflow、Azkaban、Oozie、HBase、Cassandra**（共 19 个）。
 
 - **一个包，19 个平台，21 个驱动键。** Hadoop 提供 `hadoop-webhdfs` 与 `hadoop-yarn` 两个入口，Flink 提供 `flink-sql` 与 `flink-jobs`，其余平台各一个驱动键。
 - **统一入口，驱动隔离。** 包级共享的是 Guzzle 7 / PSR-3 依赖与统一的配置、异常约定；每个驱动仍保留自己的 `XxxConfig`、`XxxClient`、`ResultSet` 和异常类，也可以绕过管理器直接 `new`。
@@ -25,7 +29,7 @@
 - **湖仓元数据只读**：Iceberg REST Catalog、Hudi `.hoodie` 时间线、Paimon schema/snapshot、Delta Sharing 文件清单。
 - **无自动重试、无统一 SQL 层**：不做查询改写、事务编排、连接池或 ORM；每个驱动保持目标系统本身的语义。
 - **PHP 8.0+**：核心包不依赖任何框架；Laravel、ThinkPHP、Webman、Hyperf、Yii2、Yii3 适配器均为可选薄封装。
-- **测试覆盖**：217 个单元测试、777 个断言，另有 10 个集成测试（16 个断言，缺少外部服务时自动跳过），使用 mock HTTP、本地 fixture 和 fake server，不依赖真实集群。
+- **测试覆盖**：230 个单元测试、799 个断言，另有 12 个集成测试（16 个断言，缺少外部服务时自动跳过），使用 mock HTTP、本地 fixture 和 fake server，不依赖真实集群。
 
 ## 3. 环境要求
 
@@ -66,7 +70,7 @@ composer require erikwang2013/bigdata-php
 ```
 
 ```bash
-composer require erikwang2013/bigdata-php:^1.1
+composer require erikwang2013/bigdata-php:^1.2
 ```
 
 按需安装可选依赖：
@@ -358,7 +362,7 @@ $latest = $table->latestCommit();
 
 ## 8. 架构设计
 
-![架构图](docs/diagrams/architecture.svg)
+![架构图](docs/diagrams/zh/architecture.svg)
 
 调用路径：
 
@@ -372,7 +376,7 @@ $latest = $table->latestCommit();
 
 ## 9. 功能设计
 
-![功能设计图](docs/diagrams/functional-design.svg)
+![功能设计图](docs/diagrams/zh/functional-design.svg)
 
 代码分为五层：
 
@@ -386,7 +390,7 @@ $latest = $table->latestCommit();
 
 ## 10. 请求周期
 
-![请求周期图](docs/diagrams/request-lifecycle.svg)
+![请求周期图](docs/diagrams/zh/request-lifecycle.svg)
 
 一次典型的驱动调用经过 8 步：
 
@@ -403,7 +407,7 @@ $latest = $table->latestCommit();
 
 ## 11. 生命周期
 
-![生命周期图](docs/diagrams/lifecycle.svg)
+![生命周期图](docs/diagrams/zh/lifecycle.svg)
 
 | 阶段 | 做什么 |
 |---|---|

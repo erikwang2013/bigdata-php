@@ -91,6 +91,67 @@ final class CassandraClientTest extends TestCase
         self::assertSame(Consistency::LOCAL_QUORUM, $this->session->calls[0]['consistency']);
     }
 
+    public function test_query_forwards_paging_options(): void
+    {
+        $this->client()->query('SELECT id FROM users', [], Consistency::ONE, 50, 'opaque-state');
+
+        self::assertSame(50, $this->session->calls[0]['pageSize']);
+        self::assertSame('opaque-state', $this->session->calls[0]['pagingState']);
+    }
+
+    public function test_execute_forwards_paging_options(): void
+    {
+        $client = $this->client();
+        $statement = $client->prepare('SELECT id FROM users WHERE id = ?');
+        $client->execute($statement, [1], Consistency::ONE, 25, 'next-page');
+
+        self::assertSame(25, $this->session->calls[1]['pageSize']);
+        self::assertSame('next-page', $this->session->calls[1]['pagingState']);
+    }
+
+    public function test_paging_options_default_to_null(): void
+    {
+        $client = $this->client();
+        $client->query('SELECT id FROM users');
+        $client->execute($client->prepare('SELECT id FROM users'), []);
+
+        self::assertNull($this->session->calls[0]['pageSize']);
+        self::assertNull($this->session->calls[0]['pagingState']);
+        self::assertNull($this->session->calls[2]['pageSize']);
+        self::assertNull($this->session->calls[2]['pagingState']);
+    }
+
+    public function test_prepared_statement_columns_use_driver_prepared_metadata(): void
+    {
+        $driverResult = new class {
+            public function getPreparedData(): object
+            {
+                return (object) [
+                    'prepareMetadata' => (object) [
+                        'bindMarkers' => [
+                            (object) ['name' => 'id', 'type' => (object) ['type' => (object) ['name' => 'INT']]],
+                            (object) ['name' => 'name', 'type' => (object) ['type' => (object) ['name' => 'VARCHAR']]],
+                        ],
+                    ],
+                ];
+            }
+        };
+
+        $statement = new PreparedStatement('INSERT INTO items (id, name) VALUES (?, ?)', $driverResult);
+
+        self::assertSame([
+            ['name' => 'id', 'type' => 'int'],
+            ['name' => 'name', 'type' => 'varchar'],
+        ], $statement->columns());
+    }
+
+    public function test_prepared_statement_columns_are_empty_without_driver_metadata(): void
+    {
+        $statement = new PreparedStatement('SELECT * FROM users WHERE id = ?', null);
+
+        self::assertSame([], $statement->columns());
+    }
+
     public function test_non_rows_results_map_to_an_empty_result_set(): void
     {
         if (!class_exists(\Cassandra\Response\Result::class)) {
@@ -115,7 +176,7 @@ final class CassandraClientTest extends TestCase
 
 final class FakeCassandraSession implements SessionInterface
 {
-    /** @var list<array{method: string, cql?: string, params?: array, consistency?: int}> */
+    /** @var list<array{method: string, cql?: string, params?: array, consistency?: int, pageSize?: ?int, pagingState?: ?string}> */
     public array $calls = [];
 
     public ?\Throwable $connectError = null;
@@ -131,9 +192,16 @@ final class FakeCassandraSession implements SessionInterface
         }
     }
 
-    public function query(string $cql, array $params, int $consistency): ResultSet
+    public function query(string $cql, array $params, int $consistency, ?int $pageSize = null, ?string $pagingState = null): ResultSet
     {
-        $this->calls[] = ['method' => 'query', 'cql' => $cql, 'params' => $params, 'consistency' => $consistency];
+        $this->calls[] = [
+            'method' => 'query',
+            'cql' => $cql,
+            'params' => $params,
+            'consistency' => $consistency,
+            'pageSize' => $pageSize,
+            'pagingState' => $pagingState,
+        ];
         if ($this->queryError !== null) {
             throw $this->queryError;
         }
@@ -148,9 +216,15 @@ final class FakeCassandraSession implements SessionInterface
         return new PreparedStatement($cql, null);
     }
 
-    public function execute(PreparedStatement $statement, array $params, int $consistency): ResultSet
+    public function execute(PreparedStatement $statement, array $params, int $consistency, ?int $pageSize = null, ?string $pagingState = null): ResultSet
     {
-        $this->calls[] = ['method' => 'execute', 'params' => $params, 'consistency' => $consistency];
+        $this->calls[] = [
+            'method' => 'execute',
+            'params' => $params,
+            'consistency' => $consistency,
+            'pageSize' => $pageSize,
+            'pagingState' => $pagingState,
+        ];
 
         return $this->result;
     }
