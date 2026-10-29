@@ -21,6 +21,22 @@ final class ConfigPublisher
             return false;
         }
 
-        return @copy($source, $destination);
+        // Write a sibling temp file and rename it, so concurrent workers can
+        // never load a half-written config.
+        $temporary = $directory . '/.bigdata-' . bin2hex(random_bytes(6));
+        if (!@copy($source, $temporary)) {
+            @unlink($temporary);
+
+            return false;
+        }
+        @chmod($temporary, 0644);
+
+        if (!@rename($temporary, $destination)) {
+            @unlink($temporary);
+
+            return false;
+        }
+
+        return true;
     }
 }

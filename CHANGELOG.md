@@ -3,6 +3,13 @@
 All notable changes to `erikwang2013/bigdata-php` are documented here.
 Versions follow `vMAJOR.MINOR.PATCH`.
 
+## [2.1.1] - 2026-10-30
+
+### Fixed
+
+- Config auto-publishing writes a temporary file and renames it into place, so
+  concurrent Webman/Hyperf workers can never read a half-written config.
+
 ## [2.1.0] - 2026-10-30
 
 ### Added

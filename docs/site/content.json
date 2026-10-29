@@ -130,6 +130,12 @@
     "sub": "最近的发布记录，完整列表在 GitHub Releases。",
     "items": [
       {
+        "version": "v2.1.1",
+        "date": "2026-10-30",
+        "summary": "配置自动发布改为临时文件加原子重命名，避免并发 worker 读到半截配置。",
+        "url": "https://github.com/erikwang2013/bigdata-php/releases/tag/v2.1.1"
+      },
+      {
         "version": "v2.1.0",
         "date": "2026-10-30",
         "summary": "框架首次启动自动发布配置模板；修复 Hive SASL 登录与 Laravel 冒烟依赖，Dependabot 仅更新 GitHub Actions。",
@@ -321,6 +327,9 @@
       "heading": "Changelog",
       "sub": "Recent releases; the full list is on GitHub Releases.",
       "items": [
+        {
+          "summary": "Config auto-publishing now uses an atomic temp-file rename so concurrent workers never read a partial file."
+        },
         {
           "summary": "Framework config templates publish on first boot; fix Hive SASL login and Laravel smoke dependencies; Dependabot updates GitHub Actions only."
         },
