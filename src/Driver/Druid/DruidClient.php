@@ -12,12 +12,12 @@ use Psr\Log\NullLogger;
 
 final class DruidClient
 {
-    private readonly ClientInterface $http;
+    private ClientInterface $http;
 
-    private readonly LoggerInterface $logger;
+    private LoggerInterface $logger;
 
     public function __construct(
-        private readonly DruidConfig $config,
+        private DruidConfig $config,
         ?ClientInterface $http = null,
         ?LoggerInterface $logger = null,
     ) {
@@ -36,7 +36,8 @@ final class DruidClient
             ],
         ]);
 
-        if (!array_is_list($payload)) {
+        // PHP 8.0 has no list check; reindexing is a no-op only when keys are 0..n-1.
+        if (array_values($payload) !== $payload) {
             throw new RequestException('Invalid Druid SQL response: expected a JSON array of row objects.');
         }
 

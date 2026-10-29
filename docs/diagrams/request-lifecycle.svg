@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 920" width="1200" height="920" role="img" aria-labelledby="rl-title rl-desc">
+  <title id="rl-title">bigdata-php request lifecycle</title>
+  <desc id="rl-desc">A numbered eight-step path from configuration to ResultSet, plus error branches for missing optional dependencies, credential handling, transport failures and value fidelity.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; }
+    .title { font-size: 26px; font-weight: 700; fill: #0f172a; }
+    .subtitle { font-size: 14px; fill: #475569; }
+    .step-title { font-size: 14px; font-weight: 600; fill: #0f172a; }
+    .step-text { font-size: 12px; fill: #475569; }
+    .step-small { font-size: 11.5px; fill: #64748b; }
+    .num { font-size: 15px; font-weight: 700; fill: #ffffff; }
+    .note-title { font-size: 13px; font-weight: 700; }
+    .note-text { font-size: 11.5px; }
+    .legend { font-size: 11.5px; fill: #64748b; }
+  </style>
+
+  <rect width="1200" height="920" fill="#f8fafc"/>
+
+  <text class="title" x="40" y="46">Request lifecycle</text>
+  <text class="subtitle" x="40" y="70">Config → driver creation → auth → transport → parse → ResultSet or array</text>
+
+  <rect x="118" y="100" width="560" height="74" rx="9" fill="#ffffff" stroke="#cbd5e1"/>
+  <circle cx="84" cy="137" r="19" fill="#2563eb"/>
+  <text class="num" x="84" y="142" text-anchor="middle">1</text>
+  <text class="step-title" x="138" y="126">Read configuration</text>
+  <text class="step-text" x="138" y="148">default selects one driver; drivers holds per-driver config arrays.</text>
+  <text class="step-small" x="138" y="164">Framework adapters and standalone scripts read the same shape.</text>
+
+  <line x1="398" y1="174" x2="398" y2="192" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="118" y="194" width="560" height="74" rx="9" fill="#ffffff" stroke="#cbd5e1"/>
+  <circle cx="84" cy="231" r="19" fill="#2563eb"/>
+  <text class="num" x="84" y="236" text-anchor="middle">2</text>
+  <text class="step-title" x="138" y="220">Resolve driver name</text>
+  <text class="step-text" x="138" y="242">Manager applies the explicit name or the configured default.</text>
+  <text class="step-small" x="138" y="258">Per-call overrides are merged before construction.</text>
+
+  <line x1="398" y1="268" x2="398" y2="286" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="118" y="288" width="560" height="74" rx="9" fill="#ffffff" stroke="#cbd5e1"/>
+  <circle cx="84" cy="325" r="19" fill="#2563eb"/>
+  <text class="num" x="84" y="330" text-anchor="middle">3</text>
+  <text class="step-title" x="138" y="314">Validate key and dependencies</text>
+  <text class="step-text" x="138" y="336">Registry lookup rejects unknown names with DriverUnavailableException.</text>
+  <text class="step-small" x="138" y="352">The optional dependency gate runs only for the selected driver.</text>
+
+  <line x1="398" y1="362" x2="398" y2="380" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="118" y="382" width="560" height="74" rx="9" fill="#ffffff" stroke="#cbd5e1"/>
+  <circle cx="84" cy="419" r="19" fill="#2563eb"/>
+  <text class="num" x="84" y="424" text-anchor="middle">4</text>
+  <text class="step-title" x="138" y="408">Create config and client</text>
+  <text class="step-text" x="138" y="430">XxxConfig::fromArray() validates and normalizes the options.</text>
+  <text class="step-small" x="138" y="446">new XxxClient(); Guzzle client and PSR-3 logger are injectable.</text>
+
+  <line x1="398" y1="456" x2="398" y2="474" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="118" y="476" width="560" height="74" rx="9" fill="#ffffff" stroke="#cbd5e1"/>
+  <circle cx="84" cy="513" r="19" fill="#2563eb"/>
+  <text class="num" x="84" y="518" text-anchor="middle">5</text>
+  <text class="step-title" x="138" y="502">Authenticate (when configured)</text>
+  <text class="step-text" x="138" y="524">Basic / Bearer / token; Hive SASL PLAIN or LDAP.</text>
+  <text class="step-small" x="138" y="540">Doris and StarRocks use the PDO login; Cassandra uses CQL auth.</text>
+
+  <line x1="398" y1="550" x2="398" y2="568" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="118" y="570" width="560" height="74" rx="9" fill="#ffffff" stroke="#cbd5e1"/>
+  <circle cx="84" cy="607" r="19" fill="#2563eb"/>
+  <text class="num" x="84" y="612" text-anchor="middle">6</text>
+  <text class="step-title" x="138" y="596">Send transport request</text>
+  <text class="step-text" x="138" y="618">HTTP/JSON, Thrift TCLIService, PDO MySQL, CQL, local or WebHDFS read.</text>
+  <text class="step-small" x="138" y="634">One call may issue several requests while paging.</text>
+
+  <line x1="398" y1="644" x2="398" y2="662" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="118" y="664" width="560" height="74" rx="9" fill="#ffffff" stroke="#cbd5e1"/>
+  <circle cx="84" cy="701" r="19" fill="#2563eb"/>
+  <text class="num" x="84" y="706" text-anchor="middle">7</text>
+  <text class="step-title" x="138" y="690">Parse response</text>
+  <text class="step-text" x="138" y="712">JSON and application-level errors; paging via nextUri, tokens or offset.</text>
+  <text class="step-small" x="138" y="728">Thrift row batches, PDO rows, Base64-decoded HBase cells.</text>
+
+  <line x1="398" y1="738" x2="398" y2="756" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="118" y="758" width="560" height="74" rx="9" fill="#ffffff" stroke="#cbd5e1"/>
+  <circle cx="84" cy="795" r="19" fill="#2563eb"/>
+  <text class="num" x="84" y="800" text-anchor="middle">8</text>
+  <text class="step-title" x="138" y="784">Return to application</text>
+  <text class="step-text" x="138" y="806">ResultSet exposes columns(), rows(), raw() and count().</text>
+  <text class="step-small" x="138" y="822">Scheduler and catalog drivers return driver-specific arrays.</text>
+
+  <rect x="740" y="288" width="420" height="74" rx="8" fill="#fef2f2" stroke="#fecaca"/>
+  <text class="note-title" x="760" y="314" fill="#b91c1c">Missing dependency</text>
+  <text class="note-text" x="760" y="334" fill="#7f1d1d">DriverUnavailableException</text>
+  <text class="note-text" x="760" y="351" fill="#7f1d1d">carries the exact install command.</text>
+  <line x1="740" y1="325" x2="682" y2="325" stroke="#ef4444" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#arrow-red)"/>
+
+  <rect x="740" y="476" width="420" height="74" rx="8" fill="#fffbeb" stroke="#fcd34d"/>
+  <text class="note-title" x="760" y="502" fill="#b45309">Credential scope</text>
+  <text class="note-text" x="760" y="522" fill="#78350f">WebHDFS 307 redirects do not forward</text>
+  <text class="note-text" x="760" y="539" fill="#78350f">Basic or delegation credentials to DataNodes.</text>
+  <line x1="740" y1="513" x2="682" y2="513" stroke="#ef4444" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#arrow-red)"/>
+
+  <rect x="740" y="664" width="420" height="90" rx="8" fill="#fef2f2" stroke="#fecaca"/>
+  <text class="note-title" x="760" y="692" fill="#b91c1c">Failure mapping</text>
+  <text class="note-text" x="760" y="713" fill="#7f1d1d">Transport or timeout → ConnectionException.</text>
+  <text class="note-text" x="760" y="730" fill="#7f1d1d">Non-2xx or application error → RequestException.</text>
+  <text class="note-text" x="760" y="747" fill="#7f1d1d">No automatic retries; the caller decides.</text>
+  <line x1="740" y1="709" x2="682" y2="709" stroke="#ef4444" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#arrow-red)"/>
+
+  <rect x="740" y="758" width="420" height="74" rx="8" fill="#ecfdf5" stroke="#a7f3d0"/>
+  <text class="note-title" x="760" y="784" fill="#047857">Value fidelity</text>
+  <text class="note-text" x="760" y="804" fill="#065f46">Null values stay null; lakehouse drivers return</text>
+  <text class="note-text" x="760" y="821" fill="#065f46">metadata or Parquet manifests, not rows.</text>
+  <line x1="740" y1="795" x2="682" y2="795" stroke="#ef4444" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#arrow-red)"/>
+
+  <line x1="118" y1="878" x2="158" y2="878" stroke="#64748b" stroke-width="1.6"/>
+  <text class="legend" x="168" y="882">success path</text>
+  <line x1="300" y1="878" x2="340" y2="878" stroke="#ef4444" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text class="legend" x="350" y="882">error / guard branch</text>
+  <text class="legend" x="740" y="882">Steps run per driver call; no global state is kept.</text>
+  <text class="legend" x="40" y="906">HTTP drivers are stateless; Hive and Cassandra sessions are closed explicitly.</text>
+</svg>

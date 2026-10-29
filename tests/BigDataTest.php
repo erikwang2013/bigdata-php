@@ -75,8 +75,31 @@ final class BigDataTest extends TestCase
         ];
 
         foreach ($configs as $name => $config) {
+            if (in_array($name, ['doris', 'starrocks'], true) && !extension_loaded('pdo_mysql')) {
+                continue;
+            }
+            if ($name === 'hive' && !class_exists(\Thrift\Protocol\TBinaryProtocol::class)) {
+                continue;
+            }
+
             self::assertIsObject(BigData::driver($name, $config), $name);
         }
+    }
+
+    public function test_hudi_rejects_unknown_storage(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        BigData::driver('hudi', ['base_path' => '/tmp/table', 'storage' => 's3']);
+    }
+
+    public function test_storage_selector_is_case_insensitive(): void
+    {
+        $client = BigData::driver('paimon', [
+            'base_path' => __DIR__ . '/Driver/Paimon/Fixtures/table',
+            'storage' => ' LOCAL ',
+        ]);
+
+        self::assertInstanceOf(\Erikwang2013\BigData\Driver\Paimon\PaimonTable::class, $client);
     }
 
     public function test_cassandra_reports_missing_optional_dependency(): void

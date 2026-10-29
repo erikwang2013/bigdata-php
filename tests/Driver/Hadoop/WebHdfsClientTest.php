@@ -13,19 +13,26 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\AbstractLogger;
+use Psr\Log\LoggerInterface;
 
 final class WebHdfsClientTest extends TestCase
 {
     private array $history = [];
 
-    private function client(array $responses, array $clientConfig = []): WebHdfsClient
-    {
+    private function client(
+        array $responses,
+        array $clientConfig = [],
+        ?LoggerInterface $logger = null,
+        array $config = [],
+    ): WebHdfsClient {
         $stack = HandlerStack::create(new MockHandler($responses));
         $stack->push(Middleware::history($this->history));
 
         return new WebHdfsClient(
-            WebHdfsConfig::fromArray(['host' => 'namenode.local', 'user' => 'php']),
+            WebHdfsConfig::fromArray($config + ['host' => 'namenode.local', 'user' => 'php']),
             new Client($clientConfig + ['handler' => $stack]),
+            $logger,
         );
     }
 
@@ -77,6 +84,59 @@ final class WebHdfsClientTest extends TestCase
         $query = Query::parse($second->getUri()->getQuery());
         self::assertSame('php', $query['user.name']);
         self::assertSame('OPEN', $query['op']);
+    }
+
+    public function test_redirect_hop_strips_client_default_headers_and_auth(): void
+    {
+        $client = $this->client(
+            [
+                new Response(307, ['Location' => 'http://datanode:9864/webhdfs/v1/data/file.txt?op=OPEN'], ''),
+                new Response(200, [], 'hello'),
+            ],
+            [
+                'headers' => ['Authorization' => 'Basic ' . base64_encode('php:secret')],
+                'auth' => ['php', 'secret'],
+            ],
+        );
+
+        self::assertSame('hello', $client->read('/data/file.txt'));
+        self::assertCount(2, $this->history);
+
+        $first = $this->history[0]['request'];
+        $second = $this->history[1]['request'];
+
+        self::assertTrue($first->hasHeader('Authorization'));
+        self::assertFalse($second->hasHeader('Authorization'));
+        self::assertSame('php', Query::parse($second->getUri()->getQuery())['user.name']);
+    }
+
+    public function test_debug_log_omits_delegation_token_and_user_name(): void
+    {
+        $logger = new class extends AbstractLogger {
+            public array $records = [];
+
+            public function log($level, string|\Stringable $message, array $context = []): void
+            {
+                $this->records[] = ['level' => $level, 'message' => (string) $message, 'context' => $context];
+            }
+        };
+
+        $client = $this->client(
+            [new Response(200, [], 'hello')],
+            [],
+            $logger,
+            ['delegation_token' => 'super-secret-token'],
+        );
+
+        self::assertSame('hello', $client->read('/data/file.txt'));
+
+        self::assertNotEmpty($logger->records);
+        self::assertStringNotContainsString('super-secret-token', json_encode($logger->records));
+        self::assertStringNotContainsString('user.name', json_encode($logger->records));
+        self::assertSame(
+            'http://namenode.local:9870/webhdfs/v1/data/file.txt',
+            $logger->records[0]['context']['uri'],
+        );
     }
 
     public function test_rename_returns_boolean(): void

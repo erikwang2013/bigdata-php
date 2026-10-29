@@ -12,10 +12,10 @@ namespace Erikwang2013\BigData\Driver\Hudi;
 final class HudiTable
 {
     /** @var array<string, string> */
-    private readonly array $properties;
+    private array $properties;
 
     /** @var list<array{timestamp: string, action: string, state: ?string}> */
-    private readonly array $timeline;
+    private array $timeline;
 
     private function __construct(string $basePath, HudiStorage $storage)
     {

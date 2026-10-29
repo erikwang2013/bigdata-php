@@ -7,9 +7,9 @@ final class PreparedStatement
 {
     /** @param mixed $driverResult Opaque driver PreparedResult. */
     public function __construct(
-        private readonly string $cql,
-        private readonly mixed $driverResult,
-        private readonly array $columns = [],
+        private string $cql,
+        private mixed $driverResult,
+        private array $columns = [],
     ) {
     }
 

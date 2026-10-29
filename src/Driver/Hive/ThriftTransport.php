@@ -50,8 +50,8 @@ final class ThriftTransport implements HiveTransport
     private array $columns = [];
 
     public function __construct(
-        private readonly HiveConfig $config,
-        private readonly ?TCLIServiceClient $injectedClient = null,
+        private HiveConfig $config,
+        private ?TCLIServiceClient $injectedClient = null,
     ) {
     }
 
@@ -214,12 +214,16 @@ final class ThriftTransport implements HiveTransport
     private function createTransport(): TTransport
     {
         if ($this->config->transport === 'http') {
+            // THttpClient only uses the stream context for https; verifySsl is
+            // honoured there and plain http needs no SSL options.
             $http = new THttpClient(
                 $this->config->host,
                 $this->config->port,
                 $this->config->httpPath,
-                'http',
-                $this->config->verifySsl ? [] : ['ssl' => ['verify_peer' => false, 'verify_peer_name' => false]],
+                $this->config->scheme,
+                $this->config->scheme === 'https' && !$this->config->verifySsl
+                    ? ['ssl' => ['verify_peer' => false, 'verify_peer_name' => false]]
+                    : [],
             );
             $http->setTimeoutSecs($this->config->timeout);
 

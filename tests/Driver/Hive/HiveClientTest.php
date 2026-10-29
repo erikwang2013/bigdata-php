@@ -7,6 +7,7 @@ use Erikwang2013\BigData\Driver\Hive\HiveClient;
 use Erikwang2013\BigData\Driver\Hive\HiveConfig;
 use Erikwang2013\BigData\Driver\Hive\HiveTransport;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\AbstractLogger;
 
 final class HiveClientTest extends TestCase
 {
@@ -96,6 +97,33 @@ final class HiveClientTest extends TestCase
         self::assertTrue($transport->opened);
     }
 
+    public function test_logs_lifecycle_without_credentials(): void
+    {
+        $logger = new class extends AbstractLogger {
+            public array $records = [];
+
+            public function log($level, string|\Stringable $message, array $context = []): void
+            {
+                $this->records[] = [(string) $message, $context];
+            }
+        };
+        $config = HiveConfig::fromArray([
+            'host' => 'hive.local',
+            'auth' => 'PLAIN',
+            'username' => 'alice',
+            'password' => 'secret',
+        ]);
+        $client = new HiveClient($config, new FakeTransport($config), $logger);
+
+        $client->connect();
+        $client->close();
+
+        $logged = json_encode($logger->records);
+        self::assertStringContainsString('Hive connect', $logged);
+        self::assertStringContainsString('Hive close', $logged);
+        self::assertStringNotContainsString('secret', $logged);
+    }
+
     public function test_set_runs_a_set_statement(): void
     {
         $transport = new FakeTransport(HiveConfig::fromArray(['host' => 'hive.local']), [
@@ -132,7 +160,7 @@ final class FakeTransport implements HiveTransport
     /**
      * @param list<array{rows: list<list<mixed>>, hasMore: bool}> $batches
      */
-    public function __construct(public readonly HiveConfig $config, array $batches = [])
+    public function __construct(public HiveConfig $config, array $batches = [])
     {
         $this->batches = $batches;
     }

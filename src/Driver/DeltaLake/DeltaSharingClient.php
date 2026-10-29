@@ -22,12 +22,12 @@ final class DeltaSharingClient
         'endingVersion',
     ];
 
-    private readonly ClientInterface $http;
+    private ClientInterface $http;
 
-    private readonly LoggerInterface $logger;
+    private LoggerInterface $logger;
 
     public function __construct(
-        private readonly DeltaSharingConfig $config,
+        private DeltaSharingConfig $config,
         ?ClientInterface $http = null,
         ?LoggerInterface $logger = null,
     ) {

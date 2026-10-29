@@ -95,8 +95,9 @@ final class BigData
                 => new Driver\Doris\DorisClient(Driver\Doris\DorisConfig::fromArray($c), null, $h, $l),
             'starrocks' => static fn (array $c, ?ClientInterface $h, ?LoggerInterface $l): object
                 => new Driver\StarRocks\StarRocksClient(Driver\StarRocks\StarRocksConfig::fromArray($c), null, $h, $l),
+            // Hive speaks Thrift, so the injected HTTP client is unused; the logger is passed through.
             'hive' => static fn (array $c, ?ClientInterface $h, ?LoggerInterface $l): object
-                => new Driver\Hive\HiveClient(Driver\Hive\HiveConfig::fromArray($c)),
+                => new Driver\Hive\HiveClient(Driver\Hive\HiveConfig::fromArray($c), null, $l),
             'hudi' => static fn (array $c, ?ClientInterface $h, ?LoggerInterface $l): object
                 => self::hudi($c, $h, $l),
             'paimon' => static fn (array $c, ?ClientInterface $h, ?LoggerInterface $l): object
@@ -126,7 +127,7 @@ final class BigData
     private static function hudi(array $config, ?ClientInterface $http, ?LoggerInterface $logger): Driver\Hudi\HudiTable
     {
         $basePath = $config['base_path'] ?? throw new \InvalidArgumentException('The Hudi driver requires "base_path".');
-        $storage = ($config['storage'] ?? 'local') === 'webhdfs'
+        $storage = self::storage($config, 'Hudi') === 'webhdfs'
             ? new Driver\Hudi\WebHdfsStorage(Driver\Hudi\WebHdfsConfig::fromArray($config), $http, $logger)
             : new Driver\Hudi\LocalStorage();
 
@@ -137,10 +138,25 @@ final class BigData
     private static function paimon(array $config, ?ClientInterface $http, ?LoggerInterface $logger): Driver\Paimon\PaimonTable
     {
         $basePath = $config['base_path'] ?? throw new \InvalidArgumentException('The Paimon driver requires "base_path".');
-        $storage = ($config['storage'] ?? 'local') === 'webhdfs'
+        $storage = self::storage($config, 'Paimon') === 'webhdfs'
             ? new Driver\Paimon\WebHdfsStorage(Driver\Paimon\WebHdfsConfig::fromArray($config), $http, $logger)
             : new Driver\Paimon\LocalStorage();
 
         return Driver\Paimon\PaimonTable::open((string) $basePath, $storage);
+    }
+
+    /** @param array<string, mixed> $config */
+    private static function storage(array $config, string $driver): string
+    {
+        $storage = strtolower(trim((string) ($config['storage'] ?? 'local')));
+        if (!in_array($storage, ['local', 'webhdfs'], true)) {
+            throw new \InvalidArgumentException(sprintf(
+                'The %s driver "storage" must be "local" or "webhdfs", got "%s".',
+                $driver,
+                $storage,
+            ));
+        }
+
+        return $storage;
     }
 }

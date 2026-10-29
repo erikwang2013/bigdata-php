@@ -13,12 +13,12 @@ use Psr\Log\NullLogger;
 
 final class HBaseClient
 {
-    private readonly ClientInterface $http;
+    private ClientInterface $http;
 
-    private readonly LoggerInterface $logger;
+    private LoggerInterface $logger;
 
     public function __construct(
-        private readonly HBaseConfig $config,
+        private HBaseConfig $config,
         ?ClientInterface $http = null,
         ?LoggerInterface $logger = null,
     ) {

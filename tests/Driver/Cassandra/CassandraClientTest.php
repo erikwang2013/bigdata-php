@@ -8,6 +8,7 @@ use Erikwang2013\BigData\Driver\Cassandra\CassandraConfig;
 use Erikwang2013\BigData\Driver\Cassandra\Consistency;
 use Erikwang2013\BigData\Driver\Cassandra\Exception\ConnectionException;
 use Erikwang2013\BigData\Driver\Cassandra\Exception\RequestException;
+use Erikwang2013\BigData\Driver\Cassandra\PhpCassandraSession;
 use Erikwang2013\BigData\Driver\Cassandra\PreparedStatement;
 use Erikwang2013\BigData\Driver\Cassandra\ResultSet;
 use Erikwang2013\BigData\Driver\Cassandra\SessionInterface;
@@ -88,6 +89,27 @@ final class CassandraClientTest extends TestCase
         $this->client()->query('SELECT 1', [], Consistency::LOCAL_QUORUM);
 
         self::assertSame(Consistency::LOCAL_QUORUM, $this->session->calls[0]['consistency']);
+    }
+
+    public function test_non_rows_results_map_to_an_empty_result_set(): void
+    {
+        if (!class_exists(\Cassandra\Response\Result::class)) {
+            self::markTestSkipped('mroosz/php-cassandra is not installed.');
+        }
+
+        $session = new PhpCassandraSession(
+            CassandraConfig::fromArray(['contact_points' => ['127.0.0.1:9042']]),
+        );
+        $map = new \ReflectionMethod($session, 'mapResult');
+        if (PHP_VERSION_ID < 80100) {
+            $map->setAccessible(true);
+        }
+
+        $result = $map->invoke($session, $this->createMock(\Cassandra\Response\Result::class));
+
+        self::assertSame([], $result->columns());
+        self::assertSame([], $result->rows());
+        self::assertSame(0, $result->count());
     }
 }
 

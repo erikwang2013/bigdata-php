@@ -22,7 +22,7 @@ final class PhpCassandraSession implements SessionInterface
 {
     private ?Connection $connection = null;
 
-    public function __construct(private readonly CassandraConfig $config)
+    public function __construct(private CassandraConfig $config)
     {
     }
 
@@ -57,7 +57,6 @@ final class PhpCassandraSession implements SessionInterface
                 $this->config->keyspace,
                 new ConnectionOptions(
                     initialProtocolVersion: $this->protocolVersion(),
-                    requestTimeoutInSeconds: $this->config->timeout,
                 ),
             );
             $this->connection->connect();
@@ -76,9 +75,9 @@ final class PhpCassandraSession implements SessionInterface
                 $cql,
                 $params,
                 DriverConsistency::from($consistency),
-            )->asRowsResult();
+            );
 
-            return $this->toResultSet($result);
+            return $this->mapResult($result);
         } catch (\Cassandra\Exception\ConnectionException $e) {
             $this->connection = null;
             throw new ConnectionException($e->getMessage(), 0, $e);
@@ -110,9 +109,9 @@ final class PhpCassandraSession implements SessionInterface
                 $statement->driverResult(),
                 $params,
                 DriverConsistency::from($consistency),
-            )->asRowsResult();
+            );
 
-            return $this->toResultSet($result);
+            return $this->mapResult($result);
         } catch (\Cassandra\Exception\ConnectionException $e) {
             $this->connection = null;
             throw new ConnectionException($e->getMessage(), 0, $e);
@@ -127,6 +126,19 @@ final class PhpCassandraSession implements SessionInterface
             $this->connection->disconnect();
             $this->connection = null;
         }
+    }
+
+    /**
+     * INSERT/UPDATE/DELETE return VoidResult, DDL returns SchemaChangeResult and
+     * USE returns SetKeyspaceResult; none of them can be read as rows.
+     */
+    private function mapResult(\Cassandra\Response\Result $result): ResultSet
+    {
+        if ($result instanceof \Cassandra\Response\Result\RowsResult) {
+            return $this->toResultSet($result);
+        }
+
+        return new ResultSet([], [], []);
     }
 
     private function toResultSet(\Cassandra\Response\Result\RowsResult $result): ResultSet

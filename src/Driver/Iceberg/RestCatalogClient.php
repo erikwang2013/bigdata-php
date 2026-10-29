@@ -15,16 +15,16 @@ final class RestCatalogClient
 {
     private const PAGE_SIZE = 100;
 
-    private readonly ClientInterface $http;
+    private ClientInterface $http;
 
-    private readonly LoggerInterface $logger;
+    private LoggerInterface $logger;
 
     private ?string $cachedToken = null;
 
     private float $tokenExpiresAt = 0.0;
 
     public function __construct(
-        private readonly RestCatalogConfig $config,
+        private RestCatalogConfig $config,
         ?ClientInterface $http = null,
         ?LoggerInterface $logger = null,
     ) {

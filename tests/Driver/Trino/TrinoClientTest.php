@@ -141,4 +141,17 @@ final class TrinoClientTest extends TestCase
         self::assertSame('POST', $debug[0]['context']['method'] ?? null);
         self::assertStringContainsString('/v1/statement', $debug[0]['context']['uri'] ?? '');
     }
+
+    public function test_non_2xx_status_is_treated_as_an_error(): void
+    {
+        // 304 is not followed by Guzzle, so it reaches the status check.
+        $client = $this->client([new Response(304, [], '')]);
+
+        try {
+            $client->query('SELECT 1');
+            self::fail('Expected RequestException.');
+        } catch (RequestException $e) {
+            self::assertSame(304, $e->statusCode);
+        }
+    }
 }

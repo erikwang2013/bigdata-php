@@ -28,6 +28,7 @@ final class Http
         }
 
         $status = $response->getStatusCode();
+        // 3xx is followed manually by WebHDFS (allow_redirects=false), so only >= 400 is an error here.
         if ($status >= 400) {
             $body = (string) $response->getBody();
             throw new RequestException(sprintf('HTTP %d: %s', $status, $body), $status, $body);

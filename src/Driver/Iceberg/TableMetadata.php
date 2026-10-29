@@ -10,12 +10,12 @@ namespace Erikwang2013\BigData\Driver\Iceberg;
 final class TableMetadata
 {
     public function __construct(
-        private readonly string $location,
-        private readonly array $schema,
-        private readonly array $partitionSpec,
-        private readonly array $snapshots,
-        private readonly array $properties,
-        private readonly ?int $currentSnapshotId,
+        private string $location,
+        private array $schema,
+        private array $partitionSpec,
+        private array $snapshots,
+        private array $properties,
+        private ?int $currentSnapshotId,
     ) {
     }
 

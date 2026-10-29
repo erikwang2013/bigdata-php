@@ -12,14 +12,14 @@ use Psr\Log\NullLogger;
 
 final class AzkabanClient
 {
-    private readonly ClientInterface $http;
+    private ClientInterface $http;
 
-    private readonly LoggerInterface $logger;
+    private LoggerInterface $logger;
 
     private ?string $sessionId = null;
 
     public function __construct(
-        private readonly AzkabanConfig $config,
+        private AzkabanConfig $config,
         ?ClientInterface $http = null,
         ?LoggerInterface $logger = null,
     ) {

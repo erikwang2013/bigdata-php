@@ -34,6 +34,7 @@ final class HiveConfigTest extends TestCase
         self::assertSame('default', $config->database);
         self::assertTrue($config->verifySsl);
         self::assertSame(30.0, $config->timeout);
+        self::assertSame('http', $config->scheme);
     }
 
     public function test_from_array_parses_all_fields(): void
@@ -49,6 +50,7 @@ final class HiveConfigTest extends TestCase
             'database' => 'analytics',
             'verify_ssl' => false,
             'timeout' => 5.5,
+            'scheme' => 'HTTPS',
         ]);
 
         self::assertSame(10001, $config->port);
@@ -60,6 +62,20 @@ final class HiveConfigTest extends TestCase
         self::assertSame('analytics', $config->database);
         self::assertFalse($config->verifySsl);
         self::assertSame(5.5, $config->timeout);
+        self::assertSame('https', $config->scheme);
+    }
+
+    public function test_from_array_accepts_http_scheme_alias(): void
+    {
+        $config = HiveConfig::fromArray(['host' => 'hive.local', 'http_scheme' => 'https']);
+
+        self::assertSame('https', $config->scheme);
+    }
+
+    public function test_from_array_rejects_unknown_scheme(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        HiveConfig::fromArray(['host' => 'hive.local', 'scheme' => 'ftp']);
     }
 
     public function test_from_array_rejects_unknown_auth(): void

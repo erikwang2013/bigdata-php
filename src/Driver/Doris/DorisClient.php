@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Erikwang2013\BigData\Driver\Doris;
 
+use Erikwang2013\BigData\Driver\Doris\Exception\ConnectionException;
 use Erikwang2013\BigData\Driver\Doris\Exception\DorisException;
 use Erikwang2013\BigData\Driver\Doris\Exception\RequestException;
 use Erikwang2013\BigData\Driver\Doris\Support\Http;
@@ -15,12 +16,12 @@ final class DorisClient
 {
     private ?\PDO $pdo;
 
-    private readonly ClientInterface $http;
+    private ClientInterface $http;
 
-    private readonly LoggerInterface $logger;
+    private LoggerInterface $logger;
 
     public function __construct(
-        private readonly DorisConfig $config,
+        private DorisConfig $config,
         ?\PDO $pdo = null,
         ?ClientInterface $http = null,
         ?LoggerInterface $logger = null,
@@ -32,19 +33,27 @@ final class DorisClient
 
     public function query(string $sql, array $params = []): ResultSet
     {
-        $statement = $this->pdo()->prepare($sql);
-        $statement->execute($params);
-        $rows = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        try {
+            $statement = $this->pdo()->prepare($sql);
+            $statement->execute($params);
+            $rows = $statement->fetchAll(\PDO::FETCH_ASSOC);
 
-        return new ResultSet($rows === [] ? [] : array_keys($rows[0]), $rows, $rows);
+            return new ResultSet($rows === [] ? [] : array_keys($rows[0]), $rows, $rows);
+        } catch (\PDOException $e) {
+            throw $this->mapPdoException($e);
+        }
     }
 
     public function execute(string $sql, array $params = []): int
     {
-        $statement = $this->pdo()->prepare($sql);
-        $statement->execute($params);
+        try {
+            $statement = $this->pdo()->prepare($sql);
+            $statement->execute($params);
 
-        return $statement->rowCount();
+            return $statement->rowCount();
+        } catch (\PDOException $e) {
+            throw $this->mapPdoException($e);
+        }
     }
 
     public function streamLoad(string $table, string $data, array $options = []): array
@@ -85,6 +94,24 @@ final class DorisClient
         }
 
         return $response;
+    }
+
+    private function mapPdoException(\PDOException $e): \Throwable
+    {
+        // SQLSTATE class 08 is "connection exception"; MySQL may also report
+        // network failures as HY000 with a connection-related message.
+        $state = is_string($e->getCode()) ? $e->getCode() : (string) ($e->errorInfo[0] ?? '');
+        $message = $e->getMessage();
+
+        if (str_starts_with($state, '08')
+            || stripos($message, 'connection refused') !== false
+            || stripos($message, 'unknown host') !== false
+            || stripos($message, 'getaddrinfo') !== false
+        ) {
+            return new ConnectionException($message, 0, $e);
+        }
+
+        return new RequestException($message, null, '', $e);
     }
 
     private function pdo(): \PDO

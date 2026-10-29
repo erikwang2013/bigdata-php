@@ -5,6 +5,7 @@ namespace Erikwang2013\BigData\Tests\Driver\StarRocks;
 
 use Erikwang2013\BigData\Driver\StarRocks\StarRocksClient;
 use Erikwang2013\BigData\Driver\StarRocks\StarRocksConfig;
+use Erikwang2013\BigData\Driver\StarRocks\Exception\ConnectionException;
 use Erikwang2013\BigData\Driver\StarRocks\Exception\RequestException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
@@ -102,5 +103,47 @@ final class StarRocksClientTest extends TestCase
             self::assertSame(500, $e->statusCode);
             self::assertSame('backend down', $e->body);
         }
+    }
+
+    public function test_sql_error_maps_to_request_exception(): void
+    {
+        $error = new \PDOException('SQLSTATE[42S02]: Base table or view not found');
+        $error->errorInfo = ['42S02', 1146, 'Table missing'];
+
+        try {
+            $this->pdoClient($error)->query('SELECT * FROM missing');
+            self::fail('Expected RequestException.');
+        } catch (RequestException $e) {
+            self::assertSame($error, $e->getPrevious());
+        }
+    }
+
+    public function test_connection_error_maps_to_connection_exception(): void
+    {
+        $error = new \PDOException('SQLSTATE[HY000] [2002] Connection refused');
+        $error->errorInfo = ['HY000', 2002, 'Connection refused'];
+
+        $this->expectException(ConnectionException::class);
+        $this->pdoClient($error)->execute('DELETE FROM orders');
+    }
+
+    private function pdoClient(\PDOException $error): StarRocksClient
+    {
+        return new StarRocksClient(
+            StarRocksConfig::fromArray(['host' => 'starrocks.local', 'database' => 'demo']),
+            new ThrowingPdo($error),
+        );
+    }
+}
+
+final class ThrowingPdo extends \PDO
+{
+    public function __construct(private \PDOException $error)
+    {
+    }
+
+    public function prepare(string $query, array $options = []): \PDOStatement|false
+    {
+        throw $this->error;
     }
 }

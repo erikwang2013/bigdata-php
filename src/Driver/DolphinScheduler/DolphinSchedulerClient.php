@@ -12,14 +12,14 @@ use Psr\Log\NullLogger;
 
 final class DolphinSchedulerClient
 {
-    private readonly ClientInterface $http;
+    private ClientInterface $http;
 
-    private readonly LoggerInterface $logger;
+    private LoggerInterface $logger;
 
     private ?string $sessionId = null;
 
     public function __construct(
-        private readonly DolphinSchedulerConfig $config,
+        private DolphinSchedulerConfig $config,
         ?ClientInterface $http = null,
         ?LoggerInterface $logger = null,
     ) {

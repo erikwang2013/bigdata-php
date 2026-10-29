@@ -18,12 +18,12 @@ final class WebHdfsClient
 {
     private const MAX_REDIRECTS = 5;
 
-    private readonly ClientInterface $http;
+    private ClientInterface $http;
 
-    private readonly LoggerInterface $logger;
+    private LoggerInterface $logger;
 
     public function __construct(
-        private readonly WebHdfsConfig $config,
+        private WebHdfsConfig $config,
         ?ClientInterface $http = null,
         ?LoggerInterface $logger = null,
     ) {
@@ -98,7 +98,7 @@ final class WebHdfsClient
 
     private function json(string $method, string $uri): array
     {
-        $this->logger->debug('WebHDFS request', ['method' => $method, 'uri' => $uri]);
+        $this->logRequest($method, $uri);
 
         try {
             return Http::json($method, $uri, $this->options());
@@ -128,7 +128,13 @@ final class WebHdfsClient
                 );
             }
 
-            $response = $this->send($method, $this->redirectUri($location), ['headers' => null] + $options);
+            // The DataNode is a different host: drop both default headers and
+            // client-level auth, which Guzzle would otherwise re-apply.
+            $response = $this->send(
+                $method,
+                $this->redirectUri($location),
+                array_merge($options, ['headers' => null, 'auth' => null]),
+            );
         }
 
         return $response;
@@ -136,13 +142,22 @@ final class WebHdfsClient
 
     private function send(string $method, string $uri, array $options = []): ResponseInterface
     {
-        $this->logger->debug('WebHDFS request', ['method' => $method, 'uri' => $uri]);
+        $this->logRequest($method, $uri);
 
         try {
             return Http::request($method, $uri, $this->options($options));
         } catch (RequestException $e) {
             throw $this->mapRemoteException($e);
         }
+    }
+
+    private function logRequest(string $method, string $uri): void
+    {
+        // Query parameters carry user.name and delegation tokens; never log them.
+        $this->logger->debug('WebHDFS request', [
+            'method' => $method,
+            'uri' => (string) (new Uri($uri))->withQuery(''),
+        ]);
     }
 
     private function isRedirect(ResponseInterface $response): bool

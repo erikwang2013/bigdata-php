@@ -11,12 +11,12 @@ use Psr\Log\NullLogger;
 
 final class LivyClient
 {
-    private readonly ClientInterface $http;
+    private ClientInterface $http;
 
-    private readonly LoggerInterface $logger;
+    private LoggerInterface $logger;
 
     public function __construct(
-        private readonly LivyConfig $config,
+        private LivyConfig $config,
         ?ClientInterface $http = null,
         ?LoggerInterface $logger = null,
     ) {

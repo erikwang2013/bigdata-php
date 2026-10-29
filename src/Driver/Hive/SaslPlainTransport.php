@@ -30,9 +30,9 @@ final class SaslPlainTransport extends TTransport
     private string $readBuffer = '';
 
     public function __construct(
-        private readonly TTransport $transport,
-        private readonly string $username,
-        private readonly string $password,
+        private TTransport $transport,
+        private string $username,
+        private string $password,
     ) {
     }
 

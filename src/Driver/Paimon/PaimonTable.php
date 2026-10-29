@@ -14,10 +14,10 @@ use Erikwang2013\BigData\Driver\Paimon\Exception\PaimonException;
 final class PaimonTable
 {
     /** @var array<string, mixed> */
-    private readonly array $schema;
+    private array $schema;
 
     /** @var list<array<string, mixed>> */
-    private readonly array $snapshots;
+    private array $snapshots;
 
     private function __construct(string $basePath, PaimonStorage $storage)
     {

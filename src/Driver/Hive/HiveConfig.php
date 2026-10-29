@@ -16,6 +16,7 @@ final class HiveConfig
         public string $database = 'default',
         public bool $verifySsl = true,
         public float $timeout = 30.0,
+        public string $scheme = 'http',
     ) {
     }
 
@@ -36,6 +37,11 @@ final class HiveConfig
             throw new \InvalidArgumentException('Hive config "transport" must be binary or http.');
         }
 
+        $scheme = strtolower((string) ($config['scheme'] ?? $config['http_scheme'] ?? 'http'));
+        if (!in_array($scheme, ['http', 'https'], true)) {
+            throw new \InvalidArgumentException('Hive config "scheme" must be http or https.');
+        }
+
         return new self(
             host: $host,
             port: (int) ($config['port'] ?? 10000),
@@ -47,6 +53,7 @@ final class HiveConfig
             database: (string) ($config['database'] ?? 'default'),
             verifySsl: (bool) ($config['verifySsl'] ?? $config['verify_ssl'] ?? true),
             timeout: (float) ($config['timeout'] ?? 30.0),
+            scheme: $scheme,
         );
     }
 }

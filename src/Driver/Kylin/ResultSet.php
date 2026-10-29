@@ -11,9 +11,9 @@ final class ResultSet
      * @param list<array<string, mixed>> $raw One entry per HTTP response returned by Kylin.
      */
     public function __construct(
-        private readonly array $columns,
-        private readonly array $rows,
-        private readonly array $raw,
+        private array $columns,
+        private array $rows,
+        private array $raw,
     ) {
     }
 

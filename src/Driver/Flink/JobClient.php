@@ -11,12 +11,12 @@ use Psr\Log\NullLogger;
 
 final class JobClient
 {
-    private readonly ClientInterface $http;
+    private ClientInterface $http;
 
-    private readonly LoggerInterface $logger;
+    private LoggerInterface $logger;
 
     public function __construct(
-        private readonly FlinkConfig $config,
+        private FlinkConfig $config,
         ?ClientInterface $http = null,
         ?LoggerInterface $logger = null,
     ) {

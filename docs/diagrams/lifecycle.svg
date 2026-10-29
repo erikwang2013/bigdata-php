@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" width="1200" height="760" role="img" aria-labelledby="lc-title lc-desc">
+  <title id="lc-title">bigdata-php lifecycle</title>
+  <desc id="lc-desc">Install, configure, create, connect, query or execute, then close. The lower panels cover optional dependency checks, connection and close semantics, error mapping, and ownership of state.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; }
+    .title { font-size: 26px; font-weight: 700; fill: #0f172a; }
+    .subtitle { font-size: 14px; fill: #475569; }
+    .stage-title { font-size: 14px; font-weight: 600; fill: #0f172a; }
+    .stage-text { font-size: 11px; fill: #475569; }
+    .num { font-size: 12.5px; font-weight: 700; fill: #ffffff; }
+    .layer { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; fill: #64748b; }
+    .box-title { font-size: 13px; font-weight: 600; fill: #0f172a; }
+    .box-sub { font-size: 10.5px; fill: #475569; }
+    .line { font-size: 12px; fill: #334155; }
+    .note { font-size: 11.5px; fill: #64748b; }
+  </style>
+
+  <rect width="1200" height="760" fill="#f8fafc"/>
+
+  <text class="title" x="40" y="46">Driver lifecycle</text>
+  <text class="subtitle" x="40" y="70">Install → configure → create → connect → query / execute → close</text>
+
+  <rect x="39" y="100" width="172" height="150" rx="9" fill="#ffffff" stroke="#cbd5e1"/>
+  <circle cx="61" cy="124" r="13" fill="#2563eb"/>
+  <text class="num" x="61" y="129" text-anchor="middle">1</text>
+  <text class="stage-title" x="81" y="129">Install</text>
+  <text class="stage-text" x="125" y="160" text-anchor="middle">composer require</text>
+  <text class="stage-text" x="125" y="180" text-anchor="middle">erikwang2013/bigdata-php</text>
+  <text class="stage-text" x="125" y="200" text-anchor="middle">optional deps on demand</text>
+
+  <line x1="211" y1="175" x2="227" y2="175" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="229" y="100" width="172" height="150" rx="9" fill="#ffffff" stroke="#cbd5e1"/>
+  <circle cx="251" cy="124" r="13" fill="#2563eb"/>
+  <text class="num" x="251" y="129" text-anchor="middle">2</text>
+  <text class="stage-title" x="271" y="129">Configure</text>
+  <text class="stage-text" x="315" y="160" text-anchor="middle">config/bigdata.php</text>
+  <text class="stage-text" x="315" y="180" text-anchor="middle">default + drivers</text>
+  <text class="stage-text" x="315" y="200" text-anchor="middle">per-environment values</text>
+
+  <line x1="401" y1="175" x2="417" y2="175" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="419" y="100" width="172" height="150" rx="9" fill="#ffffff" stroke="#cbd5e1"/>
+  <circle cx="441" cy="124" r="13" fill="#2563eb"/>
+  <text class="num" x="441" y="129" text-anchor="middle">3</text>
+  <text class="stage-title" x="461" y="129">Create</text>
+  <text class="stage-text" x="505" y="160" text-anchor="middle">BigData::driver()</text>
+  <text class="stage-text" x="505" y="180" text-anchor="middle">Manager::driver()</text>
+  <text class="stage-text" x="505" y="200" text-anchor="middle">key + dependency gate</text>
+
+  <line x1="591" y1="175" x2="607" y2="175" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="609" y="100" width="172" height="150" rx="9" fill="#ffffff" stroke="#cbd5e1"/>
+  <circle cx="631" cy="124" r="13" fill="#2563eb"/>
+  <text class="num" x="631" y="129" text-anchor="middle">4</text>
+  <text class="stage-title" x="651" y="129">Connect</text>
+  <text class="stage-text" x="695" y="160" text-anchor="middle">lazy at first call</text>
+  <text class="stage-text" x="695" y="180" text-anchor="middle">HTTP is stateless</text>
+  <text class="stage-text" x="695" y="200" text-anchor="middle">Hive / Cassandra open()</text>
+
+  <line x1="781" y1="175" x2="797" y2="175" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="799" y="100" width="172" height="150" rx="9" fill="#ffffff" stroke="#cbd5e1"/>
+  <circle cx="821" cy="124" r="13" fill="#2563eb"/>
+  <text class="num" x="821" y="129" text-anchor="middle">5</text>
+  <text class="stage-title" x="841" y="129">Query / execute</text>
+  <text class="stage-text" x="885" y="160" text-anchor="middle">SQL / submit job</text>
+  <text class="stage-text" x="885" y="180" text-anchor="middle">read metadata</text>
+  <text class="stage-text" x="885" y="200" text-anchor="middle">ResultSet or array</text>
+
+  <line x1="971" y1="175" x2="987" y2="175" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="989" y="100" width="172" height="150" rx="9" fill="#ffffff" stroke="#cbd5e1"/>
+  <circle cx="1011" cy="124" r="13" fill="#2563eb"/>
+  <text class="num" x="1011" y="129" text-anchor="middle">6</text>
+  <text class="stage-title" x="1031" y="129">Close</text>
+  <text class="stage-text" x="1075" y="160" text-anchor="middle">close() for sessions</text>
+  <text class="stage-text" x="1075" y="180" text-anchor="middle">PDO / HTTP released</text>
+  <text class="stage-text" x="1075" y="200" text-anchor="middle">with the client</text>
+
+  <rect x="39" y="300" width="545" height="170" rx="10" fill="#fffbeb" stroke="#fcd34d"/>
+  <text class="layer" x="59" y="326">OPTIONAL DEPENDENCY LIFECYCLE</text>
+
+  <rect x="59" y="344" width="138" height="54" rx="7" fill="#ffffff" stroke="#fbbf24"/>
+  <text class="box-title" x="128" y="367" text-anchor="middle">driver() called</text>
+  <text class="box-sub" x="128" y="386" text-anchor="middle">key resolved</text>
+  <line x1="197" y1="371" x2="215" y2="371" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="217" y="344" width="155" height="54" rx="7" fill="#ffffff" stroke="#fbbf24"/>
+  <text class="box-title" x="294" y="367" text-anchor="middle">dependency check</text>
+  <text class="box-sub" x="294" y="386" text-anchor="middle">extension or class</text>
+  <line x1="372" y1="371" x2="390" y2="371" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="392" y="344" width="172" height="54" rx="7" fill="#fef2f2" stroke="#fecaca"/>
+  <text class="box-title" x="478" y="367" text-anchor="middle">missing</text>
+  <text class="box-sub" x="478" y="386" text-anchor="middle">DriverUnavailableException</text>
+
+  <rect x="59" y="418" width="505" height="44" rx="7" fill="#ffffff" stroke="#fbbf24"/>
+  <text class="box-sub" x="71" y="437">Install the missing package or extension, then call driver() again.</text>
+  <text class="box-sub" x="71" y="454">Direct new bypasses the gate and fails later at class load.</text>
+
+  <rect x="615" y="300" width="546" height="170" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
+  <text class="layer" x="635" y="326">CONNECTION AND CLOSE SEMANTICS</text>
+  <text class="line" x="635" y="352">HTTP drivers: no persistent connection; each call opens a request.</text>
+  <text class="line" x="635" y="377">Doris / StarRocks: PDO connects on the first query or execute.</text>
+  <text class="line" x="635" y="402">Hive: open session and operation; close() releases the session.</text>
+  <text class="line" x="635" y="427">Cassandra: connect() lazily; close() releases the session.</text>
+  <text class="line" x="635" y="452">Config objects are immutable; clients own their transport.</text>
+
+  <rect x="39" y="500" width="1122" height="120" rx="10" fill="#fef2f2" stroke="#fecaca"/>
+  <text class="layer" x="59" y="526">ERROR AND RETRY POLICY</text>
+
+  <rect x="59" y="540" width="350" height="66" rx="8" fill="#ffffff" stroke="#fecaca"/>
+  <text class="box-title" x="234" y="566" text-anchor="middle">Transport or timeout</text>
+  <text class="box-sub" x="234" y="586" text-anchor="middle">→ ConnectionException</text>
+  <text class="box-sub" x="234" y="602" text-anchor="middle">DNS, connect, TLS, read timeout</text>
+
+  <rect x="429" y="540" width="350" height="66" rx="8" fill="#ffffff" stroke="#fecaca"/>
+  <text class="box-title" x="604" y="566" text-anchor="middle">HTTP non-2xx or app error</text>
+  <text class="box-sub" x="604" y="586" text-anchor="middle">→ RequestException</text>
+  <text class="box-sub" x="604" y="602" text-anchor="middle">status and response body preserved</text>
+
+  <rect x="799" y="540" width="350" height="66" rx="8" fill="#ffffff" stroke="#fecaca"/>
+  <text class="box-title" x="974" y="566" text-anchor="middle">No automatic retries</text>
+  <text class="box-sub" x="974" y="586" text-anchor="middle">caller decides</text>
+  <text class="box-sub" x="974" y="602" text-anchor="middle">consider idempotency before retry</text>
+
+  <rect x="39" y="650" width="1122" height="72" rx="10" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text class="layer" x="59" y="676">OWNERSHIP AND STATE</text>
+  <text class="line" x="59" y="700">Config objects are immutable value objects; each client owns its Guzzle client, PDO handle, Thrift session or CQL session.</text>
+  <text class="line" x="59" y="718">No global pool is shared between drivers; stateless HTTP resources are released when the client goes out of scope.</text>
+
+  <text class="note" x="40" y="746">Install once, configure per environment, and create only the drivers the application uses.</text>
+</svg>

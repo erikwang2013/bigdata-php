@@ -11,9 +11,9 @@ final class ResultSet
      * @param array<mixed>               $raw Decoded response body.
      */
     public function __construct(
-        private readonly array $columns,
-        private readonly array $rows,
-        private readonly array $raw,
+        private array $columns,
+        private array $rows,
+        private array $raw,
     ) {
     }
 

@@ -6,9 +6,9 @@ namespace Erikwang2013\BigData\Driver\DeltaLake;
 final class DeltaSharingResult
 {
     public function __construct(
-        private readonly array $protocol,
-        private readonly array $metadata,
-        private readonly array $files,
+        private array $protocol,
+        private array $metadata,
+        private array $files,
     ) {
     }
 

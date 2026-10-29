@@ -10,14 +10,14 @@ use Psr\Log\NullLogger;
 
 final class CassandraClient
 {
-    private readonly SessionInterface $session;
+    private SessionInterface $session;
 
-    private readonly LoggerInterface $logger;
+    private LoggerInterface $logger;
 
     private bool $connected = false;
 
     public function __construct(
-        private readonly CassandraConfig $config,
+        private CassandraConfig $config,
         ?SessionInterface $session = null,
         ?LoggerInterface $logger = null,
     ) {

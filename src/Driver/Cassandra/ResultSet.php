@@ -10,10 +10,10 @@ final class ResultSet
      * @param list<array<string, mixed>> $raw
      */
     public function __construct(
-        private readonly array $columns,
-        private readonly array $rows,
-        private readonly array $raw = [],
-        private readonly ?string $pagingState = null,
+        private array $columns,
+        private array $rows,
+        private array $raw = [],
+        private ?string $pagingState = null,
     ) {
     }
 

@@ -32,13 +32,14 @@
         }
     ],
     "require": {
-        "php": ">=8.1",
+        "php": ">=8.0",
         "guzzlehttp/guzzle": "^7.0",
         "psr/log": "^3.0"
     },
     "require-dev": {
         "apache/thrift": "^0.24 || ^0.25",
-        "phpunit/phpunit": "^10.5"
+        "mroosz/php-cassandra": "^1.2",
+        "phpunit/phpunit": "^9.6 || ^10.5"
     },
     "suggest": {
         "ext-pdo_mysql": "Required for the Doris and StarRocks SQL/Stream Load drivers.",
@@ -61,6 +62,33 @@
     "scripts": {
         "test": "phpunit --testsuite unit",
         "test-integration": "phpunit --testsuite integration"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Erikwang2013\\BigData\\Integration\\Laravel\\BigDataServiceProvider"
+            ]
+        },
+        "hyperf": {
+            "config": "Erikwang2013\\BigData\\Integration\\Hyperf\\ConfigProvider"
+        },
+        "think": {
+            "services": [
+                "Erikwang2013\\BigData\\Integration\\ThinkPHP\\BigDataService"
+            ]
+        },
+        "config-plugin-options": {
+            "source-directory": "config"
+        },
+        "config-plugin": {
+            "params": "params.php",
+            "di": "di.php"
+        }
+    },
+    "homepage": "https://github.com/erikwang2013/bigdata-php",
+    "support": {
+        "issues": "https://github.com/erikwang2013/bigdata-php/issues",
+        "source": "https://github.com/erikwang2013/bigdata-php"
     },
     "config": {
         "sort-packages": true

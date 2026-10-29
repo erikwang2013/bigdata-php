@@ -48,6 +48,17 @@ final class SqlGatewayClientTest extends TestCase
         self::assertSame('Bearer secret', $request->getHeaderLine('Authorization'));
     }
 
+    public function test_open_session_encodes_empty_properties_as_object(): void
+    {
+        $client = $this->client([
+            new Response(200, [], json_encode(['sessionHandle' => 'session-1'])),
+        ]);
+
+        self::assertSame('session-1', $client->openSession());
+
+        self::assertSame('{"properties":{}}', (string) $this->history[0]['request']->getBody());
+    }
+
     public function test_execute_statement_returns_operation_handle(): void
     {
         $client = $this->client([

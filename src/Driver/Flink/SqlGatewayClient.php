@@ -12,12 +12,12 @@ use Psr\Log\NullLogger;
 
 final class SqlGatewayClient
 {
-    private readonly ClientInterface $http;
+    private ClientInterface $http;
 
-    private readonly LoggerInterface $logger;
+    private LoggerInterface $logger;
 
     public function __construct(
-        private readonly FlinkConfig $config,
+        private FlinkConfig $config,
         ?ClientInterface $http = null,
         ?LoggerInterface $logger = null,
     ) {
@@ -27,7 +27,10 @@ final class SqlGatewayClient
 
     public function openSession(array $properties = []): string
     {
-        $payload = $this->json('POST', '/v1/sessions', ['json' => ['properties' => $properties]]);
+        $payload = $this->json('POST', '/v1/sessions', [
+            // Flink models properties as a JSON object; an empty PHP array would encode as [].
+            'json' => ['properties' => $properties === [] ? new \stdClass() : $properties],
+        ]);
 
         return $this->handle($payload, 'sessionHandle');
     }

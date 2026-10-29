@@ -28,7 +28,7 @@ final class Http
         }
 
         $status = $response->getStatusCode();
-        if ($status >= 400) {
+        if ($status < 200 || $status >= 300) {
             $body = (string) $response->getBody();
             throw new RequestException(sprintf('HTTP %d: %s', $status, $body), $status, $body);
         }

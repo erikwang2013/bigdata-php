@@ -7,8 +7,8 @@ class RequestException extends PaimonException
 {
     public function __construct(
         string $message,
-        public readonly ?int $statusCode = null,
-        public readonly string $body = '',
+        public ?int $statusCode = null,
+        public string $body = '',
     ) {
         parent::__construct($message);
     }
