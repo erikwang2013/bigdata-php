@@ -2,8 +2,10 @@
 declare(strict_types=1);
 
 /*
- * Yii2 has no config auto-loading. Return this array under
- * params['bigdata'] in config/web.php (and config/console.php):
+ * Yii2 auto-registers the bigdata component through extra.bootstrap. This
+ * file is created on first use and is read when params['bigdata'] is not set.
+ * The array can also be returned under params['bigdata'] in config/web.php
+ * (and config/console.php), which takes precedence:
  *
  *     'params' => ['bigdata' => require __DIR__ . '/bigdata.php'],
  */

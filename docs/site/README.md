@@ -7,15 +7,19 @@ Source and deployment files for <https://package.erik.xyz/bigdata/>. The generat
 |------|---------|
 | `docs/site/content.json` | Committed copy of the site content source |
 | `docs/site/theme.css` | Project visual overrides, injected after the builder CSS |
+| `docs/site/docs-page.css` / `.js` | Standalone docs page layout and behavior |
 | `docs/site/nginx.conf` | Static-server sample (caching, compression, security headers) |
 | `scripts/build-site.sh` | Reproducible build into `site/` |
-| `scripts/site-check.py` | Playwright audit: LCP, CLS, overflow, search/lightbox/pet tiles |
+| `scripts/site_pages.py` | Shared page shell, Markdown, header/footer and search helpers |
+| `scripts/build-docs-page.py` | Renders README sections 3-15 into `docs.html` / `en-docs.html` |
+| `scripts/build-driver-pages.py` | Renders `drivers.html` / `en-drivers.html` and 19 driver pages per language |
+| `scripts/site-check.py` | Playwright audit: LCP, CLS, overflow, search/lightbox/pet tiles/docs/drivers |
 
 ## Build
 
-Requirements: Python 3 and the project site builder, which lives next to this
-package as `../.site-builder` (or point `SITE_BUILDER` at it). From the package
-root:
+Requirements: Python 3 with the `markdown` package, and the project site
+builder, which lives next to this package as `../.site-builder` (or point
+`SITE_BUILDER` at it). From the package root:
 
 ```bash
 ./scripts/build-site.sh
@@ -24,7 +28,7 @@ root:
 The script validates `docs/site/content.json`, installs it as the builder's
 `data/bigdata-php.json` temporarily, runs `python3 .site-builder/build.py
 bigdata-php`, and restores the previous data file on exit. It fails with a clear
-message when `.site-builder` is missing. The build takes about one second and
+message when `.site-builder` is missing. The build takes a few seconds and
 writes `site/index.html`, `site/en.html`, `site/404.html`, SEO files and local
 assets.
 
@@ -33,8 +37,20 @@ generated page as an inline `<style id="project-theme">` block. This keeps the
 shared builder CSS and templates untouched while giving bigdata-php its own
 refined light theme. Edit the theme file, not `site/`, and rebuild.
 
-`docs/site/content.json` is the source of truth. Refresh it when the external
-content source changes, then rebuild:
+The same script then runs `scripts/build-docs-page.py`. It renders README
+sections 3-15 (requirements through license) into `site/docs.html` and
+`site/en-docs.html`, reusing the generated header, footer, styles, search
+dialog and search indexes. The homepage keeps a compact install CTA; the header
+"文档" link points at the standalone page.
+
+Next, `scripts/build-driver-pages.py` renders `site/drivers.html` /
+`site/en-drivers.html` and one page per driver from `docs/drivers/` and
+`docs/drivers/en/`, with a driver sidebar, in-page TOC and a per-driver search
+index. The main docs matrix links to these local pages; the header gains a
+"驱动" / "Drivers" entry.
+
+`docs/site/content.json` is the source of truth for the homepage sections.
+Refresh it when the external content source changes, then rebuild:
 
 ```bash
 cp ../.site-builder/data/bigdata-php.json docs/site/content.json
@@ -42,7 +58,7 @@ cp ../.site-builder/data/bigdata-php.json docs/site/content.json
 ```
 
 Current snapshot: 2026-10-30, SHA-256
-`ddbd8639a8846e4a8fbb8c76975e6182c086cb7bd6d6c27c57f50d787e5557e4`.
+`7507d21497d4fabc8003ae51f49a5036bab44fd8ac7a3d77e41d0e8d071bddd1`.
 
 ## Audit
 
@@ -60,15 +76,29 @@ It loads the built site in headless Chrome through Playwright at mobile
 - search dialog returns results
 - gallery lightbox opens and closes
 - 12 pet tiles render and their lightbox opens and closes
+- docs pages: TOC links scroll and the docs search index returns results
+- docs pages: the same LCP / CLS / overflow budget at both viewports
+- driver pages: TOC links scroll and the per-page driver search index works
+- driver index: 19 cards and search results scroll to a driver card
+- driver pages/index: the same LCP / CLS / overflow budget at both viewports
 
 Results from 2026-10-30 (Chrome 156, local server):
 
 ```
-[PASS] mobile  390x844  LCP 1456 ms (<= 2500)  CLS 0.000 (<= 0.1)  overflow 0 px (<= 1)
+[PASS] mobile  390x844  LCP 608 ms (<= 2500)  CLS 0.000 (<= 0.1)  overflow 0 px (<= 1)
 [PASS] search: 7 results for 版本
 [PASS] gallery lightbox: opens and closes
 [PASS] pet tiles: 12 tiles, lightbox opens and closes
-[PASS] desktop 1440x900  LCP 408 ms (<= 2500)  CLS 0.000 (<= 0.1)  overflow 0 px (<= 1)
+[PASS] desktop 1440x900  LCP 1420 ms (<= 2500)  CLS 0.000 (<= 0.1)  overflow 0 px (<= 1)
+[PASS] docs    mobile  390x844  LCP 512 ms (<= 2500)  CLS 0.000 (<= 0.1)  overflow 0 px (<= 1)
+[PASS] docs TOC: 13 links, scrolls
+[PASS] docs search: 5 results for Laravel, scrolls to result
+[PASS] driver  desktop 1440x900  LCP 308 ms (<= 2500)  CLS 0.000 (<= 0.1)  overflow 0 px (<= 1)
+[PASS] docs TOC: 7 links, scrolls
+[PASS] docs search: 1 results for Quick, scrolls to result
+[PASS] drivers mobile  390x844  LCP 180 ms (<= 2500)  CLS 0.000 (<= 0.1)  overflow 0 px (<= 1)
+[PASS] driver index: 19 cards
+[PASS] driver index search: 1 results, scrolls to card
 RESULT PASS
 ```
 
@@ -141,9 +171,11 @@ cleaner footer. Do not edit the builder for this; keep it a deploy-time step.
 
 ## Performance notes
 
-- 36 files, 2.4 MB total (the two 1200x630 social previews account for about
-  0.9 MB and are not loaded by the page). The 670 KB three.js bundle loads after
-  the page load event; HTML gzips to 25 KB and the hero script to 2.3 KB.
+- 120 files, 7.1 MB total (the two 1200x630 social previews account for about
+  0.9 MB and are not loaded by the page). The docs pages add about 250 KB; the
+  38 driver pages and two driver indexes add about 4.4 MB, and neither set is
+  loaded by the homepage. The 670 KB three.js bundle loads after the page load
+  event; HTML gzips to 25 KB and the hero script to 2.3 KB.
 - Static-server benchmark (`python3 .site-builder/bench.py`): 245 responses for
   bigdata-php, median 0.58 ms, max 2.21 ms. nginx is faster than the Python
   server.

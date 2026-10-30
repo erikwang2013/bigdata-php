@@ -11,7 +11,7 @@ A Composer package with 19 big-data platform drivers, enabled on demand.
 
 Project site: https://package.erik.xyz/bigdata/ (Chinese / English)
 
-**Quick links**: [Project site](https://package.erik.xyz/bigdata/en.html) · [Driver docs](docs/drivers/en/) · [Framework docs](docs/frameworks/en/) · [Changelog](CHANGELOG.md) · [Releases](https://github.com/erikwang2013/bigdata-php/releases)
+**Quick links**: [Project site](https://package.erik.xyz/bigdata/en.html) · [Documentation](https://package.erik.xyz/bigdata/en-docs.html) · [Driver docs](https://package.erik.xyz/bigdata/en-drivers.html) · [Driver source docs](docs/drivers/en/) · [Framework docs](docs/frameworks/en/) · [Changelog](CHANGELOG.md) · [Releases](https://github.com/erikwang2013/bigdata-php/releases)
 
 ## Table of Contents
 
@@ -51,7 +51,7 @@ Covered platforms: **Trino, Hadoop, Hive, Spark, Flink, Doris, StarRocks, Kylin,
 - **Read-only lakehouse metadata**: Iceberg REST Catalog, Hudi `.hoodie` timeline, Paimon schema/snapshot, Delta Sharing file manifests.
 - **No automatic retries, no unified SQL layer**: no query rewriting, transaction orchestration, connection pooling, or ORM; each driver preserves the semantics of the target system.
 - **PHP 8.0+**: the core package depends on no framework; the Laravel, ThinkPHP, Webman, Hyperf, Yii2, and Yii3 adapters are all optional thin wrappers.
-- **Test coverage**: 294 unit tests and 978 assertions, plus 14 integration tests (16 assertions, automatically skipped when external services are unavailable), using mock HTTP, local fixtures, and a fake server, with no dependency on a real cluster.
+- **Test coverage**: 296 unit tests and 994 assertions, plus 14 integration tests (16 assertions, automatically skipped when external services are unavailable), using mock HTTP, local fixtures, and a fake server, with no dependency on a real cluster.
 
 ## 3. Requirements
 
@@ -71,7 +71,7 @@ Framework adapter versions and minimum PHP versions:
 |---|---|---|
 | Laravel | 9 / 10 / 11 | 8.0 for 9, 8.1 for 10, 8.2 for 11 |
 | ThinkPHP | 6 / 8 | The package itself requires 8.0; ThinkPHP 8 also requires 8.0 |
-| Webman | 1.x / 2.x | 8.0 for 1.x, 8.1 for 2.x |
+| Webman | 1.4+ / 2.x | 8.0 for 1.4+, 8.1 for 2.x |
 | Hyperf | 3.x | 8.1, and requires Swoole 5 |
 | Yii2 | 2.0.46+ | 8.0 |
 | Yii3 | 3.x | 8.1 |
@@ -85,6 +85,8 @@ Standard installation (available on Packagist):
 ```bash
 composer require erikwang2013/bigdata-php:^2.0
 ```
+
+The package is declared as `yii2-extension` so Yii2 can auto-register its component; Laravel, ThinkPHP, Webman, Hyperf, Yii3, and non-Yii2 projects still install it as a normal Composer library. See section 6 for framework registration.
 
 Install optional dependencies as needed:
 
@@ -168,6 +170,17 @@ Each adapter has a dedicated guide: [Laravel](docs/frameworks/en/laravel.md), [T
 
 On first boot the adapter copies the config template to the framework's conventional path: `config/bigdata.php` for Laravel, ThinkPHP, Webman, and Yii2, and `config/autoload/bigdata.php` for Hyperf. Yii3 needs no copy because yiisoft/config merges the package config automatically. Existing files are never overwritten.
 
+After `composer require`, registration follows each framework's own rule:
+
+| Framework | Registration |
+|---|---|
+| Laravel | `extra.laravel.providers`, discovered automatically |
+| ThinkPHP | `extra.think.services`; the skeleton runs `service:discover` on `post-autoload-dump` |
+| Hyperf | `extra.hyperf.config`, merged automatically |
+| Yii3 | `extra.config-plugin`, merged by yiisoft/config |
+| Webman | the `post-package-install` plugin hook writes `config/plugin/erikwang2013/bigdata-php/` (`app.php` + `bootstrap.php`) |
+| Yii2 | `type=yii2-extension` + `extra.bootstrap`; `yiisoft/yii2-composer` registers the component |
+
 Unified configuration structure (identical across frameworks):
 
 ```php
@@ -200,23 +213,7 @@ Public behavior of `Manager`:
 
 ### Laravel
 
-```php
-// config/app.php — Laravel 9 / 10
-return [
-    'providers' => [
-        Erikwang2013\BigData\Integration\Laravel\BigDataServiceProvider::class,
-    ],
-];
-```
-
-```php
-// bootstrap/providers.php — Laravel 11
-return [
-    Erikwang2013\BigData\Integration\Laravel\BigDataServiceProvider::class,
-];
-```
-
-Publish the configuration file:
+The package declares the provider under `extra.laravel.providers`, so Laravel discovers and registers it automatically after `composer require`; no `config/app.php` or `bootstrap/providers.php` edit is needed. The provider writes `config/bigdata.php` on first boot and never overwrites an existing file. Publish explicitly when preferred:
 
 ```bash
 php artisan vendor:publish --tag=bigdata-config
@@ -233,14 +230,7 @@ $airflow = app('bigdata')->driver('airflow');
 
 ### ThinkPHP
 
-```php
-// app/service.php
-return [
-    Erikwang2013\BigData\Integration\ThinkPHP\BigDataService::class,
-];
-```
-
-Copy `src/Integration/ThinkPHP/config/bigdata.php` to `config/bigdata.php`, or write one with the same `default` / `drivers` structure. Once the service is registered, it can be resolved through the container alias or the class name:
+The package declares the service under `extra.think.services`. With the `topthink/think` skeleton, the `post-autoload-dump` script runs `php think service:discover` after `composer require`; run it once by hand only for older or custom skeletons without that script. The service writes `config/bigdata.php` on first boot, so no template copy is needed.
 
 ```php
 $manager = app('bigdata');
@@ -249,6 +239,10 @@ $trino = $manager->driver('trino');
 
 ### Webman
 
+The package ships a Webman plugin installer (`src/Install.php`). On `composer require`, the Webman skeleton's `post-package-install` hook calls it and writes `config/plugin/erikwang2013/bigdata-php/app.php` and `bootstrap.php`; Webman loads that config and runs `Bootstrap` at start-up. The adapter writes `config/bigdata.php` on the first worker start, so no manual `config/bootstrap.php` edit is needed.
+
+If the plugin hook is disabled, register the bootstrap manually:
+
 ```php
 // config/bootstrap.php
 return [
@@ -256,7 +250,7 @@ return [
 ];
 ```
 
-Copy `src/Integration/Webman/config/bigdata.php` to `config/bigdata.php`. The adapter uses lazy definitions, and each worker process has its own `Manager`:
+The adapter uses lazy definitions, and each worker process has its own `Manager`:
 
 ```php
 $manager = \support\Container::get(\Erikwang2013\BigData\Integration\Manager::class);
@@ -265,16 +259,13 @@ $trino = $manager->driver('trino');
 
 ### Hyperf
 
-```php
-// config/config.php
-return [
-    'config_providers' => [
-        Erikwang2013\BigData\Integration\Hyperf\ConfigProvider::class,
-    ],
-];
+The package declares `ConfigProvider` under `extra.hyperf.config`, so Hyperf merges it automatically after `composer require`; no `config_providers` edit is needed. The provider writes `config/autoload/bigdata.php` on first boot. Publish explicitly when preferred:
+
+```bash
+php bin/hyperf.php vendor:publish erikwang2013/bigdata-php
 ```
 
-The configuration file lives at `config/autoload/bigdata.php` with the same structure as above. Hyperf 3 requires PHP 8.1 and Swoole 5:
+Hyperf 3 requires PHP 8.1 and Swoole 5:
 
 ```php
 $manager = $container->get(\Erikwang2013\BigData\Integration\Manager::class);
@@ -283,7 +274,9 @@ $trino = $manager->driver('trino');
 
 ### Yii2
 
-Yii2 has no config auto-loading; the component reads driver configuration from `Yii::$app->params['bigdata']`:
+The package is declared as `type=yii2-extension` and registers `BigDataBootstrap` under `extra.bootstrap`. `yiisoft/yii2-composer` adds the component automatically, so no `config/web.php` or `config/console.php` edit is needed; the component writes `config/bigdata.php` on first use. Non-Yii2 projects still install it as a normal library through Composer's default installer.
+
+If Yii2's Composer plugin is disabled, register the component manually:
 
 ```php
 // config/web.php
@@ -291,15 +284,10 @@ return [
     'components' => [
         'bigdata' => Erikwang2013\BigData\Integration\Yii2\BigDataComponent::class,
     ],
-    'params' => [
-        'bigdata' => require __DIR__ . '/bigdata.php',
-    ],
 ];
 ```
 
-`config/bigdata.php` returns the unified `default` / `drivers` structure; console applications must do the same in `config/console.php`.
-
-Usage:
+Driver config is read from `Yii::$app->params['bigdata']` when set; otherwise the auto-written `config/bigdata.php` is used:
 
 ```php
 $trino = Yii::$app->bigdata->driver('trino');
@@ -307,7 +295,13 @@ $trino = Yii::$app->bigdata->driver('trino');
 
 ### Yii3
 
-Yii3 provides default parameters and DI definitions through `ConfigProvider`; the application only needs to override the `erikwang2013/bigdata-php` section:
+The package declares `params` and `di` under `extra.config-plugin`; the yiisoft/config Composer plugin merges them on install or update. The application must allow the plugin:
+
+```bash
+composer config allow-plugins.yiisoft/config true
+```
+
+No file is copied; override the `erikwang2013/bigdata-php` section in the application's `config/common/params.php`:
 
 ```php
 // config/common/params.php
@@ -443,6 +437,7 @@ Optional dependencies have an independent lifecycle: Hive/Cassandra check their 
 bigdata-php/
 ├── src/
 │   ├── BigData.php              # Driver registry, factories, and optional dependency checks
+│   ├── Install.php              # Webman plugin installer
 │   ├── Driver/
 │   │   ├── Trino/
 │   │   ├── Hadoop/
@@ -506,7 +501,7 @@ composer test              # Unit tests, no real cluster required
 composer test-integration  # Integration tests, require available external services
 ```
 
-Unit tests use a mock HTTP client, local fixtures, and a fake server, covering 294 tests and 978 assertions, plus 14 integration tests. The test suite is split into the `unit` and `integration` groups in `phpunit.xml`; the default `composer test` runs only `unit` and excludes `tests/Integration`.
+Unit tests use a mock HTTP client, local fixtures, and a fake server, covering 296 tests and 994 assertions, plus 14 integration tests. The test suite is split into the `unit` and `integration` groups in `phpunit.xml`; the default `composer test` runs only `unit` and excludes `tests/Integration`.
 
 Integration tests run on demand—Cassandra, for example, requires a reachable instance; `demo/` provides Docker Compose configurations for Trino, Flink, Airflow, and Cassandra as a starting point for local verification.
 

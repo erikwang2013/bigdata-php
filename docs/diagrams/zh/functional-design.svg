@@ -35,7 +35,7 @@
   <rect x="330" y="130" width="260" height="76" rx="8" fill="#ffffff" stroke="#93c5fd"/>
   <text class="box-title" x="460" y="156" text-anchor="middle">Integration Manager</text>
   <text class="box-sub" x="460" y="176" text-anchor="middle">default + drivers 配置</text>
-  <text class="box-sub" x="460" y="194" text-anchor="middle">轻量框架绑定（计划中）</text>
+  <text class="box-sub" x="460" y="194" text-anchor="middle">框架适配器（自动注册）</text>
 
   <rect x="610" y="130" width="260" height="76" rx="8" fill="#ffffff" stroke="#93c5fd"/>
   <text class="box-title" x="740" y="156" text-anchor="middle">注册表与工厂</text>
@@ -143,7 +143,7 @@
   <text class="layer" x="58" y="812">测试</text>
 
   <rect x="58" y="820" width="540" height="50" rx="8" fill="#ffffff" stroke="#c4b5fd"/>
-  <text class="box-title" x="328" y="840" text-anchor="middle">单元测试 — 200+ 个测试、744 个断言</text>
+  <text class="box-title" x="328" y="840" text-anchor="middle">单元测试 — 296 个测试、994 个断言</text>
   <text class="box-sub" x="328" y="858" text-anchor="middle">模拟 HTTP · 本地夹具 · 假服务器</text>
 
   <rect x="618" y="820" width="540" height="50" rx="8" fill="#ffffff" stroke="#c4b5fd"/>

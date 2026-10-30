@@ -9,8 +9,12 @@
 
 ## Registration
 
-Yii2 has no Composer auto-discovery. Register the component in `config/web.php`
-(and `config/console.php` when the console needs it):
+The package is declared as `type=yii2-extension` and registers
+`BigDataBootstrap` under `extra.bootstrap`. `yiisoft/yii2-composer` adds the
+component automatically, so no `config/web.php` or `config/console.php` edit is
+needed. Non-Yii2 projects install it as a normal library.
+
+If Yii2's Composer plugin is disabled, register the component manually:
 
 ```php
 'components' => [

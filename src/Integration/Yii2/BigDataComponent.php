@@ -11,14 +11,18 @@ use yii\base\Component;
 /**
  * Yii2 application component:
  *
+ *     Yii::$app->bigdata->driver()->query('SELECT 1');
+ *
+ * `BigDataBootstrap` is declared under `extra.bootstrap`, so yii2-composer
+ * registers this component automatically. Driver config is read from
+ * Yii::$app->params['bigdata']. When that is not set, config/bigdata.php is
+ * created from the package template on first use.
+ *
+ * Manual registration remains available when package discovery is disabled:
+ *
  *     'components' => [
  *         'bigdata' => \Erikwang2013\BigData\Integration\Yii2\BigDataComponent::class,
  *     ],
- *
- *     Yii::$app->bigdata->driver()->query('SELECT 1');
- *
- * Driver config is read from Yii::$app->params['bigdata']. When that is not
- * set, config/bigdata.php is created from the package template on first use.
  */
 class BigDataComponent extends Component
 {

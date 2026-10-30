@@ -3,14 +3,18 @@
 | | |
 |---|---|
 | Adapter | `Erikwang2013\BigData\Integration\Webman\Bootstrap` |
-| Framework floor | Webman 1.x/2.x with Workerman 4+ (PHP 8.0+) |
+| Framework floor | Webman 1.4+/2.x with Workerman 4+ (PHP 8.0+) |
 | Adapter PHP floor | 8.0 |
 | Container binding | `Manager::class` |
 
 ## Registration
 
-Webman has no Composer auto-discovery. Add the bootstrap class to
-`config/bootstrap.php`:
+The package ships a Webman plugin installer in `src/Install.php`. Webman's
+`post-package-install` hook calls it on `composer require` and writes
+`config/plugin/erikwang2013/bigdata-php/app.php` and `bootstrap.php`; Webman
+loads the directory on start-up, so no `config/bootstrap.php` edit is needed.
+
+If the plugin hook is disabled, add the bootstrap class manually:
 
 ```php
 return [

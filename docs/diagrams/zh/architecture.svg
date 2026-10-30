@@ -34,7 +34,7 @@
   <line x1="600" y1="154" x2="600" y2="180" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
 
   <rect x="40" y="182" width="1120" height="96" rx="10" fill="#ffffff" stroke="#e2e8f0"/>
-  <text class="layer" x="58" y="205">框架适配器（可选）</text>
+  <text class="layer" x="58" y="205">框架适配器（Composer 自动注册）</text>
   <rect x="58" y="216" width="168" height="46" rx="7" fill="#eff6ff" stroke="#bfdbfe"/>
   <text class="adapter-title" x="142" y="237" text-anchor="middle">Laravel</text>
   <text class="adapter-sub" x="142" y="253" text-anchor="middle">9 / 10 / 11</text>
@@ -43,13 +43,13 @@
   <text class="adapter-sub" x="328" y="253" text-anchor="middle">6 / 8</text>
   <rect x="430" y="216" width="168" height="46" rx="7" fill="#eff6ff" stroke="#bfdbfe"/>
   <text class="adapter-title" x="514" y="237" text-anchor="middle">Webman</text>
-  <text class="adapter-sub" x="514" y="253" text-anchor="middle">1.x / 2.x</text>
+  <text class="adapter-sub" x="514" y="253" text-anchor="middle">1.4+ / 2.x</text>
   <rect x="616" y="216" width="168" height="46" rx="7" fill="#eff6ff" stroke="#bfdbfe"/>
   <text class="adapter-title" x="700" y="237" text-anchor="middle">Hyperf</text>
   <text class="adapter-sub" x="700" y="253" text-anchor="middle">3.x</text>
   <rect x="802" y="216" width="168" height="46" rx="7" fill="#eff6ff" stroke="#bfdbfe"/>
   <text class="adapter-title" x="886" y="237" text-anchor="middle">Yii2</text>
-  <text class="adapter-sub" x="886" y="253" text-anchor="middle">2.x</text>
+  <text class="adapter-sub" x="886" y="253" text-anchor="middle">2.0.46+</text>
   <rect x="988" y="216" width="168" height="46" rx="7" fill="#eff6ff" stroke="#bfdbfe"/>
   <text class="adapter-title" x="1072" y="237" text-anchor="middle">Yii3</text>
   <text class="adapter-sub" x="1072" y="253" text-anchor="middle">3.x</text>

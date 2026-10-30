@@ -211,3 +211,16 @@ body { background: var(--bg); color: var(--ink); }
   .release-list { padding: 4px 16px; }
   .footer-brand img { width: 48px; height: 48px; }
 }
+
+/* Compact docs CTA: full documentation lives on docs.html */
+/* docs-cta:start */
+.docs-cta { padding-block: clamp(56px, 8vw, 96px); }
+.docs-cta-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .9fr); gap: clamp(24px, 4vw, 48px); align-items: center; }
+.docs-cta-copy h2 { font-size: clamp(1.7rem, 3vw, 2.4rem); letter-spacing: -.03em; }
+.docs-cta-copy p { margin-top: 14px; max-width: 48ch; color: var(--muted); }
+.docs-cta-code { display: grid; gap: 12px; }
+.docs-cta-code .code-block pre { max-height: 260px; }
+@media (max-width: 860px) {
+  .docs-cta-grid { grid-template-columns: 1fr; }
+}
+/* docs-cta:end */

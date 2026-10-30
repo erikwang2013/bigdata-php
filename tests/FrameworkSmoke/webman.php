@@ -7,6 +7,7 @@ declare(strict_types=1);
  * the shipped config shape instead.
  */
 
+use Erikwang2013\BigData\Install;
 use Erikwang2013\BigData\Integration\Webman\Bootstrap;
 use Webman\Bootstrap as WebmanBootstrap;
 
@@ -22,6 +23,11 @@ smoke_section('bootstrap contract');
 smoke_check(class_exists(Bootstrap::class), Bootstrap::class . ' does not autoload.');
 smoke_check(is_subclass_of(Bootstrap::class, WebmanBootstrap::class), Bootstrap::class . ' should implement Webman\Bootstrap.');
 smoke_check(method_exists(Bootstrap::class, 'start'), Bootstrap::class . ' should define start().');
+
+smoke_section('plugin installer');
+smoke_check(class_exists(Install::class), Install::class . ' does not autoload.');
+smoke_check(Install::WEBMAN_PLUGIN === true, 'Install::WEBMAN_PLUGIN should be true.');
+smoke_check(method_exists(Install::class, 'install'), Install::class . ' should define install().');
 
 smoke_section('config shape');
 $config = require SMOKE_PACKAGE_ROOT . '/src/Integration/Webman/config/bigdata.php';

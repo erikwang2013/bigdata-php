@@ -35,7 +35,7 @@
   <rect x="330" y="130" width="260" height="76" rx="8" fill="#ffffff" stroke="#93c5fd"/>
   <text class="box-title" x="460" y="156" text-anchor="middle">Integration Manager</text>
   <text class="box-sub" x="460" y="176" text-anchor="middle">default + drivers config</text>
-  <text class="box-sub" x="460" y="194" text-anchor="middle">thin framework bindings (planned)</text>
+  <text class="box-sub" x="460" y="194" text-anchor="middle">auto-registered framework adapters</text>
 
   <rect x="610" y="130" width="260" height="76" rx="8" fill="#ffffff" stroke="#93c5fd"/>
   <text class="box-title" x="740" y="156" text-anchor="middle">Registry and factories</text>
@@ -143,7 +143,7 @@
   <text class="layer" x="58" y="812">TESTS</text>
 
   <rect x="58" y="820" width="540" height="50" rx="8" fill="#ffffff" stroke="#c4b5fd"/>
-  <text class="box-title" x="328" y="840" text-anchor="middle">Unit suite — 200+ tests, 744 assertions</text>
+  <text class="box-title" x="328" y="840" text-anchor="middle">Unit suite — 296 tests, 994 assertions</text>
   <text class="box-sub" x="328" y="858" text-anchor="middle">mock HTTP · local fixtures · fake servers</text>
 
   <rect x="618" y="820" width="540" height="50" rx="8" fill="#ffffff" stroke="#c4b5fd"/>

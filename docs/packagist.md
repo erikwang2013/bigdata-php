@@ -37,26 +37,26 @@ submission.
 If the webhook cannot be added, click **Update** on the Packagist package
 page to force a refresh.
 
-## 3. Release v1.0.1 (and every future vX.Y.Z)
+## 3. Release vX.Y.Z (example: v2.2.0)
 
 CI must be green before tagging.
 
-1. Update `CHANGELOG.md` with a `## [1.0.1] - YYYY-MM-DD` section and commit
+1. Update `CHANGELOG.md` with a `## [2.2.0] - YYYY-MM-DD` section and commit
    it on `main`.
 2. Create and push the tag:
    ```sh
-   git tag -a v1.0.1 -m "v1.0.1"
-   git push origin v1.0.1
+   git tag -a v2.2.0 -m "v2.2.0"
+   git push origin v2.2.0
    ```
 3. The tag push triggers `.github/workflows/release.yml`, which runs the tests
    on PHP 8.5 and creates the GitHub release
-   (`gh release create v1.0.1 --title v1.0.1 --generate-notes --verify-tag`).
+   (`gh release create v2.2.0 --title v2.2.0 --generate-notes --verify-tag`).
 4. The same tag push reaches Packagist via the webhook, which publishes
-   version `v1.0.1`. Users install it with:
+   version `v2.2.0`. Users install it with:
    ```sh
-   composer require erikwang2013/bigdata-php:^1.0
+   composer require erikwang2013/bigdata-php:^2.0
    ```
 
-For every later release repeat step 1–3 with the next `vX.Y.Z` tag; the
+For every later release repeat steps 1–4 with the next `vX.Y.Z` tag; the
 workflow's `v*.*.*` filter matches all of them. Never move or reuse a
 published tag — create a new patch version instead.

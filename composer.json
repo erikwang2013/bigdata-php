@@ -1,7 +1,7 @@
 {
     "name": "erikwang2013/bigdata-php",
     "description": "Unified PHP clients for big-data platforms with optional drivers: Trino, Hadoop, Hive, Spark, Flink, Doris, StarRocks, Kylin, Druid, Iceberg, Hudi, Paimon, Delta Lake, DolphinScheduler, Airflow, Azkaban, Oozie, HBase, Cassandra.",
-    "type": "library",
+    "type": "yii2-extension",
     "license": "MIT",
     "keywords": [
         "bigdata",
@@ -79,6 +79,7 @@
                 "Erikwang2013\\BigData\\Integration\\ThinkPHP\\BigDataService"
             ]
         },
+        "bootstrap": "Erikwang2013\\BigData\\Integration\\Yii2\\BigDataBootstrap",
         "config-plugin-options": {
             "source-directory": "config"
         },

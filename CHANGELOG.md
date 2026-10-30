@@ -3,14 +3,44 @@
 All notable changes to `erikwang2013/bigdata-php` are documented here.
 Versions follow `vMAJOR.MINOR.PATCH`.
 
-## [Unreleased]
+## [2.2.0] - 2026-10-30
+
+### Added
+
+- Webman and Yii2 adapters now register automatically:
+  - Webman's `post-package-install` hook runs `src/Install.php`, which writes
+    `config/plugin/erikwang2013/bigdata-php/app.php` and `bootstrap.php`.
+  - Yii2's `yiisoft/yii2-composer` reads `type=yii2-extension` and
+    `extra.bootstrap`, then registers `BigDataBootstrap` and the `bigdata`
+    component on application start-up.
+- The project site generates standalone `docs.html` / `en-docs.html` pages from
+  README sections 3-15, plus `drivers.html` / `en-drivers.html` and one page per
+  driver, with sticky TOCs, in-page search and local driver-matrix links.
 
 ### Changed
 
+- The package type is `yii2-extension` and `extra.bootstrap` is declared so
+  Yii2 can auto-register the component. Composer's default installer still
+  installs the package as a library in non-Yii2 projects.
+- Framework installation docs now follow each framework's Composer registration
+  rule; Webman's supported floor is 1.4+.
 - The project site uses a refined light theme with brand blue, teal and violet
   tints, glass panels, rounded cards and a richer hero. The shared site builder
   is unchanged; `docs/site/theme.css` is injected at build time. The site
   version list is trimmed to the six most recent releases.
+- The homepage keeps a compact install CTA and links to the docs/driver pages
+  instead of embedding every example in tabs.
+- Architecture and functional-design diagrams, gallery assets and social
+  previews were refreshed.
+
+### Tests
+
+- 296 unit tests / 994 assertions; 14 integration tests / 16 assertions (6
+  external-service skips).
+- A unit test locks the auto-discovery entries for Laravel, ThinkPHP, Hyperf,
+  Yii2 and Yii3, and the Webman plugin installer.
+- `scripts/site-check.py` audits the docs, driver index and sample driver pages
+  at both viewports, including TOC scrolling and search.
 
 ## [2.1.2] - 2026-10-30
 

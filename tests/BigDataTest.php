@@ -132,4 +132,73 @@ final class BigDataTest extends TestCase
         $this->expectException(DriverUnavailableException::class);
         BigData::driver('cassandra', ['contact_points' => ['127.0.0.1:9042']]);
     }
+
+    public function test_composer_declares_framework_auto_discovery(): void
+    {
+        $composer = json_decode(
+            (string) file_get_contents(dirname(__DIR__) . '/composer.json'),
+            true,
+            flags: JSON_THROW_ON_ERROR,
+        );
+        $extra = $composer['extra'];
+
+        self::assertSame('yii2-extension', $composer['type']);
+        self::assertSame(
+            \Erikwang2013\BigData\Integration\Yii2\BigDataBootstrap::class,
+            $extra['bootstrap'],
+        );
+        self::assertSame(
+            [\Erikwang2013\BigData\Integration\Laravel\BigDataServiceProvider::class],
+            $extra['laravel']['providers'],
+        );
+        self::assertSame(
+            [\Erikwang2013\BigData\Integration\ThinkPHP\BigDataService::class],
+            $extra['think']['services'],
+        );
+        self::assertSame(
+            \Erikwang2013\BigData\Integration\Hyperf\ConfigProvider::class,
+            $extra['hyperf']['config'],
+        );
+        self::assertSame('params.php', $extra['config-plugin']['params']);
+        self::assertSame('di.php', $extra['config-plugin']['di']);
+        self::assertSame('config', $extra['config-plugin-options']['source-directory']);
+        self::assertFileExists(dirname(__DIR__) . '/config/params.php');
+        self::assertFileExists(dirname(__DIR__) . '/config/di.php');
+    }
+
+    public function test_webman_installer_writes_and_removes_plugin_bootstrap(): void
+    {
+        if (defined('BASE_PATH') || function_exists('base_path')) {
+            self::markTestSkipped('A Webman application root is already defined.');
+        }
+
+        $root = sys_get_temp_dir() . '/bigdata-webman-' . bin2hex(random_bytes(4));
+        mkdir($root . '/config', 0777, true);
+        if (!defined('BASE_PATH')) {
+            define('BASE_PATH', $root);
+        }
+
+        try {
+            \Erikwang2013\BigData\Install::install();
+            $directory = $root . '/config/plugin/erikwang2013/bigdata-php';
+            $file = $directory . '/bootstrap.php';
+            self::assertFileExists($file);
+            self::assertContains(
+                \Erikwang2013\BigData\Integration\Webman\Bootstrap::class,
+                require $file,
+            );
+            self::assertFileExists($directory . '/app.php');
+            self::assertTrue((require $directory . '/app.php')['enable']);
+
+            \Erikwang2013\BigData\Install::uninstall();
+            self::assertFileDoesNotExist($file);
+            self::assertFileDoesNotExist($directory . '/app.php');
+        } finally {
+            @rmdir($root . '/config/plugin/erikwang2013/bigdata-php');
+            @rmdir($root . '/config/plugin/erikwang2013');
+            @rmdir($root . '/config/plugin');
+            @rmdir($root . '/config');
+            @rmdir($root);
+        }
+    }
 }

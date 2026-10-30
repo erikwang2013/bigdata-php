@@ -3,3 +3,27 @@
 /.phpunit.cache/
 /.phpunit.result.cache
 /site/
+
+# Ruflo local secrets and runtime data
+.env
+.env.local
+.env.*.local
+.claude-flow/data/
+.claude-flow/logs/
+.claude-flow/sessions/
+
+# Codex local configuration
+.codex/
+# Claude Flow runtime data
+# Environment variables
+.claude
+.claude-flow
+.swarm
+.mcp.json
+ruvector.db
+.superpowers/state/target
+.agents
+
+# Python bytecode
+__pycache__/
+*.pyc

@@ -9,12 +9,15 @@
 
 ## Registration
 
-The package declares the service under `extra.think.services`. After
-installing, refresh the service map:
+The package declares the service under `extra.think.services`. The
+`topthink/think` skeleton runs discovery automatically after `composer
+require` through its `post-autoload-dump` script:
 
 ```bash
 php think service:discover
 ```
+
+Run that command by hand only when the project has no such script.
 
 Without auto-discovery, list the service in `app/service.php`:
 

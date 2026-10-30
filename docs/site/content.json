@@ -130,6 +130,12 @@
     "sub": "最近的发布记录，完整列表在 GitHub Releases。",
     "items": [
       {
+        "version": "v2.2.0",
+        "date": "2026-10-30",
+        "summary": "六个框架全部自动注册；新增独立文档页、19 个驱动页，更新安装说明、架构图与社交预览。",
+        "url": "https://github.com/erikwang2013/bigdata-php/releases/tag/v2.2.0"
+      },
+      {
         "version": "v2.1.2",
         "date": "2026-10-30",
         "summary": "项目宠物与 12 种表情加入循环动画；CI 升级 actions/checkout v7。",
@@ -158,12 +164,6 @@
         "date": "2026-10-30",
         "summary": "共享 HTTP/异常层、Hudi/Paimon S3、DeltaLog、Hive TLS、PHPStan 与框架冒烟测试。",
         "url": "https://github.com/erikwang2013/bigdata-php/releases/tag/v2.0.0"
-      },
-      {
-        "version": "v1.2.3",
-        "date": "2026-10-30",
-        "summary": "New data-octopus pet Duoduo, 12 expressions and README pet section.",
-        "url": "https://github.com/erikwang2013/bigdata-php/releases/tag/v1.2.3"
       }
     ]
   },
@@ -173,7 +173,7 @@
   },
   "docs": {
     "heading": "安装与使用",
-    "sub": "先安装，再跑一个最小示例。",
+    "sub": "一条 Composer 命令接入 19 个平台；完整文档见独立文档页。",
     "tabs": [
       {
         "id": "php",
@@ -181,14 +181,6 @@
         "meta": "PHP 8.0+ / Guzzle 7",
         "install": "composer require erikwang2013/bigdata-php",
         "usage": "use Erikwang2013\\BigData\\BigData;\n\n$trino = BigData::driver('trino', [\n    'host' => '127.0.0.1',\n    'port' => 8080,\n    'user' => 'php',\n    'catalog' => 'hive',\n    'schema' => 'default',\n]);\n\n$result = $trino->query('SELECT 1 AS id');\n\nforeach ($result->rows() as $row) {\n    echo $row[0], PHP_EOL;\n}",
-        "readme": "https://github.com/erikwang2013/bigdata-php#readme"
-      },
-      {
-        "id": "laravel",
-        "label": "Laravel",
-        "meta": "Laravel 9 / 10 / 11",
-        "install": "composer require erikwang2013/bigdata-php\nphp artisan vendor:publish --tag=bigdata-config",
-        "usage": "// bootstrap/providers.php (Laravel 11)\nreturn [\n    Erikwang2013\\BigData\\Integration\\Laravel\\BigDataServiceProvider::class,\n];\n\n$trino = app(\\Erikwang2013\\BigData\\Integration\\Manager::class)->driver('trino');",
         "readme": "https://github.com/erikwang2013/bigdata-php#readme"
       }
     ]
@@ -304,6 +296,9 @@
       "sub": "Recent releases; the full list is on GitHub Releases.",
       "items": [
         {
+          "summary": "All six frameworks auto-register; standalone docs and 19 driver pages, refreshed install docs, diagrams and social previews."
+        },
+        {
           "summary": "Looping animations for Duoduo and its 12 expressions; CI bumps actions/checkout to v7."
         },
         {
@@ -317,9 +312,6 @@
         },
         {
           "summary": "Shared HTTP/exception layer, Hudi/Paimon S3, DeltaLog, Hive TLS, PHPStan, and framework smoke tests."
-        },
-        {
-          "summary": "New data-octopus pet Duoduo, 12 expressions and README pet section."
         }
       ]
     },
@@ -346,15 +338,15 @@
     },
     "docs": {
       "heading": "Install and use",
-      "sub": "Install first, then run a minimal example.",
+      "sub": "One Composer command connects 19 platforms; the full documentation is on its own page.",
       "tabs": [
         {
+          "id": "php",
+          "label": "PHP",
           "meta": "PHP 8.0+ / Guzzle 7",
-          "label": "PHP"
-        },
-        {
-          "meta": "Laravel 9 / 10 / 11",
-          "label": "Laravel"
+          "install": "composer require erikwang2013/bigdata-php",
+          "usage": "use Erikwang2013\\BigData\\BigData;\n\n$trino = BigData::driver('trino', [\n    'host' => '127.0.0.1',\n    'port' => 8080,\n    'user' => 'php',\n    'catalog' => 'hive',\n    'schema' => 'default',\n]);\n\n$result = $trino->query('SELECT 1 AS id');\n\nforeach ($result->rows() as $row) {\n    echo $row[0], PHP_EOL;\n}",
+          "readme": "https://github.com/erikwang2013/bigdata-php#readme"
         }
       ]
     },

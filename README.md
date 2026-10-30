@@ -11,7 +11,7 @@
 
 项目站点：https://package.erik.xyz/bigdata/ （中文 / English）
 
-**快速链接**：[项目站点](https://package.erik.xyz/bigdata/) · [驱动文档](docs/drivers/) · [框架文档](docs/frameworks/) · [更新日志](CHANGELOG.md) · [版本发布](https://github.com/erikwang2013/bigdata-php/releases)
+**快速链接**：[项目站点](https://package.erik.xyz/bigdata/) · [完整文档](https://package.erik.xyz/bigdata/docs.html) · [驱动文档](https://package.erik.xyz/bigdata/drivers.html) · [驱动源码](docs/drivers/) · [框架文档](docs/frameworks/) · [更新日志](CHANGELOG.md) · [版本发布](https://github.com/erikwang2013/bigdata-php/releases)
 
 ## 目录
 
@@ -51,7 +51,7 @@
 - **湖仓元数据只读**：Iceberg REST Catalog、Hudi `.hoodie` 时间线、Paimon schema/snapshot、Delta Sharing 文件清单。
 - **无自动重试、无统一 SQL 层**：不做查询改写、事务编排、连接池或 ORM；每个驱动保持目标系统本身的语义。
 - **PHP 8.0+**：核心包不依赖任何框架；Laravel、ThinkPHP、Webman、Hyperf、Yii2、Yii3 适配器均为可选薄封装。
-- **测试覆盖**：294 个单元测试、978 个断言，另有 14 个集成测试（16 个断言，缺少外部服务时自动跳过），使用 mock HTTP、本地 fixture 和 fake server，不依赖真实集群。
+- **测试覆盖**：296 个单元测试、994 个断言，另有 14 个集成测试（16 个断言，缺少外部服务时自动跳过），使用 mock HTTP、本地 fixture 和 fake server，不依赖真实集群。
 
 ## 3. 环境要求
 
@@ -71,7 +71,7 @@
 |---|---|---|
 | Laravel | 9 / 10 / 11 | 9 为 8.0，10 为 8.1，11 为 8.2 |
 | ThinkPHP | 6 / 8 | 包本身要求 8.0；ThinkPHP 8 也要求 8.0 |
-| Webman | 1.x / 2.x | 1.x 为 8.0，2.x 为 8.1 |
+| Webman | 1.4+ / 2.x | 1.4+ 为 8.0，2.x 为 8.1 |
 | Hyperf | 3.x | 8.1，并需要 Swoole 5 |
 | Yii2 | 2.0.46+ | 8.0 |
 | Yii3 | 3.x | 8.1 |
@@ -85,6 +85,8 @@
 ```bash
 composer require erikwang2013/bigdata-php:^2.0
 ```
+
+包在 Composer 中声明为 `yii2-extension`，以便 Yii2 自动注册组件；Laravel、ThinkPHP、Webman、Hyperf、Yii3 和非 Yii2 项目仍按普通 Composer 库安装。框架注册细节见第 6 节。
 
 按需安装可选依赖：
 
@@ -168,6 +170,17 @@ $trino = new TrinoClient(TrinoConfig::fromArray([
 
 首次启动时，适配器按框架约定自动复制配置模板：Laravel、ThinkPHP、Webman、Yii2 写入 `config/bigdata.php`，Hyperf 写入 `config/autoload/bigdata.php`；Yii3 由 yiisoft/config 自动合并包内配置，无需复制。已有配置文件不会被覆盖。
 
+`composer require` 后的注册方式随框架规则不同：
+
+| 框架 | 注册方式 |
+|---|---|
+| Laravel | `extra.laravel.providers`，自动发现 |
+| ThinkPHP | `extra.think.services`，骨架在 `post-autoload-dump` 中执行 `service:discover` |
+| Hyperf | `extra.hyperf.config`，自动合并 `ConfigProvider` |
+| Yii3 | `extra.config-plugin`，yiisoft/config 自动合并 |
+| Webman | `post-package-install` 插件钩子自动写入 `config/plugin/erikwang2013/bigdata-php/`（`app.php` + `bootstrap.php`） |
+| Yii2 | `type=yii2-extension` + `extra.bootstrap`，`yiisoft/yii2-composer` 自动注册组件 |
+
 统一配置结构（所有框架相同）：
 
 ```php
@@ -200,23 +213,7 @@ return [
 
 ### Laravel
 
-```php
-// config/app.php — Laravel 9 / 10
-return [
-    'providers' => [
-        Erikwang2013\BigData\Integration\Laravel\BigDataServiceProvider::class,
-    ],
-];
-```
-
-```php
-// bootstrap/providers.php — Laravel 11
-return [
-    Erikwang2013\BigData\Integration\Laravel\BigDataServiceProvider::class,
-];
-```
-
-发布配置文件：
+包在 `extra.laravel.providers` 中声明服务提供者，`composer require` 后 Laravel 自动发现并注册，无需修改 `config/app.php` 或 `bootstrap/providers.php`。首次启动会自动写入 `config/bigdata.php`，已有文件不会被覆盖；也可以显式发布：
 
 ```bash
 php artisan vendor:publish --tag=bigdata-config
@@ -233,14 +230,7 @@ $airflow = app('bigdata')->driver('airflow');
 
 ### ThinkPHP
 
-```php
-// app/service.php
-return [
-    Erikwang2013\BigData\Integration\ThinkPHP\BigDataService::class,
-];
-```
-
-将 `src/Integration/ThinkPHP/config/bigdata.php` 复制到 `config/bigdata.php`，或按相同的 `default` / `drivers` 结构编写。服务注册后可通过容器别名或类名获取：
+包在 `extra.think.services` 中声明服务。使用 `topthink/think` 骨架时，`composer require` 触发的 `post-autoload-dump` 会自动执行 `php think service:discover`；旧项目或自定义骨架没有该脚本时，手动执行一次。首次启动会自动写入 `config/bigdata.php`，无需复制模板。
 
 ```php
 $manager = app('bigdata');
@@ -249,6 +239,10 @@ $trino = $manager->driver('trino');
 
 ### Webman
 
+包内置 Webman 插件安装器（`src/Install.php`）。`composer require` 时，Webman 骨架的 `post-package-install` 钩子会调用它，自动写入 `config/plugin/erikwang2013/bigdata-php/app.php` 和 `bootstrap.php`；Webman 启动时加载该配置并运行 `Bootstrap`。首次 worker 启动会自动写入 `config/bigdata.php`，无需手动改 `config/bootstrap.php`。
+
+如果 Webman 的插件钩子被禁用，再手动注册：
+
 ```php
 // config/bootstrap.php
 return [
@@ -256,7 +250,7 @@ return [
 ];
 ```
 
-将 `src/Integration/Webman/config/bigdata.php` 复制到 `config/bigdata.php`。适配器使用懒加载定义，每个 worker 进程拥有自己的 `Manager`：
+适配器使用懒加载定义，每个 worker 进程拥有自己的 `Manager`：
 
 ```php
 $manager = \support\Container::get(\Erikwang2013\BigData\Integration\Manager::class);
@@ -265,16 +259,13 @@ $trino = $manager->driver('trino');
 
 ### Hyperf
 
-```php
-// config/config.php
-return [
-    'config_providers' => [
-        Erikwang2013\BigData\Integration\Hyperf\ConfigProvider::class,
-    ],
-];
+包在 `extra.hyperf.config` 中声明 `ConfigProvider`，`composer require` 后自动参与配置提供者合并，无需手写 `config_providers`。首次启动会自动写入 `config/autoload/bigdata.php`；也可以显式发布：
+
+```bash
+php bin/hyperf.php vendor:publish erikwang2013/bigdata-php
 ```
 
-配置文件放在 `config/autoload/bigdata.php`，结构同上。Hyperf 3 需要 PHP 8.1 和 Swoole 5：
+Hyperf 3 需要 PHP 8.1 和 Swoole 5：
 
 ```php
 $manager = $container->get(\Erikwang2013\BigData\Integration\Manager::class);
@@ -283,7 +274,9 @@ $trino = $manager->driver('trino');
 
 ### Yii2
 
-Yii2 没有配置自动加载，组件从 `Yii::$app->params['bigdata']` 读取驱动配置：
+本包声明为 `type=yii2-extension`，并在 `extra.bootstrap` 中注册 `BigDataBootstrap`。`yiisoft/yii2-composer` 会把组件自动加入应用，无需修改 `config/web.php` 或 `config/console.php`；组件首次使用会自动写入 `config/bigdata.php`。非 Yii2 项目仍由 Composer 的默认安装器按普通库安装，不受影响。
+
+如果 Yii2 的 Composer 插件被禁用，再手动注册组件：
 
 ```php
 // config/web.php
@@ -291,15 +284,10 @@ return [
     'components' => [
         'bigdata' => Erikwang2013\BigData\Integration\Yii2\BigDataComponent::class,
     ],
-    'params' => [
-        'bigdata' => require __DIR__ . '/bigdata.php',
-    ],
 ];
 ```
 
-`config/bigdata.php` 返回统一的 `default` / `drivers` 结构；控制台应用也需要在 `config/console.php` 中做同样的配置。
-
-使用：
+驱动配置优先从 `Yii::$app->params['bigdata']` 读取；未设置时使用自动写入的 `config/bigdata.php`：
 
 ```php
 $trino = Yii::$app->bigdata->driver('trino');
@@ -307,7 +295,13 @@ $trino = Yii::$app->bigdata->driver('trino');
 
 ### Yii3
 
-Yii3 通过 `ConfigProvider` 提供默认参数和 DI 定义，应用侧覆盖 `erikwang2013/bigdata-php` 段即可：
+包在 `extra.config-plugin` 中声明 `params` 和 `di`，yiisoft/config 的 Composer 插件会在安装/更新时自动合并包内配置。应用需要允许该插件：
+
+```bash
+composer config allow-plugins.yiisoft/config true
+```
+
+无需复制文件；应用侧覆盖 `config/common/params.php` 中的 `erikwang2013/bigdata-php` 段即可：
 
 ```php
 // config/common/params.php
@@ -443,6 +437,7 @@ $latest = $table->latestCommit();
 bigdata-php/
 ├── src/
 │   ├── BigData.php              # 驱动注册、工厂与可选依赖检查
+│   ├── Install.php              # Webman 插件安装器
 │   ├── Driver/
 │   │   ├── Trino/
 │   │   ├── Hadoop/
@@ -506,7 +501,7 @@ composer test              # 单元测试，不依赖真实集群
 composer test-integration  # 集成测试，需要可用的外部服务
 ```
 
-单元测试使用 mock HTTP 客户端、本地 fixture 和 fake server，覆盖 294 个测试、978 个断言；另有 14 个集成测试。测试套件在 `phpunit.xml` 中分为 `unit` 和 `integration` 两组；默认的 `composer test` 只运行 `unit`，不包含 `tests/Integration`。
+单元测试使用 mock HTTP 客户端、本地 fixture 和 fake server，覆盖 296 个测试、994 个断言；另有 14 个集成测试。测试套件在 `phpunit.xml` 中分为 `unit` 和 `integration` 两组；默认的 `composer test` 只运行 `unit`，不包含 `tests/Integration`。
 
 集成测试按需运行，例如 Cassandra 需要可访问的实例；`demo/` 下提供了 Trino、Flink、Airflow 和 Cassandra 的 Docker Compose 配置，可作为本地验证起点。
 

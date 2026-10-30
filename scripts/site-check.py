@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit the built site with Chrome: LCP, CLS, overflow, search, lightbox, pets."""
+"""Audit the built site with Chrome: LCP, CLS, overflow, search, lightbox, pets, docs, drivers."""
 from __future__ import annotations
 
 import argparse
@@ -124,6 +124,70 @@ def check_ui(page: Page, errors: list[str]) -> list[str]:
     return notes
 
 
+def check_docs(page: Page, errors: list[str], *, min_links: int = 10, query: str = "Laravel") -> list[str]:
+    notes: list[str] = []
+
+    try:
+        sidebar = page.locator(".docs-sidebar a[href^='#']")
+        mobile = page.locator(".docs-mobile-nav a[href^='#']")
+        links = sidebar if sidebar.first.is_visible() else mobile
+        if links.count() < min_links:
+            errors.append(f"docs TOC: {links.count()} links, expected at least {min_links}")
+        else:
+            links.nth(min(3, links.count() - 1)).click()
+            page.wait_for_timeout(600)
+            if page.evaluate("window.scrollY") <= 0:
+                errors.append("docs TOC: link did not scroll")
+            else:
+                notes.append(f"docs TOC: {links.count()} links, scrolls")
+    except Exception:
+        errors.append("docs TOC: links missing or not clickable")
+
+    try:
+        page.locator("[data-search-open]").first.click()
+        page.wait_for_function("document.getElementById('search-dialog').open", timeout=5000)
+        page.locator("#search-input").fill(query)
+        page.wait_for_selector(".search-result", timeout=5000)
+        count = page.locator(".search-result").count()
+        page.locator(".search-result").first.click()
+        page.wait_for_timeout(600)
+        if page.evaluate("window.scrollY") <= 0:
+            errors.append("docs search: result did not scroll")
+        else:
+            notes.append(f"docs search: {count} results for {query}, scrolls to result")
+    except Exception:
+        errors.append("docs search: dialog or results did not open")
+
+    return notes
+
+
+def check_driver_index(page: Page, errors: list[str]) -> list[str]:
+    notes: list[str] = []
+
+    cards = page.locator(".driver-card")
+    if cards.count() < 19:
+        errors.append(f"driver index: {cards.count()} cards, expected at least 19")
+    else:
+        notes.append(f"driver index: {cards.count()} cards")
+
+    try:
+        page.locator("[data-search-open]").first.click()
+        page.wait_for_function("document.getElementById('search-dialog').open", timeout=5000)
+        page.locator("#search-input").fill("Trino")
+        page.wait_for_selector(".search-result", timeout=5000)
+        count = page.locator(".search-result").count()
+        page.locator(".search-result").first.click()
+        page.wait_for_timeout(600)
+        if page.evaluate("window.scrollY") <= 0:
+            errors.append("driver index search: result did not scroll")
+        else:
+            notes.append(f"driver index search: {count} results, scrolls to card")
+    except Exception:
+        errors.append("driver index search: dialog or results did not open")
+
+    return notes
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -175,6 +239,70 @@ def main() -> int:
                         for note in check_ui(page, failures):
                             print(f"[PASS] {note}")
                     context.close()
+
+                for path, label, min_links, query in (
+                    ("docs.html", "docs", 10, "Laravel"),
+                    ("en-docs.html", "docs-en", 10, "Laravel"),
+                    ("drivers/trino.html", "driver", 3, "Quick"),
+                    ("en-drivers/cassandra.html", "driver-en", 3, "Quick"),
+                ):
+                    for name, width, height in (
+                        ("mobile", 390, 844),
+                        ("desktop", 1440, 900),
+                    ):
+                        context = browser.new_context(
+                            viewport={"width": width, "height": height},
+                            device_scale_factor=1,
+                        )
+                        context.add_init_script(PERF_INIT)
+                        page = context.new_page()
+                        metrics, errors = measure(page, base, path)
+                        failures.extend(errors)
+                        lcp_ok = metrics["lcp"] <= LCP_LIMIT_MS
+                        cls_ok = metrics["cls"] <= CLS_LIMIT
+                        overflow_ok = metrics["overflow"] <= OVERFLOW_LIMIT_PX
+                        status = "PASS" if lcp_ok and cls_ok and overflow_ok else "FAIL"
+                        print(
+                            f"[{status}] {label:7} {name:7} {width}x{height}  "
+                            f"LCP {metrics['lcp']:.0f} ms (<= {LCP_LIMIT_MS:.0f})  "
+                            f"CLS {metrics['cls']:.3f} (<= {CLS_LIMIT})  "
+                            f"overflow {metrics['overflow']:.0f} px (<= {OVERFLOW_LIMIT_PX})"
+                        )
+                        if status == "FAIL":
+                            failures.append(f"{label}-{name}: LCP/CLS/overflow above threshold")
+                        for note in check_docs(page, failures, min_links=min_links, query=query):
+                            print(f"[PASS] {note}")
+                        context.close()
+
+                for path, label in (("drivers.html", "drivers"), ("en-drivers.html", "drivers-en")):
+                    for name, width, height in (
+                        ("mobile", 390, 844),
+                        ("desktop", 1440, 900),
+                    ):
+                        context = browser.new_context(
+                            viewport={"width": width, "height": height},
+                            device_scale_factor=1,
+                        )
+                        context.add_init_script(PERF_INIT)
+                        page = context.new_page()
+                        metrics, errors = measure(page, base, path)
+                        failures.extend(errors)
+                        lcp_ok = metrics["lcp"] <= LCP_LIMIT_MS
+                        cls_ok = metrics["cls"] <= CLS_LIMIT
+                        overflow_ok = metrics["overflow"] <= OVERFLOW_LIMIT_PX
+                        status = "PASS" if lcp_ok and cls_ok and overflow_ok else "FAIL"
+                        print(
+                            f"[{status}] {label:7} {name:7} {width}x{height}  "
+                            f"LCP {metrics['lcp']:.0f} ms (<= {LCP_LIMIT_MS:.0f})  "
+                            f"CLS {metrics['cls']:.3f} (<= {CLS_LIMIT})  "
+                            f"overflow {metrics['overflow']:.0f} px (<= {OVERFLOW_LIMIT_PX})"
+                        )
+                        if status == "FAIL":
+                            failures.append(f"{label}-{name}: LCP/CLS/overflow above threshold")
+                        if name == "mobile":
+                            for note in check_driver_index(page, failures):
+                                print(f"[PASS] {note}")
+                        context.close()
             finally:
                 browser.close()
     finally:

@@ -86,4 +86,7 @@ for name in ("index.html", "en.html", "404.html"):
 print("Injected docs/site/theme.css")
 PY
 
+python3 "$ROOT/scripts/build-docs-page.py"
+python3 "$ROOT/scripts/build-driver-pages.py"
+
 echo "Built $ROOT/site from $CONTENT (site/ is git-ignored)"
